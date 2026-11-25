@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="profile_import_file">Import</string>
+    <string name="profile_export_file">Export .vpn</string>
+    <string name="profile_import_summary">%1$s\n%2$s\n\nAfter importing, add any credentials required by the selected authentication method.</string>
+    <string name="profile_import_certificate">Server certificate fingerprint in this file\n%1$s\n\nVerify the fingerprint before trusting it.</string>
+    <string name="profile_import_trust">Import and trust</string>
+    <string name="profile_import_skip_certificate">Import profile only</string>
+    <string name="profile_import_unsupported">This file uses a connection or authentication mode that the app cannot import.</string>
+    <string name="profile_import_file_failed">Could not read this SoftEther profile in .vpn format.</string>
+    <string name="profile_import_save_failed">Could not save the imported profile.</string>
+    <string name="profile_export_file_failed">Export failed. Check the server address, server port, virtual Hub, and save location.</string>
+    <string name="profile_export_file_done">Profile exported. Add any required credentials after importing it.</string>
+</resources>

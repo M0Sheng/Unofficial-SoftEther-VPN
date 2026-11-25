@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="routing_bypass_count">%1$d address bypass rules · Reconnect to apply</string>
+    <string name="routing_bypass_invalid">Invalid rules. Tap to fix them.</string>
+    <string name="routing_bypass_root_empty">Choose addresses that bypass the VPN</string>
+    <string name="routing_bypass_root_description">Listed destinations use the underlying network. Enter one IPv4 or IPv6 address, CIDR subnet, or exact domain per line, or separate the entries with commas.\n\nValid entries include 192.0.2.0/24, 2001:db8::/32, and example.com. The underlying network resolves domains before connecting and refreshes them on reconnect. Services that share an IP address bypass the VPN together.\n\nEnter domain names without a URL scheme, port, or path. Rules apply to IP traffic from apps on this device. Save and reconnect to apply changes.</string>
+</resources>

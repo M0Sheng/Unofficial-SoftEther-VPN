@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="appearance_category">外观</string>
+    <string name="appearance_theme_title">主题</string>
+    <string-array name="appearance_theme_entries">
+        <item>@string/theme_mode_system</item>
+        <item>@string/theme_mode_light</item>
+        <item>@string/theme_mode_dark</item>
+    </string-array>
+    <string name="appearance_accent_title">强调色</string>
+    <string name="appearance_accent_system">跟随系统配色</string>
+    <string name="appearance_accent_blue">蓝色</string>
+    <string name="appearance_accent_teal">青绿色</string>
+    <string name="appearance_accent_purple">紫色</string>
+    <string name="appearance_accent_rose">玫红色</string>
+    <string name="appearance_accent_amber">琥珀色</string>
+    <string name="theme_settings_title">主题设置</string>
+    <string name="theme_settings_summary">%1$s · %2$s</string>
+    <string name="theme_preview_title">实时预览</string>
+    <string name="theme_preview_summary">预览连接状态卡和操作按钮的配色</string>
+    <string name="theme_mode_system">跟随系统</string>
+    <string name="theme_mode_light">浅色</string>
+    <string name="theme_mode_dark">深色</string>
+    <string name="theme_system_colors_title">使用系统配色</string>
+    <string name="theme_system_colors_summary">跟随 Android 从壁纸提取的配色，关闭后恢复上次选用的强调色。</string>
+</resources>

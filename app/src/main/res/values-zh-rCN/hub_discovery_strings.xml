@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="profile_hub_manual">可手动填写，或填写服务器地址和端口后自动查询。</string>
+    <string name="profile_hub_loading">正在查询可选的虚拟 Hub…</string>
+    <string name="profile_hub_available">可从右侧列表选择，也可手动填写。</string>
+    <string name="profile_hub_not_found">未查询到虚拟 Hub。请检查服务器地址和端口是否正确。可手动填写或点右侧箭头重试。</string>
+    <string name="profile_hub_review">点右侧箭头核对并记住证书后查询，也可手动填写。</string>
+    <string name="profile_hub_options">虚拟 Hub 查询选项</string>
+    <string name="profile_hub_choices">选择虚拟 Hub</string>
+    <string name="profile_hub_review_title">核对服务器证书</string>
+    <string name="profile_hub_review_message">服务器 %1$s\n\nSHA-256 指纹\n%2$s\n\n请向服务器管理员核对指纹。确认后会为此配置记住证书。若地址或端口有改动，证书将随配置一起保存。</string>
+    <string name="profile_hub_review_accept">记住并查询</string>
+    <string name="profile_hub_remember_failed">无法记住服务器证书，请核对当前配置后重试。</string>
+    <string name="profile_hub_certificate_verified">已核对服务器证书</string>
+    <string name="profile_hub_certificate_pending_save">保存配置后，VPN 连接会复用此证书。</string>
+    <string name="profile_hub_certificate_save_failed">无法同时保存配置和服务器证书，请重试。</string>
+</resources>

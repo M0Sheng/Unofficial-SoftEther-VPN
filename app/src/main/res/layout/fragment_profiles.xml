@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/ui_background">
+    <com.google.android.material.card.MaterialCardView
+        style="@style/HomeVpn.Ui.Panel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/ui_page_inset"
+        android:layout_marginEnd="@dimen/ui_page_inset"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="12dp">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
+            <TextView
+                android:id="@+id/profilesCount"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/ui_text_primary"
+                android:accessibilityHeading="true"
+                android:textAppearance="@style/TextAppearance.Material3.HeadlineSmall.Emphasized" />
+            <TextView
+                android:id="@+id/profilesNotice"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:lineSpacingExtra="2dp"
+                android:text="@string/profiles_list_hint"
+                android:textColor="@color/ui_text_secondary"
+                android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
+            <com.google.android.material.button.MaterialButtonGroup
+                style="@style/Widget.Material3Expressive.MaterialButtonGroup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:gravity="end"
+                app:overflowMode="wrap">
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/profilesImport"
+                    style="@style/Widget.Material3Expressive.Button.TonalButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end|top"
+                    android:minHeight="48dp"
+                    android:singleLine="false"
+                    android:text="@string/profile_import_file" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/profilesNew"
+                    style="@style/Widget.Material3Expressive.Button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end|top"
+                    android:minHeight="48dp"
+                    android:singleLine="false"
+                    android:text="@string/profile_new"
+                    app:icon="@drawable/profile_ic_add"
+                    app:iconGravity="textStart" />
+            </com.google.android.material.button.MaterialButtonGroup>
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/profilesList"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:paddingStart="@dimen/ui_page_inset"
+        android:paddingEnd="@dimen/ui_page_inset"
+        android:paddingTop="2dp"
+        android:paddingBottom="24dp"
+        android:clipToPadding="false" />
+</LinearLayout>

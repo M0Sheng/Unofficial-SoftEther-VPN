@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="profile_port_custom">Custom</string>
+    <string name="profile_port_options">Choose server port</string>
+    <string name="profile_category">Connection profiles</string>
+    <string name="profile_dashboard_label">CURRENT PROFILE</string>
+    <string name="profile_select">Select profile</string>
+    <string name="profile_current">Current profile: %1$s</string>
+    <string name="profile_selected_saved">%1$s\nSaved</string>
+    <string name="profile_selected_dirty">%1$s\nUnsaved changes</string>
+    <string name="profile_select_running">%1$s\nStop the VPN before selecting another profile.</string>
+    <string name="profile_server_empty">Server not configured</string>
+    <string name="profile_save">Save current profile</string>
+    <string name="profile_save_dirty">Save the current connection options and this profile’s server-certificate trust.</string>
+    <string name="profile_save_clean">Current profile is saved.</string>
+    <string name="profile_manage">Profile actions</string>
+    <string name="profile_manage_summary">New, rename, duplicate or delete</string>
+    <string name="profile_manage_running">You can create, rename, or copy profiles while connected. Stop the VPN before selecting another profile or deleting the active one.</string>
+    <string name="profile_scope">Each profile has its own connection settings, server-certificate trust, and TUN destination rules. App routing, TAP bypass rules, and remote management settings are shared.</string>
+    <string name="profile_new">New profile</string>
+    <string name="profile_rename">Rename profile</string>
+    <string name="profile_copy">Duplicate profile</string>
+    <string name="profile_delete">Delete profile</string>
+    <string name="profile_name">Profile name</string>
+    <string name="profile_name_description">Use 1–64 characters. Open the profile editor to set the connection details.</string>
+    <string name="profile_name_invalid">Enter a name of 1–64 characters.</string>
+    <string name="profile_copy_name">%1$s copy</string>
+    <string name="profile_copy_description">Copy the current connection options and this profile’s server-certificate trust into an independent profile.</string>
+    <string name="profile_unsaved_title">Unsaved changes</string>
+    <string name="profile_unsaved_message">Save the current profile before continuing, or discard its unsaved changes.</string>
+    <string name="profile_save_continue">Save and continue</string>
+    <string name="profile_discard_continue">Discard and continue</string>
+    <string name="profile_delete_message">Delete “%1$s”, including its saved connection options and server-certificate trust? Another saved profile will be selected. This cannot be undone.</string>
+    <string name="profile_stop_first">Stop the VPN before switching profiles or deleting the active profile.</string>
+    <string name="profile_changed">The active profile changed. Open this action again.</string>
+    <string name="profile_read_failed">Could not read the profiles. Reopen this page and try again.</string>
+    <string name="profile_operation_complete">Profile updated.</string>
+    <string name="profile_operation_failed">Could not update the profile. Check the name and available storage, then try again.</string>
+</resources>

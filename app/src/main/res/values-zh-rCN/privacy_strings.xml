@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="vpn_disclosure_title">VPN 流量访问</string>
+    <string name="vpn_disclosure_message">Unofficial SoftEther VPN 读取网络数据包，并按照你的设置转发。应用在后台运行时也会继续转发。TUN 使用 Android 的 VpnService，TAP 使用由 Root 管理的以太网接口。\n\n应用管理的标准连接会与所配置的 SoftEther 服务器建立 TLS 会话。该服务器会接收转发流量，并可适用自己的隐私规则。高级 TAP 账户可以使用不同的传输和加密设置。\n\nTAP 的 NAT 穿透和可选的 UDP 加速可能向 SoftEther 的发现服务发送 IP 地址、端口等连接元数据。应用不会向开发者另行发送 VPN 流量。</string>
+    <string name="app_inventory_disclosure_title">访问已安装的应用</string>
+    <string name="app_inventory_disclosure_message">Unofficial SoftEther VPN 读取已安装应用的名称、包名和 Android UID，用于显示分应用路由列表，并在本机应用分流规则。TAP 应用地址规则或恢复路由时也可能读取此列表。\n\n列表在本机使用，应用不会将它发送给 VPN 服务器或开发者。诊断日志可能包含部分包名，你可以自行导出日志。</string>
+    <string name="disclosure_accept">同意并继续</string>
+    <string name="disclosure_decline">暂不同意</string>
+    <string name="disclosure_save_failed">无法保存选择，请重试。</string>
+    <string name="privacy_connection_required">请先阅读并同意相关说明，再启动 VPN。</string>
+    <string name="privacy_summary_title">隐私</string>
+    <string name="privacy_summary">VPN 流量会转发到你配置的服务器。VPN 凭据、信任的服务器证书和分流设置保存在应用私有存储中。已安装应用列表用于在本机应用分流规则。你可以在「日志」页开启采集并手动导出。采集的记录暂存在内存中，应用进程退出时清除。你可以删除保存的配置、清空已采集日志，或在 Android 设置中清除应用数据。</string>
+</resources>

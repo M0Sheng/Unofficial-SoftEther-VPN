@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="profile_port_custom">カスタム</string>
+    <string name="profile_port_options">サーバーのポートを選択</string>
+    <string name="profile_category">接続プロファイル</string>
+    <string name="profile_dashboard_label">現在のプロファイル</string>
+    <string name="profile_select">プロファイルを選択</string>
+    <string name="profile_current">現在のプロファイル：%1$s</string>
+    <string name="profile_selected_saved">%1$s\n保存済み</string>
+    <string name="profile_selected_dirty">%1$s\n未保存の変更</string>
+    <string name="profile_select_running">%1$s\n別のプロファイルを選択する前に VPN を切断してください。</string>
+    <string name="profile_server_empty">サーバーが設定されていません</string>
+    <string name="profile_save">現在のプロファイルを保存</string>
+    <string name="profile_save_dirty">現在の接続設定と、このプロファイルのサーバー証明書の信頼設定を保存します。</string>
+    <string name="profile_save_clean">現在のプロファイルは保存済みです。</string>
+    <string name="profile_manage">プロファイルの操作</string>
+    <string name="profile_manage_summary">新規作成、名前変更、複製、削除</string>
+    <string name="profile_manage_running">接続中でもプロファイルを作成、名前変更、複製できます。別のプロファイルを選択したり、使用中のプロファイルを削除したりする前に VPN を切断してください。</string>
+    <string name="profile_scope">接続設定、サーバー証明書の信頼設定、TUN の宛先ルールはプロファイルごとに保存されます。アプリ別ルーティング、TAP のバイパスルール、遠隔管理の設定は共有されます。</string>
+    <string name="profile_new">新しいプロファイル</string>
+    <string name="profile_rename">プロファイル名を変更</string>
+    <string name="profile_copy">プロファイルを複製</string>
+    <string name="profile_delete">プロファイルを削除</string>
+    <string name="profile_name">プロファイル名</string>
+    <string name="profile_name_description">1～64 文字を入力してください。接続の詳細はプロファイルの編集画面で設定します。</string>
+    <string name="profile_name_invalid">1～64 文字の名前を入力してください。</string>
+    <string name="profile_copy_name">%1$s のコピー</string>
+    <string name="profile_copy_description">現在の接続設定とこのプロファイルのサーバー証明書の信頼設定を、独立したプロファイルにコピーします。</string>
+    <string name="profile_unsaved_title">未保存の変更</string>
+    <string name="profile_unsaved_message">続行する前に現在のプロファイルを保存するか、未保存の変更を破棄してください。</string>
+    <string name="profile_save_continue">保存して続行</string>
+    <string name="profile_discard_continue">破棄して続行</string>
+    <string name="profile_delete_message">「%1$s」と、保存された接続設定およびサーバー証明書の信頼設定を削除しますか？別の保存済みプロファイルが選択されます。この操作は元に戻せません。</string>
+    <string name="profile_stop_first">プロファイルを切り替えたり、使用中のプロファイルを削除したりする前に VPN を切断してください。</string>
+    <string name="profile_changed">選択中のプロファイルが変更されました。この操作を開き直してください。</string>
+    <string name="profile_read_failed">プロファイルを読み込めませんでした。この画面を開き直して再試行してください。</string>
+    <string name="profile_operation_complete">プロファイルを更新しました。</string>
+    <string name="profile_operation_failed">プロファイルを更新できませんでした。名前とストレージの空き容量を確認して再試行してください。</string>
+</resources>

@@ -1,0 +1,12 @@
+{
+  "sourceCommit": "ed17437af9719ac66acab30faa29e375d613c35f",
+  "sourcePath": "src/Mayaqua/Encrypt.c:MY_SHA0_hash",
+  "method": "Exact official C implementation extracted with its notices, compiled as a host DLL and invoked directly; no Kotlin implementation used to generate expected values",
+  "vectors": [
+    { "ascii": "", "sha0": "f96cea198ad1dd5617ac084a3d92c6107708c0ef" },
+    { "ascii": "abc", "sha0": "0164b8a914cd2a5e74c4f7ff082c4d97f1edf880" },
+    { "ascii": "abcdefghijkl", "sha0": "46ec20a71c8d17d44ff61b590205f466a58081aa" },
+    { "repeatAscii": "a", "count": 55, "sha0": "0ff59f7cb9afc10d7abcdc9ab8c00e0e7b02034f" },
+    { "repeatAscii": "a", "count": 56, "sha0": "f826f1db56ddb270e25f21a7a40c4163b51c47ff" }
+  ]
+}

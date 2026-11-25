@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="profiles_count">%1$d profiles</string>
+    <string name="profiles_empty_hint">Create a profile or import a SoftEther profile in .vpn format to connect.</string>
+    <string name="profiles_list_hint">Tap a card to select it. Use its menu to edit or manage it. Server-certificate trust is separate for each profile.</string>
+    <string name="profiles_list_running">Other profiles can still be managed. Stop the VPN before selecting a different profile.</string>
+    <string name="profiles_select_stop">Stop the VPN before selecting another profile.</string>
+    <string name="profiles_selected">Selected</string>
+    <string name="profiles_selected_dirty">Selected · Unsaved changes</string>
+    <string name="profiles_menu_for">Actions for %1$s</string>
+    <string name="profiles_edit">Edit</string>
+    <string name="profiles_edit_title">Edit profile</string>
+    <string name="profiles_back">Back to profiles</string>
+    <string name="profiles_delete_stop">Stop the VPN before deleting the profile currently in use.</string>
+    <string name="profiles_delete_target">Delete “%1$s” and its server-certificate trust? This cannot be undone. Other profiles will be kept.</string>
+    <string name="profiles_editor_notice">Only this profile is updated when saved. Saving does not select it or start a connection.</string>
+    <string name="profiles_editor_busy">This profile is in use. Stop the VPN before saving. Your draft remains on this page.</string>
+    <string name="profiles_editor_missing">This profile no longer exists or cannot be read. Return to the list and try again.</string>
+    <string name="profiles_editor_busy_or_missing">The profile is in use or unavailable. Your draft has not been saved.</string>
+    <string name="profiles_editor_conflict">Another window changed this profile. Your draft is preserved. Return and reopen the profile before editing again.</string>
+    <string name="profiles_editor_saved">Profile saved.</string>
+    <string name="profiles_editor_reloaded">The profile was reloaded after the app restarted. The previous unsaved draft was not restored.</string>
+    <string name="profiles_editor_leave">Save before returning, or discard this page’s unsaved changes. Newly created or duplicated profiles are not automatically deleted.</string>
+    <string name="profiles_discard_back">Discard and return</string>
+    <string name="profiles_editor_scope">Existing backend, routing and TLS options are preserved. Server-certificate trust stays separate for this profile.</string>
+    <string name="profiles_host_invalid">Enter only the server hostname or IP address, without a URL scheme or path.</string>
+</resources>

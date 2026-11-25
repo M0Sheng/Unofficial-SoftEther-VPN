@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="network_runtime_error_root_access">TAP 模式未获得 Root 权限。请在 Root 管理器中授权 Unofficial SoftEther VPN，或在设置中选择免 Root 的 TUN 模式。</string>
+    <string name="network_runtime_error_root_authorization_timeout">等待 Root 授权超时。请在 Root 管理器中授权 Unofficial SoftEther VPN，或在设置中选择免 Root 的 TUN 模式。</string>
+    <string name="network_runtime_status_network_switch_waiting">网络已切换，正在等待 Wi-Fi 或移动数据以重新连接 VPN…</string>
+    <string name="app_language_japanese">日本語</string>
+</resources>

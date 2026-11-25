@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tun_ipv6_discovering">Obtaining the VPN IPv6 address…</string>
+    <string name="tun_ipv6_active">IPv6 forwarding is enabled</string>
+    <string name="tun_ipv6_no_targets">No IPv6 destinations match the selected rules. IPv6 traffic uses the underlying network.</string>
+    <string name="tun_ipv6_no_advertisement">IPv6 is blocked because the VPN network did not provide a usable prefix or required route.</string>
+    <string name="tun_ipv6_duplicate_address">IPv6 is blocked because a duplicate address was detected.</string>
+    <string name="tun_ipv6_mtu_too_small">IPv6 is blocked because the TUN MTU is below the 1280-byte minimum.</string>
+    <string name="tun_ipv6_disabled_full">IPv6 forwarding is off. Apps using the VPN cannot reach IPv6.</string>
+    <string name="tun_ipv6_disabled_lan">IPv6 forwarding is off. IPv6 traffic uses the underlying network.</string>
+    <string name="tun_ipv6_refresh">Refreshing the VPN IPv6 address or routes</string>
+    <string name="tun_ipv6_ipv4_only">Connected over IPv4. IPv6 is unavailable.</string>
+</resources>

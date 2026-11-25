@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="routing_help">Routing help</string>
+    <string name="app_routing_actions">App list actions</string>
+</resources>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="light_blue_200">#81D4FA</color><color name="light_blue_500">#03A9F4</color><color name="light_blue_700">#0288D1</color>
+    <color name="yellow_700">#F57C00</color><color name="black">#000000</color><color name="white">#FFFFFF</color>
+    <color name="ui_warning">#926300</color>
+    <color name="ui_vpn_enabled">#12633D</color>
+    <color name="ui_vpn_disabled">#A52C40</color>
+    <color name="ui_vpn_enabled_container">#DAF5E6</color>
+    <color name="ui_vpn_disabled_container">#FDE8EB</color>
+</resources>

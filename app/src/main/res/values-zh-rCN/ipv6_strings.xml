@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ipv6_forward_title">IPv6 转发</string>
+    <string name="ipv6_forward_native_on">通过 TAP 转发 IPv6。地址和路由取决于 VPN 侧网络提供的路由器通告。修改后重新连接生效。</string>
+    <string name="ipv6_forward_native_off">停止通过 TAP 转发 IPv6 帧。重新连接后刷新系统地址和路由。</string>
+    <string name="ipv6_forward_tun_full_on">通过 TUN 转发 IPv6。VPN 侧需要提供可用的 IPv6 地址和默认路由。缺少时保留 IPv4 连接，首页会显示 IPv6 状态。</string>
+    <string name="ipv6_forward_tun_lan_on">通过 TUN 转发 VPN 侧提供的 IPv6 子网，其余目的地址使用原网络。缺少可用子网时保留 IPv4 连接，首页会显示 IPv6 状态。</string>
+    <string name="ipv6_forward_tun_full_off">IPv6 转发已关闭。使用 VPN 的应用无法访问 IPv6。</string>
+    <string name="ipv6_forward_tun_lan_off">IPv6 转发已关闭。IPv6 流量使用原网络。</string>
+    <string name="ipv6_forward_backend_unavailable">此开关仅在对应的 TAP 或 TUN 接入方式下生效。</string>
+    <string name="ipv6_forward_tun_modern_on">按分地址路由转发 IPv6。VPN 侧需要提供可用的 IPv6 地址和所需路由。修改后重新连接生效。</string>
+    <string name="ipv6_forward_tun_include_off">IPv6 流量使用原网络。使用 IPv6 地址或网段规则前，请开启 IPv6 转发。修改后重新连接生效。</string>
+    <string name="ipv6_forward_tun_other_off">使用 VPN 的应用无法访问 IPv6。使用 IPv6 地址或网段规则前，请开启 IPv6 转发。修改后重新连接生效。</string>
+    <string name="ipv6_forward_tun_invalid">分地址路由设置无效，请打开对应页面检查后保存。</string>
+</resources>

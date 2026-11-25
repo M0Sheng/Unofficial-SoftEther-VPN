@@ -1,0 +1,232 @@
+name: Build Android APK
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v[0-9]*'
+  workflow_dispatch:
+    inputs:
+      build_play_bundle:
+        description: Build a signed Google Play bundle
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-apk-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref_type == 'branch' }}
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    outputs:
+      signed: ${{ steps.signing.outputs.available }}
+      artifact-id: ${{ steps.upload.outputs.artifact-id }}
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+
+      - name: Read APK version and check release tag
+        id: version
+        shell: bash
+        run: |
+          name=$(sed -nE 's/^[[:space:]]*versionName[[:space:]]+"([0-9]+\.[0-9]+\.[0-9]+)"[[:space:]]*$/\1/p' app/build.gradle)
+          code=$(sed -nE 's/^[[:space:]]*versionCode[[:space:]]+([0-9]+)[[:space:]]*$/\1/p' app/build.gradle)
+          if [[ ! "$name" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ || ! "$code" =~ ^[0-9]+$ ]]; then
+            echo "Version name or code is missing from app/build.gradle." >&2
+            exit 1
+          fi
+          if [[ "$GITHUB_EVENT_NAME" == push && "$GITHUB_REF_TYPE" == tag && "$GITHUB_REF_NAME" != "v$name" ]]; then
+            echo "The Git tag must match the versionName in app/build.gradle." >&2
+            exit 1
+          fi
+          printf 'name=%s\ncode=%s\n' "$name" "$code" >> "$GITHUB_OUTPUT"
+
+      - name: Check release signing availability
+        id: signing
+        if: (github.event_name == 'push' && github.ref_type == 'tag') || inputs.build_play_bundle
+        shell: bash
+        env:
+          BUILD_PLAY_BUNDLE: ${{ inputs.build_play_bundle }}
+          ANDROID_KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_B64 }}
+          ANDROID_SIGNING_PROPERTIES_B64: ${{ secrets.ANDROID_SIGNING_PROPERTIES_B64 }}
+        run: |
+          if [[ -n "$ANDROID_KEYSTORE_B64" && -n "$ANDROID_SIGNING_PROPERTIES_B64" ]]; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          elif [[ "$BUILD_PLAY_BUNDLE" == true ]]; then
+            echo "The Google Play bundle requires both release signing secrets." >&2
+            exit 1
+          else
+            echo "available=false" >> "$GITHUB_OUTPUT"
+            echo "Signing secrets are unavailable. This run produces debug APKs in the Actions artifact." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Prepare Java and Android SDK
+        shell: bash
+        run: |
+          set -u
+          export JAVA_HOME="${JAVA_HOME_21_X64:?Java 21 is missing}"
+          export PATH="$JAVA_HOME/bin:$PATH"
+          printf 'JAVA_HOME=%s\n' "$JAVA_HOME" >> "$GITHUB_ENV"
+          printf '%s\n' "$JAVA_HOME/bin" >> "$GITHUB_PATH"
+          java -version
+          packages=()
+          [[ -f "$ANDROID_HOME/platforms/android-36/android.jar" ]] || packages+=('platforms;android-36')
+          [[ -x "$ANDROID_HOME/build-tools/36.0.0/zipalign" ]] || packages+=('build-tools;36.0.0')
+          [[ -x "$ANDROID_HOME/ndk/28.2.13676358/toolchains/llvm/prebuilt/linux-x86_64/bin/clang" ]] || packages+=('ndk;28.2.13676358')
+          if (( ${#packages[@]} )); then
+            sdkmanager="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+            if [[ ! -x "$sdkmanager" ]]; then sdkmanager=$(command -v sdkmanager); fi
+            "$sdkmanager" --sdk_root="$ANDROID_HOME" --licenses < <(yes) > /dev/null
+            "$sdkmanager" --sdk_root="$ANDROID_HOME" --install "${packages[@]}"
+          fi
+
+      - name: Build the native SoftEther core
+        shell: bash
+        run: bash .github/scripts/build-native-core.sh
+
+      - name: Build and test the Rust TUN engine
+        shell: bash
+        run: bash .github/scripts/build-rust-tun.sh
+
+      - name: Verify staged native inputs
+        shell: bash
+        run: python3 .github/scripts/verify-android-package.py native
+
+      - name: Build and test debug APKs
+        if: steps.signing.outputs.available != 'true'
+        shell: bash
+        run: bash ./gradlew --no-daemon --console=plain :app:assembleDebug :app:testDebugUnitTest :app:lintDebug
+
+      - name: Build and test signed APKs
+        if: steps.signing.outputs.available == 'true'
+        shell: bash
+        env:
+          BUILD_PLAY_BUNDLE: ${{ inputs.build_play_bundle }}
+          ANDROID_KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_B64 }}
+          ANDROID_SIGNING_PROPERTIES_B64: ${{ secrets.ANDROID_SIGNING_PROPERTIES_B64 }}
+        run: |
+          umask 077
+          mkdir signing
+          trap 'rm -f -- signing/homevpn.p12 signing/signing.properties; rmdir -- signing' EXIT
+          printf '%s' "$ANDROID_KEYSTORE_B64" | base64 --decode > signing/homevpn.p12
+          printf '%s' "$ANDROID_SIGNING_PROPERTIES_B64" | base64 --decode > signing/signing.properties
+          unset ANDROID_KEYSTORE_B64 ANDROID_SIGNING_PROPERTIES_B64
+          tasks=(:app:assembleRelease :app:testDebugUnitTest :app:lintDebug)
+          if [[ "$BUILD_PLAY_BUNDLE" == true ]]; then tasks+=(:app:bundleRelease); fi
+          bash ./gradlew --no-daemon --console=plain "${tasks[@]}"
+
+      - name: Verify APKs and prepare the downloads
+        shell: bash
+        env:
+          SIGNED_BUILD: ${{ steps.signing.outputs.available }}
+          VERSION_NAME: ${{ steps.version.outputs.name }}
+          VERSION_CODE: ${{ steps.version.outputs.code }}
+        run: |
+          tools="$ANDROID_HOME/build-tools/36.0.0"
+          if [[ "$SIGNED_BUILD" == true ]]; then
+            variant=release
+            suffix=''
+          else
+            variant=debug
+            suffix='-debug'
+          fi
+          output="$RUNNER_TEMP/softether-apk"
+          python3 .github/scripts/stage-android-apks.py "app/build/outputs/apk/$variant" "$output" "$VERSION_NAME" "$variant"
+
+          expected='7133b406460c254d9348faef75eee696900f156b3e9c149339f488f72a3a12c9'
+          identity="package: name='io.github.m0sheng.unofficialsoftethervpn' versionCode='$VERSION_CODE' versionName='$VERSION_NAME'"
+          assets=()
+          for abi in universal armeabi-v7a arm64-v8a x86 x86_64; do
+            asset="Unofficial-SoftEther-VPN-${VERSION_NAME}-${abi}${suffix}.apk"
+            apk="$output/$asset"
+            signature=$("$tools/apksigner" verify --print-certs "$apk")
+            if [[ "$SIGNED_BUILD" == true ]] && ! grep -Fxq "Signer #1 certificate SHA-256 digest: $expected" <<< "$signature"; then
+              echo "The signing certificate for $asset does not match the existing release key." >&2
+              exit 1
+            fi
+            "$tools/zipalign" -c -P 16 4 "$apk"
+            badging=$("$tools/aapt" dump badging "$apk")
+            if [[ "$badging" != "$identity"* ]]; then
+              echo "Application ID or version for $asset differs from app/build.gradle." >&2
+              exit 1
+            fi
+            abi_args=()
+            if [[ "$abi" != universal ]]; then abi_args=(--abi "$abi"); fi
+            python3 .github/scripts/verify-android-package.py apk "$apk" "${abi_args[@]}"
+            assets+=("$asset")
+          done
+          (cd "$output" && sha256sum -- "${assets[@]}" > SHA256SUMS.txt)
+
+      - name: Upload verified APKs
+        id: upload
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: Unofficial-SoftEther-VPN-all-abis
+          path: ${{ runner.temp }}/softether-apk/
+          if-no-files-found: error
+          compression-level: 0
+          overwrite: true
+
+      - name: Verify the Google Play bundle
+        if: inputs.build_play_bundle
+        shell: bash
+        env:
+          VERSION_NAME: ${{ steps.version.outputs.name }}
+        run: |
+          bundle=app/build/outputs/bundle/release/app-release.aab
+          signature=$(jarsigner -J-Duser.language=en -verify "$bundle")
+          grep -Fxq 'jar verified.' <<< "$signature"
+          python3 .github/scripts/verify-android-package.py aab "$bundle"
+          output="$RUNNER_TEMP/softether-play"
+          mkdir -p "$output"
+          asset="Unofficial-SoftEther-VPN-$VERSION_NAME.aab"
+          cp -- "$bundle" "$output/$asset"
+          (cd "$output" && sha256sum "$asset" > SHA256SUMS.txt)
+
+      - name: Upload the Google Play bundle
+        if: inputs.build_play_bundle
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: Unofficial-SoftEther-VPN-Play-bundle
+          path: ${{ runner.temp }}/softether-play/
+          if-no-files-found: error
+          compression-level: 0
+
+  publish:
+    if: github.event_name == 'push' && github.ref_type == 'tag' && needs.build.outputs.signed == 'true'
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - name: Download verified signed APKs
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          artifact-ids: ${{ needs.build.outputs.artifact-id }}
+          path: ${{ runner.temp }}/softether-apk
+          merge-multiple: true
+
+      - name: Publish GitHub prerelease
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cd "$RUNNER_TEMP/softether-apk"
+          sha256sum --check SHA256SUMS.txt
+          version="${GITHUB_REF_NAME#v}"
+          assets=()
+          for abi in universal armeabi-v7a arm64-v8a x86 x86_64; do
+            assets+=("Unofficial-SoftEther-VPN-$version-$abi.apk")
+          done
+          gh release create "$GITHUB_REF_NAME" "${assets[@]}" SHA256SUMS.txt \
+            --repo "$GITHUB_REPOSITORY" --verify-tag --prerelease \
+            --title "Unofficial SoftEther VPN $GITHUB_REF_NAME" \
+            --notes 'Choose the universal APK for any supported device, or download the smaller APK that matches your device architecture. SHA256SUMS.txt covers all five APKs.'

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="network_security_heading">[加密与服务器证书]</string>
+    <string name="network_security_tls_version">TLS 协商版本：%1$s</string>
+    <string name="network_security_cipher">TLS 密码套件：%1$s</string>
+    <string name="network_security_encryption">VPN 数据加密：%1$s</string>
+    <string name="network_security_encryption_on">已启用</string>
+    <string name="network_security_encryption_off">已关闭</string>
+    <string name="network_security_subject">服务器证书：%1$s</string>
+    <string name="network_security_issuer">签发者：%1$s</string>
+    <string name="network_security_expiry">到期时间：%1$s</string>
+    <string name="network_security_fingerprint_sha256">SHA-256 指纹：%1$s</string>
+    <string name="network_security_fingerprint_sha1">SHA-1 指纹：%1$s</string>
+    <string name="network_security_verification">证书验证：%1$s</string>
+    <string name="network_security_system_ca">系统 CA 和主机名验证通过</string>
+    <string name="network_security_saved_pin">已核对保存的证书</string>
+    <string name="network_security_native_verified">原生核心验证通过</string>
+    <string name="network_security_unverified">未验证</string>
+    <string name="network_security_unknown">未报告</string>
+</resources>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_routing_title">アプリ別ルーティング</string>
+    <string name="app_routing_summary_mode">%1$s · 再接続すると変更が反映されます</string>
+    <string name="app_routing_summary_invalid">現在のモードを読み込めませんでした。選択し直してください。</string>
+    <string name="app_routing_tun_hint">TUN では、アプリと宛先に応じて通信をルーティングします。</string>
+    <string name="app_routing_root_hint">TAP のアプリリストは、アプリの IP 通信とデフォルトの DNS リクエストに適用されます。</string>
+    <string name="app_routing_white_empty">許可リストに、インストール済みで対象となるアプリがありません。接続するには、アプリを 1 つ以上選択してください。</string>
+    <string name="app_routing_mode_exclude">ブロックリスト</string>
+    <string name="app_routing_mode_include">許可リスト</string>
+    <string name="app_routing_mode_all">すべてのアプリ</string>
+    <string name="app_routing_black_hint">選択したアプリは VPN を経由せずに通信します。その他のアプリは VPN のルートに従います。</string>
+    <string name="app_routing_white_hint">選択したアプリだけが VPN のルートに従います。その他のアプリは基盤ネットワークを使用します。</string>
+    <string name="app_routing_all_hint">すべてのアプリが VPN のルートに従います。選択内容は他のモードでも使えるように保存されます。</string>
+    <string name="app_routing_search">アプリ名またはパッケージ名で検索</string>
+    <string name="app_routing_show_system">システムアプリを表示</string>
+    <string name="app_routing_selected_count">%1$d 件選択済み · %2$d 件未インストール</string>
+    <string name="app_routing_empty">該当するアプリがありません</string>
+    <string name="app_routing_not_installed">未インストールのアプリ</string>
+    <string name="app_routing_system_marker">システムアプリ</string>
+    <string name="app_routing_shared_marker">共有 UID %1$d</string>
+    <string name="app_routing_shared_title">同じ UID のアプリには同じルーティングルールが適用されます</string>
+    <string name="app_routing_shared_message">Android の VPN アプリリストは UID 単位で適用されます。以下のアプリは UID を共有しているため、いずれかを選択すると他のアプリも選択されます。\n\n%1$s</string>
+    <string name="app_routing_shared_more">他 %1$d 件のアプリ</string>
+    <string name="app_routing_confirm">確認</string>
+    <string name="app_routing_cancel">キャンセル</string>
+    <string name="app_routing_clear">選択を解除</string>
+    <string name="app_routing_refresh">アプリ一覧を更新</string>
+    <string name="app_routing_help_message">TAP と TUN は、アプリと宛先の両方を確認します。ここで設定したルールとアドレスルーティングのルールの両方に一致した通信だけが VPN を経由します。\n\nブロックリストでは、選択したアプリが基盤ネットワークを使用し、その他のアプリは VPN のルートに従います。\n\n許可リストでは、選択したアプリだけが VPN のルートに従い、その他のアプリは基盤ネットワークを使用します。インストール済みで対象となるアプリを 1 つ以上選択してください。\n\n「すべてのアプリ」では、対象のアプリが VPN のルートに従います。選択内容はブロックリストと許可リストでも使えるように保存されます。\n\nリストは、現在の Android ユーザーまたは仕事用プロファイルに適用されます。UID を共有するアプリには同じルートが適用されます。TAP のアプリリストはデフォルトの DNS リクエストにも影響します。重要なシステムサービスは Android がルーティングを管理します。TUN では、Android の「VPN を使用しない接続をブロックする」設定によって、基盤ネットワークを使用するアプリの通信が制限されることがあります。\n\n変更は自動的に保存されます。再接続すると反映されます。</string>
+    <string name="app_routing_load_error">アプリ一覧を読み込めませんでした（%1$s）</string>
+    <string name="app_routing_loading">インストール済みのアプリを読み込み中…</string>
+    <string name="app_routing_row_accessibility">%1$s、%2$s</string>
+    <string name="app_routing_selected">選択済み</string>
+    <string name="app_routing_unselected">未選択</string>
+    <string name="app_routing_root_system_uid">このアプリは重要なシステムサービスと UID を共有しています。ルーティングは Android が管理します。</string>
+</resources>

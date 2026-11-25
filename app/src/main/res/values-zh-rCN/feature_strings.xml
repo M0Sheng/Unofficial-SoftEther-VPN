@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_battery_usage_title">应用省电</string>
+    <string name="app_battery_usage_summary">如果 VPN 在息屏后断开，可在系统应用详情中将「应用省电」设为「无限制」。</string>
+    <string name="app_battery_usage_open_failed">请从系统设置手动打开本应用的详情页，调整应用省电设置。</string>
+    <string name="diagnostic_logs_title">日志</string>
+    <string name="diagnostic_logs_summary">采集、筛选和导出诊断日志</string>
+    <string name="section_support_information">支持与信息</string>
+    <string name="section_appearance">外观与快捷操作</string>
+    <string name="notification_traffic_title">通知栏显示流量</string>
+    <string name="notification_traffic_summary">VPN 连接成功后显示隧道速率和累计流量</string>
+    <string name="notification_traffic_permission_denied">未允许通知权限，通知流量开关已关闭。</string>
+    <string name="quick_tile_add">添加快捷开关</string>
+    <string name="quick_tile_add_hint">从 Android 快捷设置启动或停止 VPN。</string>
+    <string name="quick_connect_working">正在处理 VPN 连接…</string>
+    <string name="quick_tile_added">快捷开关已添加</string>
+    <string name="quick_tile_not_added">可在快捷设置的编辑页面添加“Unofficial SoftEther VPN”</string>
+    <string name="backend_mode_native">TAP</string>
+    <string name="pref_backend_mode_native_summary">TAP · 二层（数据链路层）· 需要 Root</string>
+    <string name="native_command_title">vpncmd 命令</string>
+    <string name="native_command_summary">使用 vpncmd 管理 TAP 的账号、证书、代理和连接参数</string>
+    <string name="native_management_only_title">仅启动管理服务</string>
+    <string name="native_management_only_summary">仅适用于 TAP。启动管理服务后，可在高级管理中配置账号、证书认证和代理。VPN 连接需手动启动。</string>
+    <string name="native_managed_endpoint">由高级管理配置，可用 AccountGet 查看</string>
+    <string name="native_command_execute">执行命令</string>
+    <string name="native_command_service_unavailable">请先启动 TAP 管理服务。</string>
+    <string name="native_management_running">TAP 管理服务正在运行，连接状态见应用。</string>
+    <string name="native_management_started">TAP 管理服务已启动。已暂停账号自动连接，已保存的网卡可能恢复。可用 vpncmd 配置服务器连接和虚拟网卡。</string>
+    <string name="native_management_server_disconnected">TAP 管理服务正在运行，尚未连接服务器。可用 vpncmd 配置并连接。</string>
+</resources>

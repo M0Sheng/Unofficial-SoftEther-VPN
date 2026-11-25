@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_routing_title">Per-app routing</string>
+    <string name="app_routing_summary_mode">%1$s · Reconnect to apply changes</string>
+    <string name="app_routing_summary_invalid">Could not read the current mode. Select it again.</string>
+    <string name="app_routing_tun_hint">TUN routes traffic by app and destination.</string>
+    <string name="app_routing_root_hint">The TAP app list applies to IP traffic and default DNS requests from apps.</string>
+    <string name="app_routing_white_empty">The allowlist has no eligible installed apps. Select at least one app to connect.</string>
+    <string name="app_routing_mode_exclude">Blocklist</string>
+    <string name="app_routing_mode_include">Allowlist</string>
+    <string name="app_routing_mode_all">All apps</string>
+    <string name="app_routing_black_hint">Selected apps bypass the VPN. Other apps follow the VPN routes.</string>
+    <string name="app_routing_white_hint">Only selected apps follow the VPN routes. All other apps use the underlying network.</string>
+    <string name="app_routing_all_hint">All apps follow the VPN routes. Your selections are saved for use in other modes.</string>
+    <string name="app_routing_search">Search by app name or package name</string>
+    <string name="app_routing_show_system">Show system apps</string>
+    <string name="app_routing_selected_count">%1$d selected · %2$d not installed</string>
+    <string name="app_routing_empty">No matching apps</string>
+    <string name="app_routing_not_installed">App not installed</string>
+    <string name="app_routing_system_marker">System app</string>
+    <string name="app_routing_shared_marker">Shared UID %1$d</string>
+    <string name="app_routing_shared_title">Apps with the same UID share routing rules</string>
+    <string name="app_routing_shared_message">Android applies VPN app lists by UID. Selecting any of the apps below also selects the others because they share a UID.\n\n%1$s</string>
+    <string name="app_routing_shared_more">%1$d more apps</string>
+    <string name="app_routing_confirm">Confirm</string>
+    <string name="app_routing_cancel">Cancel</string>
+    <string name="app_routing_clear">Clear selection</string>
+    <string name="app_routing_refresh">Refresh apps</string>
+    <string name="app_routing_help_message">Both TAP and TUN check the app and the destination. Traffic goes through the VPN only when it matches the rules here and in Address routing.\n\nIn Blocklist mode, selected apps use the underlying network. Other apps follow the VPN routes.\n\nIn Allowlist mode, only selected apps follow the VPN routes. Other apps use the underlying network. Select at least one eligible installed app.\n\nIn All apps mode, eligible apps follow the VPN routes. The same selections are saved for Blocklist and Allowlist modes.\n\nThe list applies to the current Android user or work profile. Apps that share a UID follow the same routes. The TAP app list also affects default DNS requests from apps. Android manages routing for critical system services. When using TUN, Android’s “Block connections without VPN” setting may restrict apps that use the underlying network.\n\nChanges are saved automatically. Reconnect to apply them.</string>
+    <string name="app_routing_load_error">Could not load the app list (%1$s)</string>
+    <string name="app_routing_loading">Loading installed apps…</string>
+    <string name="app_routing_row_accessibility">%1$s, %2$s</string>
+    <string name="app_routing_selected">Selected</string>
+    <string name="app_routing_unselected">Not selected</string>
+    <string name="app_routing_root_system_uid">This app shares a UID with critical system services. Android manages its routing.</string>
+</resources>

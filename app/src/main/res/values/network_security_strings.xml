@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="network_security_heading">[Encryption and server certificate]</string>
+    <string name="network_security_tls_version">Negotiated TLS version: %1$s</string>
+    <string name="network_security_cipher">TLS cipher suite: %1$s</string>
+    <string name="network_security_encryption">VPN data encryption: %1$s</string>
+    <string name="network_security_encryption_on">Enabled</string>
+    <string name="network_security_encryption_off">Disabled</string>
+    <string name="network_security_subject">Server certificate: %1$s</string>
+    <string name="network_security_issuer">Issuer: %1$s</string>
+    <string name="network_security_expiry">Expires: %1$s</string>
+    <string name="network_security_fingerprint_sha256">SHA-256 fingerprint: %1$s</string>
+    <string name="network_security_fingerprint_sha1">SHA-1 fingerprint: %1$s</string>
+    <string name="network_security_verification">Certificate verification: %1$s</string>
+    <string name="network_security_system_ca">Verified by system CA and hostname</string>
+    <string name="network_security_saved_pin">Verified against the saved certificate</string>
+    <string name="network_security_native_verified">Verified by the native core</string>
+    <string name="network_security_unverified">Unverified</string>
+    <string name="network_security_unknown">Unavailable</string>
+</resources>

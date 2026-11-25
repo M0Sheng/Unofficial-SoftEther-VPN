@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="profile_import_file">インポート</string>
+    <string name="profile_export_file">.vpn をエクスポート</string>
+    <string name="profile_import_summary">%1$s\n%2$s\n\nインポート後、選択した認証方式に必要な認証情報を追加してください。</string>
+    <string name="profile_import_certificate">このファイルのサーバー証明書のフィンガープリント\n%1$s\n\n信頼する前にフィンガープリントを確認してください。</string>
+    <string name="profile_import_trust">インポートして信頼</string>
+    <string name="profile_import_skip_certificate">プロファイルのみインポート</string>
+    <string name="profile_import_unsupported">このファイルの接続方式または認証方式はインポートに対応していません。</string>
+    <string name="profile_import_file_failed">この .vpn 形式の SoftEther プロファイルを読み込めませんでした。</string>
+    <string name="profile_import_save_failed">インポートしたプロファイルを保存できませんでした。</string>
+    <string name="profile_export_file_failed">エクスポートに失敗しました。サーバーのアドレスとポート、仮想 Hub、保存先を確認してください。</string>
+    <string name="profile_export_file_done">プロファイルをエクスポートしました。インポート後に必要な認証情報を追加してください。</string>
+</resources>

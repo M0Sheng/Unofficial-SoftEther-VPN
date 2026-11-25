@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="native_remote_category">PC からの管理</string>
+    <string name="native_remote_enable_title">リモートクライアント管理を許可</string>
+    <string name="native_remote_enable_summary">TAP と管理パスワードが必要です。有効にすると、すべてのネットワークインターフェースで接続を待ち受けます。既存の暗号化された VPN 経路を使用してください。このスイッチやパスワードを変更すると、実行中の TAP セッションが終了します。新しい設定を適用するには再接続してください。</string>
+    <string name="native_remote_native_only">TAP でのみ使用できます。切断中にも設定でき、その際に VPN は起動しません。</string>
+    <string name="native_remote_password_title">リモート管理パスワードを設定</string>
+    <string name="native_remote_password_rules">空白を含まない 12〜128 文字の表示可能な ASCII 文字を使用してください。パスワード欄は復元や自動入力が行われません。SoftEther の管理プロトコルが使用する SHA-0 ハッシュのみが保存されます。</string>
+    <string name="native_remote_new_password">新しい管理パスワード</string>
+    <string name="native_remote_confirm_password">管理パスワードを再入力</string>
+    <string name="native_remote_password_save">パスワードを保存</string>
+    <string name="native_remote_password_mismatch">パスワードが一致しません。</string>
+    <string name="native_remote_password_saved">管理パスワードを保存しました。TAP が動作中だった場合は、新しいパスワードを使うために再接続してください。</string>
+    <string name="native_remote_password_failed">管理パスワードを保存できませんでした。もう一度お試しください。</string>
+    <string name="native_remote_password_required">管理パスワードを設定してからリモート管理を有効にしてください。</string>
+    <string name="native_remote_password_configured">パスワードは設定済みです。コアが認証情報ファイルを受け付けない場合は、新しいパスワードを設定してください。</string>
+    <string name="native_remote_password_unset">有効な管理パスワードが設定されていません。リモートアクセスを有効にする前にパスワードを設定または再設定してください。</string>
+    <string name="native_remote_connection_title">PC から接続</string>
+    <string name="native_remote_connection_summary">現在の Wi-Fi と仮想アダプターのアドレス、TCP 9930、VPN Client Manager と vpncmd の使用方法を表示します。管理 RPC は TLS を使用しません。</string>
+    <string name="native_remote_no_addresses">現在利用可能な Wi-Fi または仮想アダプターのアドレスがありません。先に Wi-Fi または VPN に接続してください。</string>
+    <string name="native_remote_connection_help">端末の現在のネットワークアドレス（TCP 9930、参考情報）:\n%1$s\n\n先にリモート管理を有効にして TAP 管理サービスを起動してください。VPN に接続していなくてもコアは動作します。管理ポートが開いていても、VPN が接続されているとは限りません。\n\nWindows: SoftEther VPN Client Manager を開き、「Manage SoftEther VPN Client on a Separate Computer」を選択します。ホスト欄には、到達可能な端末の Wi-Fi または仮想アダプターの IP アドレスのみを入力します。ポート番号は不要です。リモート管理パスワードで接続してください。VPN Server Manager ではなく Client Manager を使用してください。\n\nコマンドライン:\nvpncmd PHONE_IP /CLIENT\nIPv6 の場合は角括弧なしでアドレスをそのまま指定してください。ホスト名の末尾に :9930 を付けないでください。管理ポートは vpncmd が選択します。コマンドにパスワードを書かず、入力を求められたときに入力してください。\n\nSoftEther の管理プロトコルは TLS で暗号化されません。既存の暗号化された VPN 経路から端末の VPN アドレスに接続し、信頼できるネットワークでのみアクセスを有効にしてください。Wi-Fi や LAN から管理機能に直接接続する場合、このプロトコルでは暗号化されません。PC から選択した端末 IP へ到達できるルートが必要です。\n\n一覧には現在のインターフェースが表示されます。接続可能かどうかや、コアが接続を待ち受けているかどうかは確認していません。クライアントのホスト欄には接続先全体ではなく IP アドレスのみを入力してください。\n\nSoftEther のドキュメント: https://www.softether.org/4-docs/1-manual/4/4.7</string>
+    <string name="native_remote_interface_address">%1$s（%2$s）  %3$s</string>
+</resources>

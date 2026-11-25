@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="profile_auth_type">Authentication type</string>
+    <string name="profile_auth_anonymous">Anonymous</string>
+    <string name="profile_auth_standard_password">Standard password</string>
+    <string name="profile_auth_external_password">RADIUS or NT domain</string>
+    <string name="profile_auth_client_certificate">Client certificate</string>
+    <string name="profile_auth_smartcard_unavailable">Smart card (unavailable on Android)</string>
+    <string name="profile_auth_anonymous_rejected">Anonymous authentication failed. Check the username and the server’s authentication settings.</string>
+    <string name="profile_auth_certificate_rejected">Client certificate authentication failed. Check the username, certificate, and server settings.</string>
+    <string name="profile_auth_certificate_hint">Choose an X.509 client certificate and its unencrypted RSA private key. The app encrypts the key when saving it.</string>
+    <string name="profile_auth_select_certificate">Import client certificate</string>
+    <string name="profile_auth_replace_certificate">Replace client certificate</string>
+    <string name="profile_auth_select_key">Import RSA private key</string>
+    <string name="profile_auth_replace_key">Replace RSA private key</string>
+    <string name="profile_auth_invalid_certificate">Choose a valid RSA client certificate in PEM or DER format.</string>
+    <string name="profile_auth_invalid_key">Choose an unencrypted RSA private key in PEM or PKCS#8 DER format.</string>
+    <string name="profile_auth_pair_mismatch">The client certificate and private key do not match or could not be read.</string>
+</resources>

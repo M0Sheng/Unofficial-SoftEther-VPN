@@ -1,0 +1,2 @@
+rootProject.name = "Unofficial SoftEther VPN"
+include ':app'

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tun_ipv6_discovering">VPN の IPv6 アドレスを取得しています…</string>
+    <string name="tun_ipv6_active">IPv6 転送が有効です</string>
+    <string name="tun_ipv6_no_targets">選択したルールに一致する IPv6 の宛先がありません。IPv6 通信は基盤ネットワークを使用します。</string>
+    <string name="tun_ipv6_no_advertisement">VPN ネットワークから利用可能なプレフィックスまたは必要なルートが提供されなかったため、IPv6 通信をブロックしています。</string>
+    <string name="tun_ipv6_duplicate_address">アドレスの重複を検出したため、IPv6 通信をブロックしています。</string>
+    <string name="tun_ipv6_mtu_too_small">TUN の MTU が最小値の 1280 バイトを下回っているため、IPv6 通信をブロックしています。</string>
+    <string name="tun_ipv6_disabled_full">IPv6 転送はオフです。VPN を使用するアプリは IPv6 で通信できません。</string>
+    <string name="tun_ipv6_disabled_lan">IPv6 転送はオフです。IPv6 通信は基盤ネットワークを使用します。</string>
+    <string name="tun_ipv6_refresh">VPN の IPv6 アドレスまたはルートを更新しています</string>
+    <string name="tun_ipv6_ipv4_only">IPv4 で接続しています。IPv6 は利用できません。</string>
+</resources>

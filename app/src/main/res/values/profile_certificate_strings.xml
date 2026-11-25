@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="profile_cert_title">This profile’s remembered server certificate</string>
+    <string name="profile_cert_saved">Server certificate remembered</string>
+    <string name="profile_cert_empty">No certificate remembered for this server</string>
+    <string name="profile_cert_read_failed">Could not read this profile’s certificate</string>
+    <string name="profile_cert_endpoint">Saved server: %1$s</string>
+    <string name="profile_cert_endpoint_empty">No valid server address has been saved.</string>
+    <string name="profile_cert_save_endpoint">Save the server address before managing its certificate.</string>
+    <string name="profile_cert_stale_editor">Another window changed this profile. Reopen it before managing its certificate.</string>
+    <string name="profile_cert_busy">The fingerprint can be viewed while connected. Stop the VPN before forgetting this profile’s certificate.</string>
+    <string name="profile_cert_first_connection">The next connection will verify the certificate and request confirmation if needed.</string>
+    <string name="profile_cert_manage_hint">View its SHA-256 fingerprint or forget this profile’s remembered certificate.</string>
+    <string name="profile_cert_manage">View fingerprint and manage</string>
+    <string name="profile_cert_scope">This card manages trust remembered by the app’s automatic connection. Android manages system CAs. SoftEther manages certificate settings for accounts configured through TAP management.</string>
+    <string name="profile_cert_details">Profile: %1$s\nSaved server: %2$s\n\nSHA-256\n%3$s\n\nForgetting removes only this profile’s remembered certificate for this address and port. The next connection will verify it again.</string>
+    <string name="profile_cert_forget_action">Forget this certificate</string>
+    <string name="profile_cert_close">Close</string>
+    <string name="profile_cert_forgotten">This profile’s certificate was forgotten. The next connection will verify it again.</string>
+    <string name="profile_cert_forget_failed">The certificate was not removed. The profile or certificate may have changed, the VPN may be running, or storage could not be updated. Close this view and try again.</string>
+</resources>

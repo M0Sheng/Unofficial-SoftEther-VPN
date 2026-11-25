@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="vpn_virtual_adapter">虚拟网卡</string>
+    <string name="vpn_virtual_adapter_interface">系统接口名：%1$s</string>
+    <string name="vpn_virtual_adapter_waiting">正在等待 Android 为虚拟网卡配置网络</string>
+    <string name="vpn_virtual_adapter_connected">虚拟网卡已连接</string>
+    <string name="vpn_virtual_adapter_not_ready">虚拟网卡尚未就绪</string>
+</resources>

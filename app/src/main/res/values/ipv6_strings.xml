@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ipv6_forward_title">IPv6 forwarding</string>
+    <string name="ipv6_forward_native_on">Forward IPv6 through TAP. Addresses and routes depend on router advertisements from the VPN-side network. Reconnect to apply changes.</string>
+    <string name="ipv6_forward_native_off">Stop forwarding IPv6 frames through TAP. Reconnect to refresh the system addresses and routes.</string>
+    <string name="ipv6_forward_tun_full_on">Forward IPv6 through TUN when the VPN provides a usable IPv6 address and default route. IPv4 remains connected if either is missing. Check the home page for IPv6 status.</string>
+    <string name="ipv6_forward_tun_lan_on">Forward the advertised VPN IPv6 subnet through TUN. Other destinations use the original network. IPv4 remains connected if no usable subnet is available. Check the home page for IPv6 status.</string>
+    <string name="ipv6_forward_tun_full_off">IPv6 forwarding is off. Apps using the VPN cannot reach IPv6 destinations.</string>
+    <string name="ipv6_forward_tun_lan_off">IPv6 forwarding is off. IPv6 traffic uses the original network.</string>
+    <string name="ipv6_forward_backend_unavailable">This switch applies only to its matching TAP or TUN access method.</string>
+    <string name="ipv6_forward_tun_modern_on">Forward IPv6 according to destination routing. The VPN must provide a usable IPv6 address and the required routes. Reconnect to apply changes.</string>
+    <string name="ipv6_forward_tun_include_off">IPv6 traffic uses the original network. Enable IPv6 forwarding to use IPv6 address or subnet rules. Reconnect to apply changes.</string>
+    <string name="ipv6_forward_tun_other_off">Apps using the VPN cannot reach IPv6 destinations. Enable IPv6 forwarding to use IPv6 address or subnet rules. Reconnect to apply changes.</string>
+    <string name="ipv6_forward_tun_invalid">Destination routing settings are invalid. Open destination routing to review and save them.</string>
+</resources>

@@ -1,0 +1,98 @@
+plugins {
+    id 'com.android.application'
+    id 'kotlin-android'
+}
+
+def homeSigningFile = rootProject.file('signing/signing.properties')
+def homeSigning = new Properties()
+if (homeSigningFile.exists()) {
+    homeSigningFile.withInputStream { homeSigning.load(it) }
+}
+
+def distributionAssets = layout.buildDirectory.dir('generated/distribution-assets')
+def bundleLicenses = tasks.register('bundleLicenses', Sync) {
+    into(distributionAssets)
+    into('licenses') {
+        from(rootProject.file('LICENSE')) { rename { 'Project-Apache-2.0.txt' } }
+        from(rootProject.file('NOTICE')) { rename { 'NOTICE.txt' } }
+    }
+}
+
+android {
+    namespace "kittoku.mvc"
+
+    compileSdk 36
+    buildToolsVersion "36.0.0"
+    ndkVersion "28.2.13676358"
+
+    defaultConfig {
+        applicationId "io.github.m0sheng.unofficialsoftethervpn"
+        minSdk 36
+        targetSdk 36
+        versionCode 247
+        versionName "1.8.67"
+        resourceConfigurations += ['en', 'zh-rCN', 'ja']
+    }
+
+    splits {
+        abi {
+            enable true
+            reset()
+            include 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
+            universalApk true
+        }
+    }
+
+    signingConfigs {
+        if (homeSigningFile.exists()) {
+            homeRelease {
+                storeFile rootProject.file(homeSigning.getProperty('storeFile'))
+                storePassword homeSigning.getProperty('storePassword')
+                keyAlias homeSigning.getProperty('keyAlias')
+                keyPassword homeSigning.getProperty('keyPassword')
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            if (homeSigningFile.exists()) signingConfig signingConfigs.homeRelease
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt')
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+
+    buildFeatures {
+        viewBinding true
+        buildConfig true
+    }
+
+    sourceSets.main.assets.srcDir(distributionAssets)
+
+    packaging {
+        jniLibs { useLegacyPackaging true }
+    }
+}
+
+tasks.named('preBuild') {
+    dependsOn(bundleLicenses)
+}
+
+dependencies {
+    implementation 'androidx.core:core-ktx:1.16.0'
+    implementation 'androidx.appcompat:appcompat:1.7.1'
+    implementation "androidx.preference:preference-ktx:1.2.1"
+    implementation 'com.google.android.material:material:1.14.0'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
+}

@@ -1,0 +1,137 @@
+[
+    {
+        "path":  "BuildHamcore.java",
+        "size":  3858,
+        "sha256":  "df5286f9feee07c2dc4464d6e97e37afadd04628417633b512ffd86ed6e12d8f"
+    },
+    {
+        "path":  "CMakeLists.txt",
+        "size":  2737,
+        "sha256":  "00dcf3b107c0707987e2af8b0dcc1c6fa0e1304aa1f85b49762972035660a721"
+    },
+    {
+        "path":  "compat/android_console.c",
+        "size":  1166,
+        "sha256":  "e13f4724f60362f68e2963634d8c3f7d65e4d5e31794f550962b645441ca6741"
+    },
+    {
+        "path":  "compat/android_frame.c",
+        "size":  5296,
+        "sha256":  "0786dda08f20afea758250ffdccf74879e29942384855ad286cb35fce602060b"
+    },
+    {
+        "path":  "compat/android_runtime.c",
+        "size":  22004,
+        "sha256":  "7158e77131c969a6d8214a74452bddbca384f413de960223cf92bec3c5706be2"
+    },
+    {
+        "path":  "compat/include/homevpn_android.h",
+        "size":  1043,
+        "sha256":  "df5439e1fd26e599a461207aa4eaeccc5711ff3d85ac68173715e7eee6c33b9c"
+    },
+    {
+        "path":  "compat/include/homevpn_frame.h",
+        "size":  1485,
+        "sha256":  "1201a64fe76fff15760ddb546716cc3261672e48dda3c115a1cf0f2aecb63ca0"
+    },
+    {
+        "path":  "compat/include/homevpn_legacy_instance.h",
+        "size":  590,
+        "sha256":  "18435ccef869b34ed6aa92f6b9de8a470895e6323e12e8018bb27d93fc1557e7"
+    },
+    {
+        "path":  "compat/include/homevpn_managed_tap.h",
+        "size":  1374,
+        "sha256":  "cb0604b8b4f018ec60c424cd96796ebe1a5611b9b1f51813ebe683d83bb2af89"
+    },
+    {
+        "path":  "compat/include/homevpn_rpc_auth.h",
+        "size":  1196,
+        "sha256":  "230880966d0935c71b6976c0f6cde039b622b842ebe206c58a74fd0e3853230b"
+    },
+    {
+        "path":  "compat/include/readline/history.h",
+        "size":  111,
+        "sha256":  "336390c5ba2eee696be1fc9c1cbad9292c4bf41d271a48f41e8559929a2e4f52"
+    },
+    {
+        "path":  "compat/include/readline/readline.h",
+        "size":  130,
+        "sha256":  "681b084d55bb174a6105097a9ea9f47306bb12640f08410d002845fe3fefea38"
+    },
+    {
+        "path":  "FUNCTION_MATRIX.md",
+        "size":  5669,
+        "sha256":  "e0ed7641499adcae49f29cdfa9190f9b6cf5ac206f3285cb0a4d0ef0fbdb5a0f"
+    },
+    {
+        "path":  "licenses/OpenSSL-Apache-2.0.txt",
+        "size":  10352,
+        "sha256":  "ed72ce2b51ee58f117e5a021e2e04af158857f40269fbc03491f0b2a99dbcc96"
+    },
+    {
+        "path":  "licenses/OpenSSL-prebuilt-source-repository-LICENSE.txt",
+        "size":  11552,
+        "sha256":  "118262e1a71b5bcd762bfbee81478db2b9fe835c2510c9a52f60ca6c72e51187"
+    },
+    {
+        "path":  "licenses/SoftEther-Apache-2.0.txt",
+        "size":  14014,
+        "sha256":  "5da6241ddb987c4543bf1cbba6b40a3cd3ecb624dbd4a63daf04440911656bde"
+    },
+    {
+        "path":  "licenses/SoftEther-LICENSE.txt",
+        "size":  14014,
+        "sha256":  "5da6241ddb987c4543bf1cbba6b40a3cd3ecb624dbd4a63daf04440911656bde"
+    },
+    {
+        "path":  "licenses/SoftEther-THIRD_PARTY.txt",
+        "size":  43756,
+        "sha256":  "b07b09ffc00cd77c0024577a39c7cb7a8ee6d65717d643cade31b818c9fef664"
+    },
+    {
+        "path":  "README.md",
+        "size":  7313,
+        "sha256":  "e46427f0241c83f3d4b643ec2267bb52ccfdd021f5de0bfe0e3b4b2692e786cd"
+    },
+    {
+        "path":  "softether-android.patch",
+        "size":  46293,
+        "sha256":  "332fc188a8830f9d76a6551ab723a6f11ccf48394d0792e3c9e2853de0396660"
+    },
+    {
+        "path":  "test-auth-policy.ps1",
+        "size":  1084,
+        "sha256":  "e0e8419ba47c12e4bd371d1bca8f828e72f6c915d18e824edba427f3aca39d01"
+    },
+    {
+        "path":  "test-managed-tap-policy.ps1",
+        "size":  1113,
+        "sha256":  "beeda9b1a3ca15b9a7cc8e35f46d3574edfe16ef33ef3795a960f7a18c651483"
+    },
+    {
+        "path":  "test-official-sha0-vectors.ps1",
+        "size":  1855,
+        "sha256":  "ef8c1d5c1518a09b52aa9be0fe6c3922a1807858a895111269886c816f1ad58f"
+    },
+    {
+        "path":  "tests/managed_tap_policy_test.c",
+        "size":  2769,
+        "sha256":  "616140298ccdf8ce8df3f4b15a5a359aa2524b9a05fbdbad88bf83341ff142a5"
+    },
+    {
+        "path":  "tests/official-sha0-vectors.json",
+        "size":  736,
+        "sha256":  "122471951d67c5a68920ff84807552242fac24cb39560b7fa47ef514f40d4868"
+    },
+    {
+        "path":  "tests/official_sha0_host.c",
+        "size":  5292,
+        "sha256":  "ed80aa8bc15c41d1d3df685d1938f10f0b299b4339892ae20fe454458af3a280"
+    },
+    {
+        "path":  "tests/rpc_auth_policy_test.c",
+        "size":  1407,
+        "sha256":  "dd0c667e66ea73d798fa47c3135de291a35a39cb9588eada097d43dd43fef852"
+    }
+]

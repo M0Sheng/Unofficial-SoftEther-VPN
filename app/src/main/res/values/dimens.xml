@@ -1,0 +1,5 @@
+<resources>
+    <dimen name="ui_page_inset">16dp</dimen>
+    <dimen name="ui_panel_radius">16dp</dimen>
+    <dimen name="ui_toolbar_height">68dp</dimen>
+</resources>

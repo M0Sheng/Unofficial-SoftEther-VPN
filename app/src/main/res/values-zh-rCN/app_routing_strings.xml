@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_routing_title">分应用路由</string>
+    <string name="app_routing_summary_mode">%1$s · 修改后重新连接生效</string>
+    <string name="app_routing_summary_invalid">无法读取当前模式，请重新选择</string>
+    <string name="app_routing_tun_hint">TUN 同时按应用和目的地址选路。</string>
+    <string name="app_routing_root_hint">TAP 应用名单用于 IP 流量和应用默认的 DNS 请求。</string>
+    <string name="app_routing_white_empty">白名单当前没有已安装的可用应用，连接将被拒绝。请至少选择一个应用。</string>
+    <string name="app_routing_mode_exclude">黑名单</string>
+    <string name="app_routing_mode_include">白名单</string>
+    <string name="app_routing_mode_all">所有应用</string>
+    <string name="app_routing_black_hint">所选应用绕过 VPN，其余应用遵循 VPN 路由。</string>
+    <string name="app_routing_white_hint">仅所选应用遵循 VPN 路由，其余应用使用原网络。</string>
+    <string name="app_routing_all_hint">所有应用遵循 VPN 路由。勾选名单仅保留。</string>
+    <string name="app_routing_search">搜索应用名称或包名</string>
+    <string name="app_routing_show_system">显示系统应用</string>
+    <string name="app_routing_selected_count">已选 %1$d · 未安装 %2$d</string>
+    <string name="app_routing_empty">没有匹配的应用</string>
+    <string name="app_routing_not_installed">未安装的应用</string>
+    <string name="app_routing_system_marker">系统应用</string>
+    <string name="app_routing_shared_marker">共享 UID %1$d</string>
+    <string name="app_routing_shared_title">共享 UID 的应用将一起应用规则</string>
+    <string name="app_routing_shared_message">Android 按 UID 应用 VPN 名单。以下应用共享 UID，无法单独区分，勾选时将一并选择：\n\n%1$s</string>
+    <string name="app_routing_shared_more">另有 %1$d 个应用</string>
+    <string name="app_routing_confirm">确认</string>
+    <string name="app_routing_cancel">取消</string>
+    <string name="app_routing_clear">清空选择</string>
+    <string name="app_routing_refresh">刷新应用</string>
+    <string name="app_routing_help_message">TAP 和 TUN 都会同时检查应用和目的地址。应用符合这里的规则，目的地址也符合「分地址路由」，流量才会经过 VPN。\n\n黑名单模式下，勾选的应用使用原网络，其余应用按 VPN 路由。\n\n白名单模式下，只有勾选的应用按 VPN 路由，其余应用使用原网络。请至少勾选一个已安装的可用应用。\n\n所有应用模式下，符合条件的应用按 VPN 路由。已有勾选会保留，供黑名单和白名单共用。\n\n名单适用于当前 Android 用户或工作资料。共享同一 UID 的应用一起选路。TAP 的名单也影响应用的默认 DNS 请求，关键系统服务由 Android 管理。TUN 下，Android 的「阻止不通过 VPN 的连接」可能限制使用原网络的应用。\n\n修改自动保存，重新连接后生效。</string>
+    <string name="app_routing_load_error">无法读取应用列表：%1$s</string>
+    <string name="app_routing_loading">正在读取已安装应用…</string>
+    <string name="app_routing_row_accessibility">%1$s，%2$s</string>
+    <string name="app_routing_selected">已选择</string>
+    <string name="app_routing_unselected">未选择</string>
+    <string name="app_routing_root_system_uid">此应用与关键系统服务共享 UID，由 Android 管理其路由。</string>
+</resources>

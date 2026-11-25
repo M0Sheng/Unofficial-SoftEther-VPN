@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="destination_routing_title">アドレスルーティング</string>
+    <string name="destination_mode_exclude">ブロックリスト</string>
+    <string name="destination_mode_include">許可リスト</string>
+    <string name="destination_mode_all">すべてのアドレス</string>
+    <string name="destination_routing_exclude_hint">リストの宛先は基盤ネットワークを使用します。その他の宛先は VPN を使用します。</string>
+    <string name="destination_routing_include_hint">リストの宛先だけが VPN を使用します。ルールを 1 つ以上追加してください。VPN 内のサブネットに接続するには、そのサブネットを追加してください。</string>
+    <string name="destination_routing_all_hint">すべての宛先が VPN のルートに従います。IPv6 の通信は IPv6 転送設定に従います。</string>
+    <string name="destination_routing_select_hint">アドレスルーティングのモードを選択してください。</string>
+    <string name="destination_routing_exclude_label">VPN を経由しない宛先</string>
+    <string name="destination_routing_include_label">VPN を使用する宛先</string>
+    <string name="destination_routing_retained">このモードではアドレスリストを使用しません。ブロックリストと許可リストは個別に保存されます。編集するには、いずれかのリストモードに切り替えてください。</string>
+    <string name="destination_routing_rules_help">各行に IP アドレス、CIDR サブネット、または完全一致させるドメイン名を 1 つ入力するか、カンマで区切って入力します。\n\nルールの例\n192.0.2.0/24\n2001:db8::/32\nexample.com\n\nワイルドカード、URL のパス、ポート、IPv6 ゾーン ID は指定しないでください。再接続の前に基盤ネットワークでドメイン名が解決されます。同じ IP アドレスを共有するサービスには同じルートが適用されます。</string>
+    <string name="destination_routing_ipv6_on">IPv6 の宛先には、選択したルーティングモードが適用されます。VPN 経由で IPv6 通信を行うには、VPN ネットワークから使用可能なアドレスとルートを取得する必要があります。</string>
+    <string name="destination_routing_ipv6_off">IPv6 転送がオフの場合、許可リストでは IPv6 通信が基盤ネットワークを経由します。ブロックリストと「すべてのアドレス」では、VPN を使用するアプリの IPv6 通信がブロックされます。IPv6 アドレスやサブネットを追加する前に IPv6 転送をオンにしてください。オフの間、ドメインルールは IPv4 の解決結果だけを使用します。</string>
+    <string name="destination_routing_legacy_banner">アドレスルーティングのモードを保存すると、現在のプロファイルの TAP と TUN の両方に同じルールが適用されます。</string>
+    <string name="destination_routing_legacy_details">現在のルート · %1$s\n保存済みの IPv4 サブネット · %2$s\n保存済みの IPv4 バイパスルール · %3$s</string>
+    <string name="destination_routing_summary_legacy">ブロックリスト、許可リスト、またはすべてのアドレスを選択</string>
+    <string name="destination_routing_summary_mode">%1$s · 保存して再接続すると反映されます</string>
+    <string name="destination_routing_none">未設定</string>
+    <string name="destination_routing_choose_before_save">アドレスルーティングのモードを選択してください。</string>
+    <string name="destination_routing_save_hint">ルールは現在のプロファイルに保存され、TAP と TUN で共有されます。再接続すると変更が反映されます。</string>
+
+    <string name="destination_routing_backend_changed">接続方式が変更されました。戻ってアドレスルーティングを開き直してください。</string>
+    <string name="destination_routing_stale">選択中のプロファイルが変更されました。編集中の内容は保持されています。設定に戻り、選択中のプロファイルのアドレスルーティングを開き直してください。</string>
+    <string name="destination_routing_no_profile">アドレスルーティングを変更するには、プロファイルを作成またはインポートしてください。</string>
+    <string name="destination_routing_save_failed">保存できませんでした。プロファイルが変更されたか、書き込みに失敗しました。編集中の内容は保持されています。プロファイルを確認して再試行してください。</string>
+    <string name="destination_routing_saved">アドレスルーティングを保存しました。再接続すると反映されます。</string>
+    <string name="destination_routing_invalid">アドレスルールの形式が無効です。保存する前にルールを確認してください。</string>
+    <string name="destination_routing_load_error">現在のアドレスルールを読み込めませんでした（%1$s）。保存する前にルールを確認してください。</string>
+    <string name="destination_routing_help_message">同じプロファイルの TAP と TUN では、選択中のモードと両方のリストを共有します。ブロックリストの宛先は基盤ネットワークを使用します。許可リストでは、リストの宛先だけが VPN を使用します。「すべてのアドレス」では、リストを使わずに VPN のルートを適用します。ブロックリストと許可リストは別々に保存されます。\n\nルールごとに IP アドレス、CIDR サブネット、または完全一致させるドメイン名を入力します。接続前に基盤ネットワークでドメイン名を解決し、再接続時に更新します。同じ IP アドレスを共有するサービスには同じルートが適用されます。\n\nIPv6 アドレスやサブネットを使うには、IPv6 転送をオンにします。オフの間、ドメインルールは IPv4 の解決結果だけを使用します。VPN に使用可能な IPv6 アドレスや必要なルートがない場合、IPv4 接続を維持して IPv6 の状態を表示します。\n\nアプリと宛先の両方がルーティングルールに一致した通信だけが VPN を経由します。Android の「VPN を使用しない接続をブロックする」設定によって、基盤ネットワーク上の通信が制限されることがあります。変更を保存し、再接続して反映してください。</string>
+    <string name="destination_routing_tap_hint">リストの宛先は、端末の基盤ネットワークを使用します。ルールはこの端末からの IP 通信に適用されます。</string>
+    <string name="destination_routing_tap_all_hint">対象アプリの IP 通信には、アドレスリストを使用せずに VPN のルートを適用します。IPv6 の通信は IPv6 転送設定に従います。</string>
+    <string name="destination_routing_tap_exclude_hint">リストの宛先は基盤ネットワークを使用します。それ以外のアプリの IP 通信は、アプリ別ルーティングと VPN のルールに従います。</string>
+    <string name="destination_routing_tap_help_message">TAP では、ブロックリスト、許可リスト、「すべてのアドレス」の各モードを利用できます。ブロックリストの宛先は基盤ネットワークを使用します。許可リストでは、リストの宛先だけが VPN を使用します。「すべてのアドレス」では、リストを使わずに VPN のルートを適用します。両リストは別々に保存されます。同じプロファイルの TAP と TUN では、選択中のモードと両方のリストを共有します。\n\nアプリの IP 通信は、アプリ別ルーティングとアドレスルーティングの両方のルールに一致した場合にのみ VPN を経由します。ブロードキャスト、ARP、近隣探索などのレイヤー 2 の通信には既存のルールが適用され、アドレスリストのフィルターは適用されません。\n\nルールごとに IP アドレス、CIDR サブネット、または完全一致させるドメイン名を入力します。接続前に基盤ネットワークでドメイン名を解決し、再接続時に更新します。同じ IP アドレスを共有するサービスには同じルートが適用されます。TAP の IPv6 転送がオフの間、IPv6 ルールを含む許可リストでは VPN に接続できず、ドメインルールは IPv4 の解決結果だけを使用します。ブロックリストでは引き続き IPv4 と IPv6 のアドレスを VPN の対象外にできます。\n\nVPN を経由しないアドレスファミリーごとに、基盤ネットワークに使用可能なルートが必要です。システム DNS サーバーは Android が選択します。現在のルールでそのサーバーに接続できることを確認してください。許可リストに VPN の DNS サーバーアドレスを追加する必要があることもあります。アドレスルールでは DNS プロキシは設定されません。\n\n変更を保存し、再接続して反映してください。</string>
+    <string name="destination_routing_tap_include_hint">アプリのルールとアドレスの許可リストの両方に一致する IP 通信だけが VPN を使用します。その他の宛先は基盤ネットワークを使用します。ルールを 1 つ以上追加してください。VPN 内のサブネットに接続するには、そのサブネットを追加してください。</string>
+    <string name="destination_routing_tap_ipv6_off">TAP の IPv6 転送はオフです。許可リストでは IPv4 アドレスとサブネットを指定でき、ドメインルールでは IPv4 の解決結果だけを使用します。ブロックリストでは、基盤ネットワークが到達できる IPv4 と IPv6 のアドレスを VPN の対象外にできます。</string>
+    <string name="destination_routing_tap_ipv6_on">TAP の IPv6 転送はオンです。ドメインルールでは基盤ネットワークで解決した IPv4 と IPv6 のアドレスを使用します。VPN 経由の IPv6 接続は、サーバーが提供するルーター広告とルートに依存します。VPN を経由しないアドレスファミリーには、基盤ネットワークの対応が必要です。</string>
+</resources>

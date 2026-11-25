@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="profiles_count">%1$d 份配置</string>
+    <string name="profiles_empty_hint">新建配置或导入 SoftEther .vpn 格式配置后即可连接。</string>
+    <string name="profiles_list_hint">点击卡片选择配置，右侧菜单编辑或管理；服务器证书信任每份独立。</string>
+    <string name="profiles_list_running">连接中仍可管理其他配置；切换当前配置前请先停止 VPN。</string>
+    <string name="profiles_select_stop">请先停止 VPN，再选择另一份配置。</string>
+    <string name="profiles_selected">已选用</string>
+    <string name="profiles_selected_dirty">已选用 · 有未保存修改</string>
+    <string name="profiles_menu_for">%1$s 的配置操作</string>
+    <string name="profiles_edit">编辑</string>
+    <string name="profiles_edit_title">编辑配置</string>
+    <string name="profiles_back">返回配置列表</string>
+    <string name="profiles_delete_stop">请先停止 VPN，再删除当前使用的配置。</string>
+    <string name="profiles_delete_target">删除“%1$s”及其服务器证书信任？此操作无法撤销，其他配置会保留。</string>
+    <string name="profiles_editor_notice">保存只更新这一份配置，不会自动选中或启动连接。</string>
+    <string name="profiles_editor_busy">此配置正在使用，停止 VPN 后才能保存；本页草稿会保留。</string>
+    <string name="profiles_editor_missing">这份配置已不存在或无法读取，请返回列表后重试。</string>
+    <string name="profiles_editor_busy_or_missing">此配置正在使用或无法读取，本页草稿尚未保存。</string>
+    <string name="profiles_editor_conflict">另一窗口已修改此配置，当前草稿已保留。请返回后重新打开配置再编辑。</string>
+    <string name="profiles_editor_saved">配置已保存。</string>
+    <string name="profiles_editor_reloaded">应用重启后已重新读取配置，先前未保存的草稿未恢复。</string>
+    <string name="profiles_editor_leave">保存后返回，或放弃本页未保存的修改；新建或复制的配置不会自动删除。</string>
+    <string name="profiles_discard_back">放弃并返回</string>
+    <string name="profiles_editor_scope">原有后端、路由和 TLS 等选项会保留，服务器证书信任仍与这一份配置独立关联。</string>
+    <string name="profiles_host_invalid">仅填写服务器域名或 IP，不含网址协议和路径。</string>
+</resources>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="profiles_count">プロファイル %1$d 件</string>
+    <string name="profiles_empty_hint">接続するにはプロファイルを作成するか、.vpn 形式の SoftEther プロファイルをインポートしてください。</string>
+    <string name="profiles_list_hint">カードをタップして選択します。編集や管理はカードのメニューから行います。サーバー証明書の信頼設定はプロファイルごとに保存されます。</string>
+    <string name="profiles_list_running">他のプロファイルは引き続き管理できます。別のプロファイルを選択する前に VPN を切断してください。</string>
+    <string name="profiles_select_stop">別のプロファイルを選択する前に VPN を切断してください。</string>
+    <string name="profiles_selected">選択済み</string>
+    <string name="profiles_selected_dirty">選択済み · 未保存の変更</string>
+    <string name="profiles_menu_for">%1$s の操作</string>
+    <string name="profiles_edit">編集</string>
+    <string name="profiles_edit_title">プロファイルを編集</string>
+    <string name="profiles_back">プロファイル一覧に戻る</string>
+    <string name="profiles_delete_stop">使用中のプロファイルを削除する前に VPN を切断してください。</string>
+    <string name="profiles_delete_target">「%1$s」とそのサーバー証明書の信頼設定を削除しますか？この操作は元に戻せません。他のプロファイルはそのまま残ります。</string>
+    <string name="profiles_editor_notice">保存すると、このプロファイルだけが更新されます。プロファイルの選択や接続の開始は行われません。</string>
+    <string name="profiles_editor_busy">このプロファイルは使用中です。保存する前に VPN を切断してください。編集中の内容はこの画面に残ります。</string>
+    <string name="profiles_editor_missing">このプロファイルが見つからないか、読み込めません。一覧に戻って再試行してください。</string>
+    <string name="profiles_editor_busy_or_missing">プロファイルが使用中か、読み込めません。編集中の内容は保存されていません。</string>
+    <string name="profiles_editor_conflict">別の画面でこのプロファイルが変更されました。編集中の内容は保持されています。一覧に戻り、プロファイルを開き直して編集してください。</string>
+    <string name="profiles_editor_saved">プロファイルを保存しました。</string>
+    <string name="profiles_editor_reloaded">アプリの再起動後にプロファイルを読み込み直しました。保存していない変更は復元されませんでした。</string>
+    <string name="profiles_editor_leave">保存してから戻るか、この画面の未保存の変更を破棄してください。新規作成や複製したプロファイルは自動的には削除されません。</string>
+    <string name="profiles_discard_back">破棄して戻る</string>
+    <string name="profiles_editor_scope">既存の接続方式、ルーティング、TLS の設定は保持されます。サーバー証明書の信頼設定はこのプロファイルに個別に保存されます。</string>
+    <string name="profiles_host_invalid">URL のスキームやパスを含めず、サーバーのホスト名または IP アドレスだけを入力してください。</string>
+</resources>

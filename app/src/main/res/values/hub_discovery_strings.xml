@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="profile_hub_manual">Enter a Hub name, or fill in the server address and port to look up Hubs.</string>
+    <string name="profile_hub_loading">Looking up available Hubs…</string>
+    <string name="profile_hub_available">Open the list to select a Hub, or enter its name.</string>
+    <string name="profile_hub_not_found">No virtual Hubs found. Check the server address and port. You can enter a name or tap the arrow to retry.</string>
+    <string name="profile_hub_review">Tap the arrow to verify and remember the certificate, or enter a Hub name.</string>
+    <string name="profile_hub_options">Hub lookup options</string>
+    <string name="profile_hub_choices">Select a virtual Hub</string>
+    <string name="profile_hub_review_title">Verify server certificate</string>
+    <string name="profile_hub_review_message">Server %1$s\n\nSHA-256 fingerprint\n%2$s\n\nCheck this fingerprint with the server administrator. The app remembers it for this profile. If you change the server address or port, save the profile to keep the certificate.</string>
+    <string name="profile_hub_review_accept">Remember and look up</string>
+    <string name="profile_hub_remember_failed">Couldn’t remember the server certificate. Check the profile and try again.</string>
+    <string name="profile_hub_certificate_verified">Server certificate verified</string>
+    <string name="profile_hub_certificate_pending_save">Save this profile to use the certificate for VPN connections.</string>
+    <string name="profile_hub_certificate_save_failed">Couldn’t save the profile and server certificate together. Try again.</string>
+</resources>

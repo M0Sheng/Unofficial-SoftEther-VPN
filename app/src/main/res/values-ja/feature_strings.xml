@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_battery_usage_title">アプリのバッテリー使用量</string>
+    <string name="app_battery_usage_summary">画面がオフのときに VPN が切断される場合は、システム設定でこのアプリのバッテリー使用量を「制限なし」に設定してください。</string>
+    <string name="app_battery_usage_open_failed">システム設定でこのアプリを開き、バッテリー使用量の設定を変更してください。</string>
+    <string name="diagnostic_logs_title">ログ</string>
+    <string name="diagnostic_logs_summary">診断ログを収集、絞り込み、エクスポート</string>
+    <string name="section_support_information">サポートと情報</string>
+    <string name="section_appearance">外観とショートカット</string>
+    <string name="notification_traffic_title">通知に通信量を表示</string>
+    <string name="notification_traffic_summary">VPN 接続中にトンネルの通信速度と合計通信量を表示します</string>
+    <string name="notification_traffic_permission_denied">通知が許可されなかったため、通信量の通知はオフです。</string>
+    <string name="quick_tile_add">クイック設定にタイルを追加</string>
+    <string name="quick_tile_add_hint">Android のクイック設定から VPN に接続したり切断したりできます。</string>
+    <string name="quick_connect_working">VPN の接続状態を変更しています…</string>
+    <string name="quick_tile_added">クイック設定タイルを追加しました</string>
+    <string name="quick_tile_not_added">クイック設定のタイル編集画面から Unofficial SoftEther VPN を追加してください。</string>
+    <string name="backend_mode_native">TAP</string>
+    <string name="pref_backend_mode_native_summary">TAP · レイヤー 2（データリンク層）· Root 権限が必要</string>
+    <string name="native_command_title">vpncmd コマンド</string>
+    <string name="native_command_summary">vpncmd で TAP のアカウント、証明書、プロキシ、接続設定を管理します</string>
+    <string name="native_management_only_title">管理サービスのみを起動</string>
+    <string name="native_management_only_summary">TAP モードで管理サービスを起動し、詳細設定でアカウント、証明書認証、プロキシを設定できます。VPN 接続は手動で開始してください。</string>
+    <string name="native_managed_endpoint">詳細設定で設定されています。確認するには AccountGet を使用してください。</string>
+    <string name="native_command_execute">コマンドを実行</string>
+    <string name="native_command_service_unavailable">先に TAP の管理サービスを起動してください。</string>
+    <string name="native_management_running">TAP 管理サービスが動作中です。接続状態を確認するにはアプリを開いてください。</string>
+    <string name="native_management_started">TAP 管理サービスが起動しました。アカウントの自動接続は一時停止中です。保存済みのアダプターが復元される場合があります。vpncmd でサーバーへの接続と仮想アダプターを設定してください。</string>
+    <string name="native_management_server_disconnected">TAP 管理サービスが動作中です。サーバーにはまだ接続していません。vpncmd で接続を設定してから接続してください。</string>
+</resources>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="profile_cert_title">此配置已记住的服务器证书</string>
+    <string name="profile_cert_saved">已记住服务器证书</string>
+    <string name="profile_cert_empty">尚未记住此服务器的证书</string>
+    <string name="profile_cert_read_failed">无法读取此配置的证书</string>
+    <string name="profile_cert_endpoint">已保存的服务器：%1$s</string>
+    <string name="profile_cert_endpoint_empty">尚未保存有效的服务器地址。</string>
+    <string name="profile_cert_save_endpoint">保存服务器地址后管理证书。</string>
+    <string name="profile_cert_stale_editor">另一窗口已修改此配置，请重新打开后管理证书。</string>
+    <string name="profile_cert_busy">连接中可查看指纹；忘记此配置的证书前请先停止 VPN。</string>
+    <string name="profile_cert_first_connection">下次连接会先验证证书，必要时提示确认。</string>
+    <string name="profile_cert_manage_hint">可查看 SHA-256 指纹，或忘记本配置记住的证书。</string>
+    <string name="profile_cert_manage">查看指纹与管理</string>
+    <string name="profile_cert_scope">此处管理应用自动连接时记住的服务器证书。系统 CA 由 Android 管理，TAP 高级管理账号的证书由 SoftEther 客户端管理。</string>
+    <string name="profile_cert_details">配置：%1$s\n已保存的服务器：%2$s\n\nSHA-256\n%3$s\n\n忘记只清除此配置在这个地址和端口记住的证书，下次连接将重新验证。</string>
+    <string name="profile_cert_forget_action">忘记此证书</string>
+    <string name="profile_cert_close">关闭</string>
+    <string name="profile_cert_forgotten">已忘记此配置的证书，下次连接将重新验证。</string>
+    <string name="profile_cert_forget_failed">未清除证书。配置或证书可能已变化、VPN 正在使用，或存储未能更新；请关闭此窗口后重试。</string>
+</resources>

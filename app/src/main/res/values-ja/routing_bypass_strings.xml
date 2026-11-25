@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="routing_bypass_count">アドレスのバイパスルール %1$d 件 · 再接続すると反映されます</string>
+    <string name="routing_bypass_invalid">無効なルールです。タップして修正してください。</string>
+    <string name="routing_bypass_root_empty">VPN を経由しないアドレスを選択</string>
+    <string name="routing_bypass_root_description">リストの宛先は基盤ネットワークを使用します。各行に IPv4 または IPv6 アドレス、CIDR サブネット、完全一致させるドメイン名を 1 つ入力するか、カンマで区切って入力します。\n\n例は 192.0.2.0/24、2001:db8::/32、example.com です。接続前に基盤ネットワークでドメイン名を解決し、再接続時に更新します。同じ IP アドレスを共有するサービスはまとめて VPN の対象外になります。\n\nドメイン名には URL のスキーム、ポート、パスを含めないでください。ルールは、この端末のアプリの IP 通信に適用されます。変更を保存して再接続すると反映されます。</string>
+</resources>

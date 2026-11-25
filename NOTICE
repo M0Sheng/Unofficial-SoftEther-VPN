@@ -1,0 +1,50 @@
+Unofficial SoftEther VPN
+Independent Android client for the SoftEther VPN protocol.
+
+SoftEther VPN Stable
+--------------------
+This application includes the SoftEther VPN Stable v4.44-9807-rtm core,
+built with Android-specific changes recorded in native-core-source/softether-android.patch.
+Copyright (c) all contributors on SoftEther VPN project in GitHub.
+Copyright (c) Daiyuu Nobori, SoftEther Project at University of Tsukuba,
+and SoftEther Corporation.
+Licensed under the Apache License, Version 2.0.
+Source: https://github.com/SoftEtherVPN/SoftEtherVPN_Stable
+Original license and upstream notices: SOFTETHER_LICENSE and native-core-source/licenses/.
+The core links OpenSSL built from the pinned source release. Source versions,
+build instructions, and license texts are listed under native-core-source/.
+
+Android client history
+----------------------
+Earlier versions of this Android client were based on Minimum VPN Client for
+SoftEther VPN, upstream baseline 289fa2d.
+Copyright 2021 KOBAYASHI Ittoku.
+Source: https://github.com/kittoku/Minimum-VPN-Client-for-SoftEther-VPN
+Licensed under the Apache License, Version 2.0. The original LICENSE is retained
+with that credit. The current Android implementation replaces the earlier VPN
+backend and uses its own application ID.
+
+Artwork
+-------
+The launcher, themed app icon, and Quick Settings tile use the affiliate
+outline icon from Tabler Icons, adapted to Android VectorDrawable.
+Copyright (c) 2020-2026 Paweł Kuna
+Source: https://github.com/tabler/tabler-icons/blob/main/icons/outline/affiliate.svg
+License: MIT. See the bundled Tabler-Icons-MIT.txt.
+The notification small icon uses the project's original bridge artwork.
+See design/BRANDING.md for resource details.
+
+Earlier revisions used the SoftEther VPN Android vector and adaptive icon
+padding from SoftEtherVPN commit 790cad92bf05e2165b8356071698e3e87e0ecff2.
+Copyright (c) all contributors on SoftEther VPN project in GitHub.
+Licensed under the Apache License, Version 2.0.
+Source: https://github.com/SoftEtherVPN/SoftEtherVPN/tree/790cad92bf05e2165b8356071698e3e87e0ecff2/SoftEtherVPN-Android
+Attribution and the original license for earlier SoftEther artwork are in
+design/softether-icon/.
+The connection state shields use Pictogrammers Material Design Icons, licensed
+under Apache 2.0 and adapted to Android VectorDrawable. See the bundled
+Pictogrammers-Apache-2.0.txt for attribution.
+
+SoftEther and its logo are marks of their respective owners. This independent
+client is not affiliated with or endorsed by SoftEther Corporation, the
+SoftEther VPN Project, or the University of Tsukuba.

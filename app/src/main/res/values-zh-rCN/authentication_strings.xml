@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="profile_auth_type">认证类型</string>
+    <string name="profile_auth_anonymous">匿名身份验证</string>
+    <string name="profile_auth_standard_password">标准密码验证</string>
+    <string name="profile_auth_external_password">RADIUS 或 NT 域验证</string>
+    <string name="profile_auth_client_certificate">客户端证书认证</string>
+    <string name="profile_auth_smartcard_unavailable">智能卡身份验证（Android 不可用）</string>
+    <string name="profile_auth_anonymous_rejected">匿名身份验证失败。请检查用户名和服务器上的认证设置。</string>
+    <string name="profile_auth_certificate_rejected">客户端证书认证失败。请检查用户名、证书和服务器设置。</string>
+    <string name="profile_auth_certificate_hint">选择 X.509 客户端证书及配对的未加密 RSA 私钥。应用会加密保存私钥。</string>
+    <string name="profile_auth_select_certificate">导入客户端证书</string>
+    <string name="profile_auth_replace_certificate">更换客户端证书</string>
+    <string name="profile_auth_select_key">导入 RSA 私钥</string>
+    <string name="profile_auth_replace_key">更换 RSA 私钥</string>
+    <string name="profile_auth_invalid_certificate">请选择有效的 PEM 或 DER 格式 RSA 客户端证书。</string>
+    <string name="profile_auth_invalid_key">请选择未加密的 PEM 或 PKCS#8 DER 格式 RSA 私钥。</string>
+    <string name="profile_auth_pair_mismatch">客户端证书与私钥不匹配，或无法读取。</string>
+</resources>

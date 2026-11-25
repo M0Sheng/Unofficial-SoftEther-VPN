@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="profile_hub_manual">Hub 名を入力するか、サーバーアドレスとポートを入力して Hub を探してください。</string>
+    <string name="profile_hub_loading">利用可能な Hub を検索しています…</string>
+    <string name="profile_hub_available">一覧を開いて Hub を選ぶか、Hub 名を入力してください。</string>
+    <string name="profile_hub_not_found">仮想 Hub が見つかりませんでした。サーバーアドレスとポートを確認してください。Hub 名を入力するか、矢印をタップして再検索できます。</string>
+    <string name="profile_hub_review">矢印をタップして証明書を確認して保存するか、Hub 名を入力してください。</string>
+    <string name="profile_hub_options">Hub の検索オプション</string>
+    <string name="profile_hub_choices">仮想 Hub を選択</string>
+    <string name="profile_hub_review_title">サーバー証明書を確認</string>
+    <string name="profile_hub_review_message">サーバー %1$s\n\nSHA-256 フィンガープリント\n%2$s\n\nこのフィンガープリントをサーバー管理者に確認してください。確認した値はこのプロファイルに紐付けて保存されます。サーバーアドレスまたはポートを変更した場合は、証明書を保持するためにプロファイルを保存してください。</string>
+    <string name="profile_hub_review_accept">保存して検索</string>
+    <string name="profile_hub_remember_failed">サーバー証明書を保存できませんでした。プロファイルを確認して、もう一度お試しください。</string>
+    <string name="profile_hub_certificate_verified">サーバー証明書を確認済み</string>
+    <string name="profile_hub_certificate_pending_save">VPN 接続でこの証明書を使用するには、プロファイルを保存してください。</string>
+    <string name="profile_hub_certificate_save_failed">プロファイルとサーバー証明書を同時に保存できませんでした。もう一度お試しください。</string>
+</resources>

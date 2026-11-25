@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tun_ipv6_discovering">正在获取 VPN 的 IPv6 地址…</string>
+    <string name="tun_ipv6_active">IPv6 转发已启用</string>
+    <string name="tun_ipv6_no_targets">当前地址规则未选中 IPv6 目的地，IPv6 流量使用原网络</string>
+    <string name="tun_ipv6_no_advertisement">VPN 侧未提供可用的 IPv6 前缀或所需路由，IPv6 已阻止</string>
+    <string name="tun_ipv6_duplicate_address">检测到 IPv6 地址冲突，IPv6 已阻止</string>
+    <string name="tun_ipv6_mtu_too_small">TUN MTU 小于 IPv6 要求的 1280 字节，IPv6 已阻止</string>
+    <string name="tun_ipv6_disabled_full">IPv6 转发已关闭，使用 VPN 的应用无法访问 IPv6</string>
+    <string name="tun_ipv6_disabled_lan">IPv6 转发已关闭，IPv6 流量使用原网络</string>
+    <string name="tun_ipv6_refresh">正在重新获取 VPN 的 IPv6 地址或路由</string>
+    <string name="tun_ipv6_ipv4_only">已连接（IPv4），IPv6 不可用</string>
+</resources>

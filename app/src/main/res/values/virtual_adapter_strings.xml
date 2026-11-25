@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="vpn_virtual_adapter">Virtual adapter</string>
+    <string name="vpn_virtual_adapter_interface">System interface: %1$s</string>
+    <string name="vpn_virtual_adapter_waiting">Waiting for Android to configure the virtual adapter</string>
+    <string name="vpn_virtual_adapter_connected">Virtual adapter is connected</string>
+    <string name="vpn_virtual_adapter_not_ready">The virtual adapter is not ready yet</string>
+</resources>

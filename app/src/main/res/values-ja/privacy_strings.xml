@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="vpn_disclosure_title">VPN 通信へのアクセス</string>
+    <string name="vpn_disclosure_message">Unofficial SoftEther VPN は、設定に従って通信をルーティングするため、アプリがバックグラウンドで動作している間もネットワークパケットを読み取ります。TUN は Android の VpnService を使用します。TAP は Root 権限で管理する Ethernet インターフェースを使用します。\n\nアプリが管理する標準接続では、設定した SoftEther サーバーとの間に TLS セッションを確立します。そのサーバーは転送された通信を受信し、独自のプライバシー方針に従って扱う場合があります。TAP の詳細設定で作成したアカウントでは、異なるトランスポートや暗号化設定を使用できます。\n\nTAP の NAT トラバーサルやオプションの UDP 高速化では、IP アドレスやポートなどの接続メタデータが SoftEther の探索サービスに送信される場合があります。このアプリは VPN 通信のコピーを開発者に別途送信しません。</string>
+    <string name="app_inventory_disclosure_title">インストール済みアプリへのアクセス</string>
+    <string name="app_inventory_disclosure_message">Unofficial SoftEther VPN は、アプリ別ルーティングの一覧を表示し、この端末でルーティングルールを適用するために、アプリ名、パッケージ名、Android アプリの UID を含むインストール済みアプリの一覧を読み取ります。TAP でアドレスルールの適用やルートの復元を行う際にも、この一覧を読み取る場合があります。\n\nこの一覧は端末上で使用され、VPN サーバーや開発者には送信されません。診断ログにはパッケージ名が含まれる場合があります。ログは必要に応じてご自身でエクスポートできます。</string>
+    <string name="disclosure_accept">同意して続行</string>
+    <string name="disclosure_decline">今はしない</string>
+    <string name="disclosure_save_failed">選択内容を保存できませんでした。もう一度お試しください。</string>
+    <string name="privacy_connection_required">VPN を開始する前に、データの取り扱いを確認して同意してください。</string>
+    <string name="privacy_summary_title">プライバシー</string>
+    <string name="privacy_summary">VPN の通信は設定したサーバーに送信されます。VPN の認証情報、信頼済み証明書、ルーティング設定は、アプリ専用のストレージに保存されます。インストール済みアプリの一覧は、この端末上でルーティングルールを適用するために使用されます。ログ画面で診断ログの収集をオンにし、手動でエクスポートできます。収集したイベントはアプリの実行中にメモリに保持されます。保存したプロファイルや収集したログはアプリから削除できます。Android の設定からアプリデータを消去することもできます。</string>
+</resources>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="network_runtime_error_root_access">TAP モードには Root 権限が必要です。Root 管理アプリで Unofficial SoftEther VPN に権限を許可するか、設定で Root 不要の TUN モードを選んでください。</string>
+    <string name="network_runtime_error_root_authorization_timeout">Root 権限の許可を待機中にタイムアウトしました。Root 管理アプリで Unofficial SoftEther VPN に権限を許可するか、設定で TUN モードを選んでください。</string>
+    <string name="network_runtime_status_network_switch_waiting">ネットワークが切り替わりました。VPN の再接続に利用できる Wi-Fi またはモバイルデータを待っています…</string>
+    <string name="app_language_japanese">日本語</string>
+</resources>

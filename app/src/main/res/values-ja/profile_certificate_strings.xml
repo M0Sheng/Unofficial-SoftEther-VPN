@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="profile_cert_title">このプロファイルに保存されたサーバー証明書</string>
+    <string name="profile_cert_saved">サーバー証明書を保存済み</string>
+    <string name="profile_cert_empty">このサーバーの証明書は保存されていません</string>
+    <string name="profile_cert_read_failed">このプロファイルの証明書を読み込めませんでした</string>
+    <string name="profile_cert_endpoint">保存済みのサーバー：%1$s</string>
+    <string name="profile_cert_endpoint_empty">有効なサーバーアドレスが保存されていません。</string>
+    <string name="profile_cert_save_endpoint">証明書を管理する前にサーバーアドレスを保存してください。</string>
+    <string name="profile_cert_stale_editor">別の画面でこのプロファイルが変更されました。開き直してから証明書を管理してください。</string>
+    <string name="profile_cert_busy">接続中でもフィンガープリントを表示できます。保存済みの証明書を削除する前に VPN を切断してください。</string>
+    <string name="profile_cert_first_connection">次回接続時に証明書を検証し、必要に応じて確認を求めます。</string>
+    <string name="profile_cert_manage_hint">SHA-256 フィンガープリントを表示したり、このプロファイルの保存済み証明書を削除したりできます。</string>
+    <string name="profile_cert_manage">フィンガープリントを表示して管理</string>
+    <string name="profile_cert_scope">この画面では、アプリの自動接続で保存した証明書の信頼設定を管理します。システムの認証局は Android が管理します。TAP 管理で設定したアカウントの証明書設定は SoftEther が管理します。</string>
+    <string name="profile_cert_details">プロファイル：%1$s\n保存済みのサーバー：%2$s\n\nSHA-256\n%3$s\n\n削除すると、このプロファイルに保存されたこのアドレスとポートの証明書だけが削除されます。次回接続時に再検証されます。</string>
+    <string name="profile_cert_forget_action">この証明書を削除</string>
+    <string name="profile_cert_close">閉じる</string>
+    <string name="profile_cert_forgotten">このプロファイルの証明書を削除しました。次回接続時に再検証されます。</string>
+    <string name="profile_cert_forget_failed">証明書を削除できませんでした。プロファイルや証明書が変更されたか、VPN が実行中か、ストレージを更新できなかった可能性があります。この画面を閉じてから再試行してください。</string>
+</resources>

@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/colorSurface">
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <include
+            android:id="@+id/pageHeading"
+            layout="@layout/view_page_heading"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/themeSettingsScroll"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingHorizontal="@dimen/ui_page_inset"
+            android:paddingTop="4dp"
+            android:paddingBottom="@dimen/ui_page_inset"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/themePreview"
+                    style="@style/HomeVpn.Ui.Panel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardCornerRadius="28dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:accessibilityHeading="true"
+                            android:text="@string/theme_preview_title"
+                            android:textAppearance="@style/TextAppearance.Material3.TitleMedium.Emphasized"
+                            android:textColor="?attr/colorOnSurface" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="@string/theme_preview_summary"
+                            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                            android:textColor="?attr/colorOnSurfaceVariant" />
+
+                        <com.google.android.material.card.MaterialCardView
+                            style="@style/HomeVpn.Ui.Panel"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="16dp"
+                            android:importantForAccessibility="noHideDescendants"
+                            app:cardBackgroundColor="@color/ui_vpn_enabled_container"
+                            app:cardCornerRadius="24dp">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:gravity="center_horizontal"
+                                android:orientation="vertical"
+                                android:padding="16dp">
+
+                                <ImageView
+                                    android:layout_width="44dp"
+                                    android:layout_height="44dp"
+                                    android:src="@drawable/ui_ic_shield"
+                                    app:tint="@color/ui_vpn_enabled" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="4dp"
+                                    android:gravity="center"
+                                    android:text="@string/ui_enabled"
+                                    android:textAppearance="@style/TextAppearance.Material3.TitleMedium.Emphasized"
+                                    android:textColor="@color/ui_vpn_enabled" />
+
+                                <com.google.android.material.button.MaterialButton
+                                    style="@style/Widget.Material3Expressive.Button"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="8dp"
+                                    android:clickable="false"
+                                    android:focusable="false"
+                                    android:text="@string/ui_stop"
+                                    app:icon="@drawable/ui_ic_power"
+                                    app:iconGravity="textStart" />
+                            </LinearLayout>
+                        </com.google.android.material.card.MaterialCardView>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    style="@style/HomeVpn.Ui.Panel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    app:cardCornerRadius="24dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:paddingHorizontal="16dp"
+                            android:paddingTop="16dp"
+                            android:accessibilityHeading="true"
+                            android:text="@string/appearance_theme_title"
+                            android:textAppearance="@style/TextAppearance.Material3.TitleMedium.Emphasized"
+                            android:textColor="?attr/colorOnSurface" />
+
+                        <com.google.android.material.button.MaterialButtonToggleGroup
+                            android:id="@+id/themeModes"
+                            style="@style/HomeVpn.Ui.RoutingModeGroup"
+                            android:layout_marginHorizontal="16dp"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginBottom="12dp">
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/themeModeSystem"
+                                style="@style/HomeVpn.Ui.AppRoutingMode"
+                                android:text="@string/theme_mode_system" />
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/themeModeLight"
+                                style="@style/HomeVpn.Ui.AppRoutingMode"
+                                android:text="@string/theme_mode_light" />
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/themeModeDark"
+                                style="@style/HomeVpn.Ui.AppRoutingMode"
+                                android:text="@string/theme_mode_dark" />
+                        </com.google.android.material.button.MaterialButtonToggleGroup>
+
+                        <com.google.android.material.divider.MaterialDivider
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            app:dividerInsetStart="16dp"
+                            app:dividerInsetEnd="16dp" />
+
+                        <com.google.android.material.materialswitch.MaterialSwitch
+                            android:id="@+id/themeSystemColors"
+                            style="@style/Widget.Material3.CompoundButton.MaterialSwitch"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:minHeight="56dp"
+                            android:paddingHorizontal="16dp"
+                            android:paddingVertical="8dp"
+                            android:text="@string/theme_system_colors_title"
+                            android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+                            android:textColor="?attr/colorOnSurface" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:paddingHorizontal="16dp"
+                            android:paddingBottom="12dp"
+                            android:text="@string/theme_system_colors_summary"
+                            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                            android:textColor="?attr/colorOnSurfaceVariant" />
+
+                        <com.google.android.material.divider.MaterialDivider
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            app:dividerInsetStart="16dp"
+                            app:dividerInsetEnd="16dp" />
+
+                        <LinearLayout
+                            android:id="@+id/themeAccent"
+                            style="@style/HomeVpn.Preference3.InteractiveSurface"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:gravity="center_vertical"
+                            android:minHeight="68dp"
+                            android:orientation="horizontal"
+                            android:padding="16dp"
+                            android:screenReaderFocusable="true">
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/appearance_accent_title"
+                                    style="@style/HomeVpn.Preference3.Title" />
+
+                                <TextView
+                                    android:id="@+id/themeAccentValue"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="4dp"
+                                    style="@style/HomeVpn.Preference3.Summary" />
+                            </LinearLayout>
+
+                            <com.google.android.material.card.MaterialCardView
+                                style="@style/HomeVpn.Ui.Panel"
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:layout_marginStart="12dp"
+                                android:importantForAccessibility="no"
+                                app:cardBackgroundColor="?attr/colorPrimary"
+                                app:cardCornerRadius="12dp"
+                                app:strokeColor="?attr/colorOutline"
+                                app:strokeWidth="1dp" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+</FrameLayout>

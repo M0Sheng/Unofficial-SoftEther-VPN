@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="appearance_category">外観</string>
+    <string name="appearance_theme_title">テーマ</string>
+    <string-array name="appearance_theme_entries">
+        <item>@string/theme_mode_system</item>
+        <item>@string/theme_mode_light</item>
+        <item>@string/theme_mode_dark</item>
+    </string-array>
+    <string name="appearance_accent_title">アクセントカラー</string>
+    <string name="appearance_accent_system">システムの配色</string>
+    <string name="appearance_accent_blue">ブルー</string>
+    <string name="appearance_accent_teal">ティール</string>
+    <string name="appearance_accent_purple">パープル</string>
+    <string name="appearance_accent_rose">ローズ</string>
+    <string name="appearance_accent_amber">アンバー</string>
+    <string name="theme_settings_title">テーマ設定</string>
+    <string name="theme_settings_summary">%1$s · %2$s</string>
+    <string name="theme_preview_title">ライブプレビュー</string>
+    <string name="theme_preview_summary">接続カードとボタンの色</string>
+    <string name="theme_mode_system">システムに合わせる</string>
+    <string name="theme_mode_light">ライト</string>
+    <string name="theme_mode_dark">ダーク</string>
+    <string name="theme_system_colors_title">システムの配色を使用</string>
+    <string name="theme_system_colors_summary">Android の壁紙に合わせた配色を使用します。オフにすると、最後に使ったアクセントカラーに戻ります。</string>
+</resources>

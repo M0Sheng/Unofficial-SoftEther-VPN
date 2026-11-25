@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="appearance_category">Appearance</string>
+    <string name="appearance_theme_title">Theme</string>
+    <string-array name="appearance_theme_entries">
+        <item>@string/theme_mode_system</item>
+        <item>@string/theme_mode_light</item>
+        <item>@string/theme_mode_dark</item>
+    </string-array>
+    <string name="appearance_accent_title">Accent color</string>
+    <string name="appearance_accent_system">System colors</string>
+    <string name="appearance_accent_blue">Blue</string>
+    <string name="appearance_accent_teal">Teal</string>
+    <string name="appearance_accent_purple">Purple</string>
+    <string name="appearance_accent_rose">Rose</string>
+    <string name="appearance_accent_amber">Amber</string>
+    <string name="theme_settings_title">Theme settings</string>
+    <string name="theme_settings_summary">%1$s · %2$s</string>
+    <string name="theme_preview_title">Live preview</string>
+    <string name="theme_preview_summary">Connection card and button colors</string>
+    <string name="theme_mode_system">Follow system</string>
+    <string name="theme_mode_light">Light</string>
+    <string name="theme_mode_dark">Dark</string>
+    <string name="theme_system_colors_title">Use system colors</string>
+    <string name="theme_system_colors_summary">Use the wallpaper palette from Android. Turn off to return to your last accent color.</string>
+</resources>

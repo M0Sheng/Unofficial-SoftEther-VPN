@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="native_remote_category">Computer management</string>
+    <string name="native_remote_enable_title">Allow remote client management</string>
+    <string name="native_remote_enable_summary">Requires TAP and a management password. When enabled, listens on all network interfaces. Use an existing encrypted VPN path. Changing this switch or password ends the running TAP session. Reconnect to apply the new settings.</string>
+    <string name="native_remote_native_only">Available only with TAP. You may configure it while disconnected; doing so does not start the VPN.</string>
+    <string name="native_remote_password_title">Set remote management password</string>
+    <string name="native_remote_password_rules">Use 12–128 visible ASCII characters, without spaces. The password fields are never restored or prefilled. Only the SHA-0 hash used by the SoftEther management protocol is stored.</string>
+    <string name="native_remote_new_password">New management password</string>
+    <string name="native_remote_confirm_password">Confirm management password</string>
+    <string name="native_remote_password_save">Save password</string>
+    <string name="native_remote_password_mismatch">The passwords do not match.</string>
+    <string name="native_remote_password_saved">Management password saved. If TAP was running, reconnect to use the new password.</string>
+    <string name="native_remote_password_failed">Could not save the management password. Try again.</string>
+    <string name="native_remote_password_required">Set a management password first, then enable remote management.</string>
+    <string name="native_remote_password_configured">Password configured. If the core rejects the credential file, set a new password.</string>
+    <string name="native_remote_password_unset">No valid management password is configured. Set or reset it before enabling remote access.</string>
+    <string name="native_remote_connection_title">Connect from a computer</string>
+    <string name="native_remote_connection_summary">Current Wi-Fi / virtual adapter addresses, TCP 9930, and VPN Client Manager / vpncmd instructions. Management RPC does not provide TLS.</string>
+    <string name="native_remote_no_addresses">No current Wi-Fi or virtual adapter address is available. Connect to Wi-Fi or establish the VPN first.</string>
+    <string name="native_remote_connection_help">Current phone network endpoints (TCP 9930; for reference):\n%1$s\n\nEnable remote management and start the TAP management service first. The core can be running without a VPN connection; an open management port is not a connected VPN.\n\nWindows: open SoftEther VPN Client Manager and choose “Manage SoftEther VPN Client on a Separate Computer”. In the host field, enter only a reachable phone Wi-Fi or virtual adapter IP, without a port. Use your remote management password. Use Client Manager, not VPN Server Manager.\n\nCommand line:\nvpncmd PHONE_IP /CLIENT\nFor IPv6, use the raw IPv6 address without square brackets. Do not append :9930 to the host: vpncmd selects the management port. Enter the password when prompted, rather than adding it to the command.\n\nThe SoftEther management protocol does not use TLS encryption. Prefer the phone’s VPN address over an existing encrypted VPN path, and only enable access on a trusted network. Direct Wi-Fi/LAN management is not encrypted by this protocol. The computer must have a route to the selected phone IP.\n\nThe endpoint list reflects current interfaces; it does not test connectivity or confirm that the core is listening. Do not paste the full endpoint into the client host field; use only its IP.\n\nSoftEther documentation: https://www.softether.org/4-docs/1-manual/4/4.7</string>
+    <string name="native_remote_interface_address">%1$s (%2$s)  %3$s</string>
+</resources>

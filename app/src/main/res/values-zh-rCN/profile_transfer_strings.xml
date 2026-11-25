@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="profile_import_file">导入</string>
+    <string name="profile_export_file">导出 .vpn</string>
+    <string name="profile_import_summary">%1$s\n%2$s\n\n导入后，请按所选认证方式补齐所需凭据。</string>
+    <string name="profile_import_certificate">文件中的服务器证书指纹\n%1$s\n\n核对指纹后可随配置导入。</string>
+    <string name="profile_import_trust">导入并信任</string>
+    <string name="profile_import_skip_certificate">仅导入配置</string>
+    <string name="profile_import_unsupported">此文件的连接或认证方式暂不支持导入。</string>
+    <string name="profile_import_file_failed">无法读取这份 SoftEther .vpn 格式配置。</string>
+    <string name="profile_import_save_failed">无法保存导入的配置。</string>
+    <string name="profile_export_file_failed">导出失败，请检查服务器地址、服务器端口、虚拟 Hub 和保存位置。</string>
+    <string name="profile_export_file_done">配置已导出。导入后，请按所选认证方式补齐所需凭据。</string>
+</resources>

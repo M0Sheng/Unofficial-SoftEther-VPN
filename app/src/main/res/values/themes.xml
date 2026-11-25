@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.SoftEtherClient.Base" parent="Theme.Material3Expressive.DayNight.NoActionBar.FocusRings">
+        <item name="android:windowBackground">?attr/colorSurface</item>
+        <item name="alertDialogTheme">@style/ThemeOverlay.Material3Expressive.MaterialAlertDialog</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+    </style>
+    <style name="Theme.SoftEtherClient" parent="Theme.SoftEtherClient.Base">
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar">true</item>
+    </style>
+</resources>

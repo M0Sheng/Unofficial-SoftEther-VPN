@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="network_runtime_error_root_access">TAP requires Root access. Grant Root to Unofficial SoftEther VPN in your Root manager, or select TUN in Settings.</string>
+    <string name="network_runtime_error_root_authorization_timeout">Waiting for Root authorization timed out. Grant Root to Unofficial SoftEther VPN in your Root manager, or select TUN in Settings.</string>
+    <string name="network_runtime_status_network_switch_waiting">Network changed. Waiting for Wi-Fi or mobile data to reconnect the VPN…</string>
+    <string name="app_language_japanese">日本語</string>
+</resources>

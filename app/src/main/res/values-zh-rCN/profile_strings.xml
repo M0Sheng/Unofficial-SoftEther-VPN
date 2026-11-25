@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="profile_port_custom">自定义</string>
+    <string name="profile_port_options">选择服务器端口</string>
+    <string name="profile_category">连接配置</string>
+    <string name="profile_dashboard_label">当前配置</string>
+    <string name="profile_select">选择配置</string>
+    <string name="profile_current">当前配置：%1$s</string>
+    <string name="profile_selected_saved">%1$s\n已保存</string>
+    <string name="profile_selected_dirty">%1$s\n有未保存的修改</string>
+    <string name="profile_select_running">%1$s\n请先停止 VPN，再切换配置。</string>
+    <string name="profile_server_empty">尚未配置服务器</string>
+    <string name="profile_save">保存当前配置</string>
+    <string name="profile_save_dirty">保存当前连接选项和这份配置的服务器证书信任。</string>
+    <string name="profile_save_clean">当前配置已保存。</string>
+    <string name="profile_manage">配置操作</string>
+    <string name="profile_manage_summary">新建、改名、复制或删除</string>
+    <string name="profile_manage_running">连接中可新建、改名或复制配置。切换配置或删除当前配置前，请先停止 VPN。</string>
+    <string name="profile_scope">连接参数、服务器证书和 TUN 分地址规则随配置保存。各配置共用分应用名单、TAP 地址绕过规则和远程管理设置。</string>
+    <string name="profile_new">新建配置</string>
+    <string name="profile_rename">配置改名</string>
+    <string name="profile_copy">复制配置</string>
+    <string name="profile_delete">删除配置</string>
+    <string name="profile_name">配置名称</string>
+    <string name="profile_name_description">名称可使用 1～64 个字符。连接参数可在配置编辑页填写。</string>
+    <string name="profile_name_invalid">请输入 1～64 个字符的名称。</string>
+    <string name="profile_copy_name">%1$s 副本</string>
+    <string name="profile_copy_description">将当前连接选项及这份配置的服务器证书信任复制为独立配置。</string>
+    <string name="profile_unsaved_title">有未保存的修改</string>
+    <string name="profile_unsaved_message">可以先保存当前配置后继续，也可以放弃尚未保存的修改。</string>
+    <string name="profile_save_continue">保存并继续</string>
+    <string name="profile_discard_continue">放弃修改并继续</string>
+    <string name="profile_delete_message">删除“%1$s”及其保存的连接选项和服务器证书信任？随后会选中另一份配置，此操作无法撤销。</string>
+    <string name="profile_stop_first">切换配置或删除当前配置前，请先停止 VPN。</string>
+    <string name="profile_changed">当前配置已改变，请重新打开此操作。</string>
+    <string name="profile_read_failed">无法读取配置，请重新打开页面后重试。</string>
+    <string name="profile_operation_complete">配置已更新。</string>
+    <string name="profile_operation_failed">未能更新配置，请检查名称和可用存储空间后重试。</string>
+</resources>

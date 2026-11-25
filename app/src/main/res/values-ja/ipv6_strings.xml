@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ipv6_forward_title">IPv6 転送</string>
+    <string name="ipv6_forward_native_on">TAP で IPv6 を転送します。アドレスとルートは VPN 側ネットワークのルーター広告によって決まります。変更を適用するには再接続してください。</string>
+    <string name="ipv6_forward_native_off">TAP での IPv6 フレームの転送を停止します。システムのアドレスとルートを更新するには再接続してください。</string>
+    <string name="ipv6_forward_tun_full_on">VPN から利用可能な IPv6 アドレスとデフォルトルートが提供されると、TUN で IPv6 を転送します。どちらかが利用できないときも IPv4 の接続は続きます。IPv6 の状態はホーム画面で確認できます。</string>
+    <string name="ipv6_forward_tun_lan_on">VPN から通知された IPv6 サブネット宛ての通信を TUN で転送します。その他の宛先には元のネットワークを使います。利用可能なサブネットがなくても IPv4 の接続は続きます。IPv6 の状態はホーム画面で確認できます。</string>
+    <string name="ipv6_forward_tun_full_off">IPv6 転送はオフです。VPN を使用するアプリは IPv6 の宛先に接続できません。</string>
+    <string name="ipv6_forward_tun_lan_off">IPv6 転送はオフです。IPv6 通信は元のネットワークを使用します。</string>
+    <string name="ipv6_forward_backend_unavailable">このスイッチは、対応する TAP または TUN の接続方式のみに適用されます。</string>
+    <string name="ipv6_forward_tun_modern_on">アドレスルーティングの設定に従って IPv6 を転送します。VPN は利用可能な IPv6 アドレスと必要なルートを提供する必要があります。変更を適用するには再接続してください。</string>
+    <string name="ipv6_forward_tun_include_off">IPv6 通信は元のネットワークを使用します。IPv6 のアドレスやサブネットのルールを使うには、IPv6 転送を有効にして再接続してください。</string>
+    <string name="ipv6_forward_tun_other_off">VPN を使用するアプリは IPv6 の宛先に接続できません。IPv6 のアドレスやサブネットのルールを使うには、IPv6 転送を有効にして再接続してください。</string>
+    <string name="ipv6_forward_tun_invalid">アドレスルーティングの設定が無効です。アドレスルーティングを開いて設定を確認し、保存してください。</string>
+</resources>

@@ -1,0 +1,4 @@
+# The sourcepack manifest verifies native source files byte for byte.
+/native-core-source/** -text
+/gradlew text eol=lf
+/.github/scripts/*.sh text eol=lf

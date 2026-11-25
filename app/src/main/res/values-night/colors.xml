@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="ui_warning">#F3CF7A</color>
+    <color name="ui_vpn_enabled">#80D5A9</color>
+    <color name="ui_vpn_disabled">#FFB2BA</color>
+    <color name="ui_vpn_enabled_container">#1C4633</color>
+    <color name="ui_vpn_disabled_container">#4D222A</color>
+</resources>

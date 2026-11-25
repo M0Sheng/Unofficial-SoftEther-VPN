@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="destination_routing_title">分地址路由</string>
+    <string name="destination_mode_exclude">黑名单</string>
+    <string name="destination_mode_include">白名单</string>
+    <string name="destination_mode_all">所有地址</string>
+    <string name="destination_routing_exclude_hint">名单内的目的地址使用原网络，其余目的地址经 VPN。</string>
+    <string name="destination_routing_include_hint">仅名单内的目的地址经 VPN。请至少填写一条规则，需要 VPN 子网时也应将其加入名单。</string>
+    <string name="destination_routing_all_hint">所有目的地址按 VPN 路由处理，IPv6 由转发开关控制。</string>
+    <string name="destination_routing_select_hint">选择要使用的地址模式。</string>
+    <string name="destination_routing_exclude_label">绕过 VPN 的目的地址</string>
+    <string name="destination_routing_include_label">经过 VPN 的目的地址</string>
+    <string name="destination_routing_retained">黑名单与白名单分别保留。当前不使用名单，切回对应模式即可继续编辑。</string>
+    <string name="destination_routing_rules_help">每行一个 IP、CIDR 网段或精确域名，也可用逗号分隔。例如：\n192.0.2.0/24\n2001:db8::/32\nexample.com\n\n不支持通配符、网址路径、端口或 IPv6 区域后缀。域名在重连前通过原网络解析为地址快照；共享 IP 的服务会一起选路。</string>
+    <string name="destination_routing_ipv6_on">IPv6 目的地址按所选模式选路。经 VPN 转发的 IPv6 流量需要 VPN 侧提供可用的地址和路由。</string>
+    <string name="destination_routing_ipv6_off">关闭 IPv6 转发时，白名单模式的 IPv6 流量使用原网络，黑名单和所有地址模式会阻止使用 VPN 的应用访问 IPv6。使用 IPv6 地址或网段规则前，请开启 IPv6 转发。域名规则只使用 IPv4 解析结果。</string>
+    <string name="destination_routing_legacy_banner">保存分地址模式后，当前配置的 TAP 和 TUN 会使用同一套规则。</string>
+    <string name="destination_routing_legacy_details">当前路由：%1$s\n已保存的 IPv4 网段：%2$s\n已保存的 IPv4 绕过规则：%3$s</string>
+    <string name="destination_routing_summary_legacy">选择黑名单、白名单或所有地址</string>
+    <string name="destination_routing_summary_mode">%1$s · 保存后重新连接生效</string>
+    <string name="destination_routing_none">未设置</string>
+    <string name="destination_routing_choose_before_save">请选择地址模式。</string>
+    <string name="destination_routing_save_hint">规则保存到当前配置，TAP 和 TUN 共用。重新连接后生效。</string>
+
+    <string name="destination_routing_backend_changed">接入方式已切换。请返回并重新打开分地址路由。</string>
+    <string name="destination_routing_stale">当前配置已切换，草稿已保留且不能提交。请返回设置后重新打开当前配置。</string>
+    <string name="destination_routing_no_profile">新建或导入配置后即可修改其分地址路由。</string>
+    <string name="destination_routing_save_failed">未保存：配置已变化或写入失败。草稿已保留，请核对后重试。</string>
+    <string name="destination_routing_saved">已保存分地址路由，下次连接生效</string>
+    <string name="destination_routing_invalid">地址规则格式无效，请检查后保存。</string>
+    <string name="destination_routing_load_error">当前地址规则无法读取：%1$s。请检查规则后保存。</string>
+    <string name="destination_routing_help_message">同一配置的 TAP 和 TUN 共用当前模式及两份名单。黑名单内的目的地址使用原网络。白名单仅让名单内的目的地址经过 VPN。所有地址模式不使用名单。黑名单与白名单各自保存。\n\n每条规则可填写 IP、CIDR 网段或精确域名。域名在连接前经原网络解析，重连时更新。共用同一 IP 的服务会采用相同的路由。\n\n要使用 IPv6 地址或网段规则，请先开启 IPv6 转发。关闭时域名规则只使用 IPv4 解析结果。VPN 侧缺少可用的 IPv6 地址或所需路由时，应用会保留 IPv4 连接并显示 IPv6 状态。\n\n应用和目的地址都符合 VPN 路由条件时，流量才经过 VPN。Android 的「阻止不通过 VPN 的连接」会限制使用原网络的流量。保存后重新连接生效。</string>
+    <string name="destination_routing_tap_hint">名单内的目的地址使用设备原网络。这些规则作用于本机的 IP 流量。</string>
+    <string name="destination_routing_tap_all_hint">不使用地址名单；符合分应用路由条件的普通 IP 流量遵循 VPN 路由。IPv6 仍由转发开关控制。</string>
+    <string name="destination_routing_tap_exclude_hint">名单内的目的地址使用原网络，其余普通 IP 流量按分应用路由和 VPN 路由处理。</string>
+    <string name="destination_routing_tap_help_message">TAP 支持黑名单、白名单和所有地址。黑名单内的目的地址使用原网络；白名单仅让名单内的目的地址经过 VPN；所有地址模式不使用名单。两份名单分别保留。同一配置的 TAP 和 TUN 共用当前模式及两份名单。\n\n只有同时符合分应用路由和分地址路由的普通应用 IP 流量才经过 VPN。广播、ARP/ND 等二层通道保持原策略，不按此地址名单逐帧过滤。\n\n每条规则可填写 IP、CIDR 或精确域名。域名在连接前经原网络解析，重连更新；共用 IP 的服务一起选路。关闭 TAP 的 IPv6 转发时，含 IPv6 地址或网段的白名单无法用于连接，域名只取 IPv4；黑名单仍支持 IPv4/IPv6 绕过。\n\n需要直连的地址族须在原网络具备可用路由。系统 DNS 仍由 Android 网络选择；请确保 DNS 服务器按当前规则可达，白名单可能需要包含 VPN DNS 地址。地址规则不会建立 DNS 代理。\n\n保存后重新连接生效，当前连接不改变。</string>
+    <string name="destination_routing_tap_include_hint">仅同时符合应用规则与地址白名单的普通 IP 流量经过 VPN，其余目的地址使用原网络。请至少填写一条规则，需要 VPN 子网时也应将其加入名单。</string>
+    <string name="destination_routing_tap_ipv6_off">TAP IPv6 隧道转发已关闭：白名单不接受 IPv6 地址或网段，域名只使用 IPv4 解析结果。黑名单仍可绕过 IPv4/IPv6 地址，是否可达取决于原网络。</string>
+    <string name="destination_routing_tap_ipv6_on">TAP IPv6 转发已开启，域名规则使用原网络解析的 IPv4/IPv6 地址快照。VPN 内的 IPv6 连通性仍取决于服务端 RA 和路由；原网络须能承载需要直连的地址族。</string>
+</resources>

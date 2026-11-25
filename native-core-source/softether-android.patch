@@ -1,0 +1,1463 @@
+diff --git a/src/Cedar/Client.c b/src/Cedar/Client.c
+index 3c7c4ca..ce9f7a9 100644
+--- a/src/Cedar/Client.c
++++ b/src/Cedar/Client.c
+@@ -105,6 +105,11 @@
+ // Client Manager
+ 
+ #include "CedarPch.h"
++#ifdef __ANDROID__
++#include <homevpn_android.h>
++#include <homevpn_frame.h>
++#include <poll.h>
++#endif
+ 
+ static CLIENT *client = NULL;
+ static LISTENER *cn_listener = NULL;
+@@ -2182,6 +2187,21 @@ PACK *CiRpcDispatch(RPC *rpc, char *name, PACK *p)
+ 	c = rpc->Param;
+ 
+ 	ret = NewPack();
++#ifdef __ANDROID__
++	/* RemoteDisable also revokes the next operation on already-authenticated
++	 * remote sessions; app-local management keeps its independent access. */
++	if (rpc->Sock != NULL && !IsLocalHostIP(&rpc->Sock->RemoteIP))
++	{
++		bool enabled;
++		Lock(c->lock); enabled = c->Config.AllowRemoteConfig; Unlock(c->lock);
++		if (!homevpn_android_remote_allowed() || !enabled)
++		{
++			RpcError(ret, ERR_ACCESS_DENIED);
++			Disconnect(rpc->Sock);
++			return ret;
++		}
++	}
++#endif
+ 
+ 	if (StrCmpi(name, "GetClientVersion") == 0)
+ 	{
+@@ -5081,6 +5101,15 @@ void InRpcClientGetConnectionStatus(RPC_CLIENT_GET_CONNECTION_STATUS *s, PACK *p
+ 	PackGetStr(p, "ServerName", s->ServerName, sizeof(s->ServerName));
+ 	PackGetStr(p, "ServerProductName", s->ServerProductName, sizeof(s->ServerProductName));
+ 	PackGetStr(p, "CipherName", s->CipherName, sizeof(s->CipherName));
++#ifdef __ANDROID__
++	PackGetStr(p, "AndroidTlsVersion", s->AndroidTlsVersion, sizeof(s->AndroidTlsVersion));
++	PackGetStr(p, "AndroidTlsCipherSuite", s->AndroidTlsCipherSuite, sizeof(s->AndroidTlsCipherSuite));
++	s->AndroidCertCheck = PackGetInt(p, "AndroidCertCheck");
++	if (PackGetDataSize(p, "AndroidPeerCertDer") <= ANDROID_PEER_CERT_MAX_SIZE)
++	{
++		s->AndroidPeerCertDer = PackGetBuf(p, "AndroidPeerCertDer");
++	}
++#endif
+ 	PackGetStr(p, "SessionName", s->SessionName, sizeof(s->SessionName));
+ 	PackGetStr(p, "ConnectionName", s->ConnectionName, sizeof(s->ConnectionName));
+ 
+@@ -5156,6 +5185,18 @@ void OutRpcClientGetConnectionStatus(PACK *p, RPC_CLIENT_GET_CONNECTION_STATUS *
+ 	PackAddStr(p, "ServerName", c->ServerName);
+ 	PackAddStr(p, "ServerProductName", c->ServerProductName);
+ 	PackAddStr(p, "CipherName", c->CipherName);
++#ifdef __ANDROID__
++	if (c->Connected)
++	{
++		PackAddStr(p, "AndroidTlsVersion", c->AndroidTlsVersion);
++		PackAddStr(p, "AndroidTlsCipherSuite", c->AndroidTlsCipherSuite);
++		PackAddInt(p, "AndroidCertCheck", c->AndroidCertCheck);
++		if (c->AndroidPeerCertDer != NULL)
++		{
++			PackAddBuf(p, "AndroidPeerCertDer", c->AndroidPeerCertDer);
++		}
++	}
++#endif
+ 	PackAddStr(p, "SessionName", c->SessionName);
+ 	PackAddStr(p, "ConnectionName", c->ConnectionName);
+ 
+@@ -5271,6 +5312,14 @@ void CiNotifyMain(CLIENT *c, SOCK *s)
+ 		}
+ 
+ 		// 1 byte transmission
++#ifdef __ANDROID__
++		if (!IsLocalHostIP(&s->RemoteIP))
++		{
++			bool enabled;
++			Lock(c->lock); enabled = c->Config.AllowRemoteConfig; Unlock(c->lock);
++			if (!homevpn_android_remote_allowed() || !enabled) break;
++		}
++#endif
+ 		if (Send(s, &ch, 1, false) == 0)
+ 		{
+ 			// Disconnected
+@@ -5314,12 +5363,26 @@ void CiRpcAccepted(CLIENT *c, SOCK *s)
+ 
+ 	if (rpc_mode == CLIENT_RPC_MODE_NOTIFY)
+ 	{
++#ifdef __ANDROID__
++		/* Official PC managers open a separate passwordless notification pipe;
++		 * it emits only '@'. Never let that compatibility path bypass disable. */
++		if (!IsLocalHostIP(&s->RemoteIP))
++		{
++			bool enabled;
++			Lock(c->lock); enabled = c->Config.AllowRemoteConfig; Unlock(c->lock);
++			if (!homevpn_android_remote_allowed() || !enabled) return;
++		}
++#endif
+ 		// Notification mode
+ 		CiNotifyMain(c, s);
+ 		return;
+ 	}
+ 	else if (rpc_mode == CLIENT_RPC_MODE_SHORTCUT || rpc_mode == CLIENT_RPC_MODE_SHORTCUT_DISCONNECT)
+ 	{
++#ifdef __ANDROID__
++		/* Legacy shortcut bearer keys do not replace remote management auth. */
++		if (!IsLocalHostIP(&s->RemoteIP)) return;
++#endif
+ 		// Shortcut key received
+ 		UCHAR key[SHA1_SIZE];
+ 		UINT err = ERR_NO_ERROR;
+@@ -5399,6 +5462,14 @@ void CiRpcAccepted(CLIENT *c, SOCK *s)
+ 	retcode = 0;
+ 
+ 	// Password comparison
++#ifdef __ANDROID__
++	Lock(c->lock);
++	{
++		retcode = homevpn_android_verify_rpc_hash(hashed_password, IsLocalHostIP(&s->RemoteIP), c->Config.AllowRemoteConfig) ? 0 : 1;
++		if (!IsLocalHostIP(&s->RemoteIP) && (!homevpn_android_remote_allowed() || !c->Config.AllowRemoteConfig)) retcode = 2;
++	}
++	Unlock(c->lock);
++#else
+ 	if (Cmp(hashed_password, c->EncryptedPassword, SHA1_SIZE) != 0)
+ 	{
+ 		retcode = 1;
+@@ -5440,6 +5511,7 @@ void CiRpcAccepted(CLIENT *c, SOCK *s)
+ 		}
+ 	}
+ 	Unlock(c->lock);
++#endif
+ 
+ 	retcode = Endian32(retcode);
+ 	// Error code transmission
+@@ -5457,6 +5529,7 @@ void CiRpcAccepted(CLIENT *c, SOCK *s)
+ 	}
+ 
+ 	// Create a RPC server
++	SetTimeout(s, TIMEOUT_INFINITE);
+ 	rpc = StartRpcServer(s, CiRpcDispatch, c);
+ 
+ 	// RPC server operation
+@@ -5515,6 +5588,9 @@ void CiRpcServerThread(THREAD *thread, void *param)
+ {
+ 	CLIENT *c;
+ 	SOCK *listener;
++#ifdef __ANDROID__
++	SOCK *listener6;
++#endif
+ 	UINT i;
+ 	LIST *thread_list;
+ 	// Validate arguments
+@@ -5530,6 +5606,29 @@ void CiRpcServerThread(THREAD *thread, void *param)
+ 
+ 	// Open the port
+ 	listener = NULL;
++#ifdef __ANDROID__
++	/* Scope the per-fd pre-bind hook to this RPC thread; never change process
++	 * binding while concurrent VPN transports are opening sockets. */
++	const bool frame_mode = homevpn_frame_active();
++	const UINT rpc_port = frame_mode ? homevpn_android_rootless_rpc_port() : CLIENT_CONFIG_PORT;
++	const bool local_only = frame_mode || !homevpn_android_remote_allowed();
++	homevpn_android_rpc_listen_scope(1);
++	listener = ListenEx(rpc_port, local_only);
++	listener6 = ListenEx6(rpc_port, local_only);
++	homevpn_android_rpc_listen_scope(0);
++	if (listener == NULL || listener6 == NULL)
++	{
++		Disconnect(listener); ReleaseSock(listener);
++		Disconnect(listener6); ReleaseSock(listener6);
++		NoticeThreadInit(thread);
++		return;
++	}
++	if (frame_mode)
++	{
++		fprintf(stderr, "FRAME_RPC_READY=%u\n", rpc_port);
++		fflush(stderr);
++	}
++#else
+ 	if (c->Config.DisableRpcDynamicPortListener == false)
+ 	{
+ 		for (i = CLIENT_CONFIG_PORT;i < (CLIENT_CONFIG_PORT + 5);i++)
+@@ -5545,6 +5644,7 @@ void CiRpcServerThread(THREAD *thread, void *param)
+ 	{
+ 		listener = ListenEx(CLIENT_CONFIG_PORT, !c->Config.AllowRemoteConfig);
+ 	}
++#endif
+ 
+ 	if (listener == NULL)
+ 	{
+@@ -5560,6 +5660,10 @@ void CiRpcServerThread(THREAD *thread, void *param)
+ 
+ 	c->RpcListener = listener;
+ 	AddRef(listener->ref);
++#ifdef __ANDROID__
++	c->AndroidRpcListener6 = listener6;
++	AddRef(listener6->ref);
++#endif
+ 
+ 	NoticeThreadInit(thread);
+ 
+@@ -5567,12 +5671,37 @@ void CiRpcServerThread(THREAD *thread, void *param)
+ 	{
+ 		// Wait for client connection
+ 		CLIENT_RPC_CONNECTION *conn;
+-		SOCK *s = Accept(listener);
++		SOCK *s;
++#ifdef __ANDROID__
++		struct pollfd descriptors[2];
++		int ready;
++		if (c->Halt || listener->CancelAccept || listener6->CancelAccept) break;
++		descriptors[0].fd = listener->socket; descriptors[0].events = POLLIN; descriptors[0].revents = 0;
++		descriptors[1].fd = listener6->socket; descriptors[1].events = POLLIN; descriptors[1].revents = 0;
++		ready = poll(descriptors, 2, 250);
++		if (ready < 0) { if (errno == EINTR) continue; break; }
++		if (ready == 0) continue;
++		if ((descriptors[0].revents | descriptors[1].revents) & (POLLERR | POLLHUP | POLLNVAL)) break;
++		s = Accept((descriptors[0].revents & POLLIN) ? listener : listener6);
++#else
++		s = Accept(listener);
++#endif
+ 		if (s == NULL)
+ 		{
+ 			// Stop
+ 			break;
+ 		}
++#ifdef __ANDROID__
++		if (homevpn_android_prepare_rpc_accepted(s->socket) != 0)
++		{
++			Disconnect(s); ReleaseSock(s); continue;
++		}
++		SetTimeout(s, 10000);
++		LockList(c->RpcConnectionList);
++		bool at_limit = LIST_NUM(c->RpcConnectionList) >= 64;
++		UnlockList(c->RpcConnectionList);
++		if (at_limit) { Disconnect(s); ReleaseSock(s); continue; }
++#endif
+ 
+ 		// Create a client processing thread
+ 		conn = ZeroMalloc(sizeof(CLIENT_RPC_CONNECTION));
+@@ -5588,6 +5717,9 @@ void CiRpcServerThread(THREAD *thread, void *param)
+ 
+ 	// Release the listener
+ 	ReleaseSock(listener);
++#ifdef __ANDROID__
++	ReleaseSock(listener6);
++#endif
+ 
+ 	thread_list = NewListFast(NULL);
+ 
+@@ -5696,6 +5828,10 @@ void CiStopRpcServer(CLIENT *c)
+ 
+ 	Disconnect(c->RpcListener);
+ 	ReleaseSock(c->RpcListener);
++#ifdef __ANDROID__
++	Disconnect(c->AndroidRpcListener6);
++	ReleaseSock(c->AndroidRpcListener6);
++#endif
+ 
+ 	WaitThread(c->RpcThread, INFINITE);
+ 	ReleaseThread(c->RpcThread);
+@@ -5874,6 +6010,23 @@ REMOTE_CLIENT *CcConnectRpcEx(char *server_name, char *password, bool *bad_pass,
+ 		*no_remote = false;
+ 	}
+ 
++#ifdef __ANDROID__
++	if (homevpn_android_rootless_rpc_requested())
++	{
++		UINT rpc_port = homevpn_android_rootless_rpc_port();
++		if (rpc_port == 0 || strcmp(server_name, "127.0.0.1") != 0)
++		{
++			return NULL;
++		}
++		s = Connect(server_name, rpc_port);
++		if (s == NULL)
++		{
++			return NULL;
++		}
++		goto L_TRY;
++	}
++#endif
++
+ #ifdef	OS_WIN32
+ 	// read the current port number from the registry of the localhost
+ 	if (StrCmpi(server_name, "localhost") == 0)
+@@ -5907,6 +6060,12 @@ REMOTE_CLIENT *CcConnectRpcEx(char *server_name, char *password, bool *bad_pass,
+ 	}
+ 
+ RETRY:
++#ifdef __ANDROID__
++	if (homevpn_android_rootless_rpc_requested())
++	{
++		return NULL;
++	}
++#endif
+ 	port_start++;
+ 
+ 	if (port_start >= (CLIENT_CONFIG_PORT + 5))
+@@ -6112,6 +6271,12 @@ void CiGetSessionStatus(RPC_CLIENT_GET_CONNECTION_STATUS *st, SESSION *s)
+ 				st->ServerProductBuild = s->Connection->ServerBuild;
+ 				// Server certificate
+ 				st->ServerX = CloneX(s->Connection->ServerX);
++#ifdef __ANDROID__
++				StrCpy(st->AndroidTlsVersion, sizeof(st->AndroidTlsVersion), s->Connection->AndroidTlsVersion);
++				StrCpy(st->AndroidTlsCipherSuite, sizeof(st->AndroidTlsCipherSuite), s->Connection->CipherName);
++				st->AndroidCertCheck = s->Connection->AndroidCertCheck;
++				st->AndroidPeerCertDer = CloneBuf(s->Connection->AndroidPeerCertDer);
++#endif
+ 				// Client certificate
+ 				st->ClientX = CloneX(s->Connection->ClientX);
+ 				// Connection completion time of this connection
+@@ -6286,6 +6451,9 @@ void CiFreeClientGetConnectionStatus(RPC_CLIENT_GET_CONNECTION_STATUS *st)
+ 	{
+ 		FreeX(st->ServerX);
+ 	}
++#ifdef __ANDROID__
++	FreeBuf(st->AndroidPeerCertDer);
++#endif
+ 
+ 	if (st->ClientX != NULL)
+ 	{
+@@ -6428,6 +6596,9 @@ bool CiCheckCertProc(SESSION *s, CONNECTION *c, X *server_x, bool *expired)
+ 		if (a->CheckServerCert == false)
+ 		{
+ 			// Not to validate the server certificate
++#ifdef __ANDROID__
++			c->AndroidCertCheck = ANDROID_CERT_CHECK_SKIPPED;
++#endif
+ 			Unlock(a->lock);
+ 			return true;
+ 		}
+@@ -6460,6 +6631,9 @@ bool CiCheckCertProc(SESSION *s, CONNECTION *c, X *server_x, bool *expired)
+ 		if (CompareX(old_x, server_x))
+ 		{
+ 			// Exactly matched to the certificate that is already registered
++#ifdef __ANDROID__
++			c->AndroidCertCheck = ANDROID_CERT_CHECK_VERIFIED;
++#endif
+ 			if (old_x != NULL)
+ 			{
+ 				FreeX(old_x);
+@@ -6986,6 +7160,13 @@ bool CtSetClientConfig(CLIENT *c, CLIENT_CONFIG *o)
+ 	{
+ 		return false;
+ 	}
++#ifdef __ANDROID__
++	if (o->AllowRemoteConfig && !homevpn_android_remote_allowed())
++	{
++		CiSetError(c, ERR_NOT_SUPPORTED);
++		return false;
++	}
++#endif
+ 
+ 	if (o->UseKeepConnect)
+ 	{
+@@ -8434,6 +8615,16 @@ bool CtCreateVLan(CLIENT *c, RPC_CLIENT_CREATE_VLAN *create)
+ 		GenMacAddress(r->MacAddress);
+ 		StrCpy(r->Name, sizeof(r->Name), create->DeviceName);
+ 
++#ifdef __ANDROID__
++		if (homevpn_frame_active() && StrCmpi(r->Name, "home") == 0 &&
++			homevpn_android_frame_mac(r->MacAddress) < 0)
++		{
++			Free(r);
++			CiSetError(c, ERR_INVALID_PARAMETER);
++			UnlockList(c->UnixVLanList);
++			return false;
++		}
++#endif
+ 		// Create a Tap
+ 		if (UnixVLanCreate(r->Name, r->MacAddress) == false)
+ 		{
+@@ -8967,6 +9158,17 @@ bool CtGetPasswordSetting(CLIENT *c, RPC_CLIENT_PASSWORD_SETTING *a)
+ // Set the password
+ bool CtSetPassword(CLIENT *c, RPC_CLIENT_PASSWORD *pass)
+ {
++#ifdef __ANDROID__
++	if (c == NULL || pass == NULL) return false;
++	if (!homevpn_android_remote_allowed()) { CiSetError(c, ERR_NOT_SUPPORTED); return false; }
++	if (pass->Password[0] == 0) { CiSetError(c, ERR_INVALID_PARAMETER); return false; }
++	/* Only the persistent remote hash changes. App-local polling continues to
++	 * authenticate with its separate per-run random secret. No empty/local bypass. */
++	if (homevpn_android_set_remote_password(pass->Password) != 0) { CiSetError(c, ERR_INTERNAL_ERROR); return false; }
++	CLog(c, "LC_SET_PASSWORD");
++	CiNotify(c);
++	return true;
++#endif
+ 	char *str;
+ 	if (c == NULL)
+ 	{
+@@ -9363,6 +9565,14 @@ void CiInitConfiguration(CLIENT *c)
+ 	}
+ 
+ 	// Appropriate setting for virtual LAN card
++#ifdef __ANDROID__
++	char *android_admin = (char *)homevpn_android_admin_password();
++	if (android_admin == NULL || StrLen(android_admin) < 32) exit(78);
++	Hash(c->EncryptedPassword, android_admin, StrLen(android_admin), true);
++	c->PasswordRemoteOnly = false;
++	c->Config.AllowRemoteConfig = homevpn_android_remote_allowed() ? true : false;
++	c->Config.DisableRpcDynamicPortListener = true;
++#endif
+ 	CiSetVLanToDefault(c);
+ }
+ 
+@@ -9500,6 +9710,9 @@ void CiLoadClientConfig(CLIENT_CONFIG *c, FOLDER *f)
+ 	c->KeepConnectPort = CfgGetInt(f, "KeepConnectPort");
+ 	c->KeepConnectProtocol = CfgGetInt(f, "KeepConnectProtocol");
+ 	c->AllowRemoteConfig = CfgGetBool(f, "AllowRemoteConfig");
++#ifdef __ANDROID__
++	if (!homevpn_android_remote_allowed()) c->AllowRemoteConfig = false;
++#endif
+ 	c->KeepConnectInterval = MAKESURE(CfgGetInt(f, "KeepConnectInterval"), KEEP_INTERVAL_MIN, KEEP_INTERVAL_MAX);
+ 	c->NoChangeWcmNetworkSettingOnWindows8 = CfgGetBool(f, "NoChangeWcmNetworkSettingOnWindows8");
+ 
+@@ -10273,8 +10486,9 @@ BUF *EncryptPassword2(char *password)
+ }
+ 
+ // Write the account data
+-void CiWriteAccountData(FOLDER *f, ACCOUNT *a)
++static void CiWriteAccountDataEx(FOLDER *f, ACCOUNT *a, bool ephemeral_auth)
+ {
++	FOLDER *auth;
+ 	// Validate arguments
+ 	if (f == NULL || a == NULL)
+ 	{
+@@ -10285,10 +10499,23 @@ void CiWriteAccountData(FOLDER *f, ACCOUNT *a)
+ 	CiWriteClientOption(CfgCreateFolder(f, "ClientOption"), a->ClientOption);
+ 
+ 	// Client authentication data
+-	CiWriteClientAuth(CfgCreateFolder(f, "ClientAuth"), a->ClientAuth);
++	auth = CfgCreateFolder(f, "ClientAuth");
++	if (ephemeral_auth)
++	{
++		// A reloadable placeholder lets the app provision the in-memory credentials again.
++		CfgAddInt(auth, "AuthType", CLIENT_AUTHTYPE_PASSWORD);
++		if (a->ClientAuth != NULL)
++		{
++			CfgAddStr(auth, "Username", a->ClientAuth->Username);
++		}
++	}
++	else
++	{
++		CiWriteClientAuth(auth, a->ClientAuth);
++	}
+ 
+ 	// Startup account
+-	CfgAddBool(f, "StartupAccount", a->StartupAccount);
++	CfgAddBool(f, "StartupAccount", a->StartupAccount && !ephemeral_auth);
+ 
+ 	// Server certificate check flag
+ 	CfgAddBool(f, "CheckServerCert", a->CheckServerCert);
+@@ -10318,10 +10545,18 @@ void CiWriteAccountData(FOLDER *f, ACCOUNT *a)
+ 	}
+ }
+ 
++void CiWriteAccountData(FOLDER *f, ACCOUNT *a)
++{
++	CiWriteAccountDataEx(f, a, false);
++}
++
+ // Write the account database
+ void CiWriteAccountDatabase(CLIENT *c, FOLDER *f)
+ {
+ 	char name[MAX_SIZE];
++#ifdef __ANDROID__
++	const char *ephemeral_home_auth = getenv("HOMEVPN_EPHEMERAL_HOME_AUTH");
++#endif
+ 	// Validate arguments
+ 	if (c == NULL || f == NULL)
+ 	{
+@@ -10339,7 +10574,12 @@ void CiWriteAccountDatabase(CLIENT *c, FOLDER *f)
+ 				Format(name, sizeof(name), "Account%u", i);
+ 				Lock(a->lock);
+ 				{
+-					CiWriteAccountData(CfgCreateFolder(f, name), a);
++					bool ephemeral_auth = false;
++#ifdef __ANDROID__
++					ephemeral_auth = ephemeral_home_auth != NULL && strcmp(ephemeral_home_auth, "1") == 0 &&
++						UniStrCmpi(a->ClientOption->AccountName, L"home") == 0;
++#endif
++					CiWriteAccountDataEx(CfgCreateFolder(f, name), a, ephemeral_auth);
+ 				}
+ 				Unlock(a->lock);
+ 			}
+@@ -10684,6 +10924,10 @@ CLIENT *CiNewClient()
+ 	}
+ 
+ 	CiLoadIniSettings(c);
++#ifdef __ANDROID__
++	// Android diagnostics are collected by the app only when requested.
++	c->NoSaveLog = true;
++#endif
+ 
+ 	// Log Settings
+ 	if(c->NoSaveLog == false)
+@@ -10999,6 +11243,16 @@ void CtStartClient()
+ 			{
+ 				if (a->StartupAccount)
+ 				{
++#ifdef __ANDROID__
++					/* The foreground-service owner configures TLS trust before
++					 * connecting. Management-only startup sends no remote auth. */
++					char *defer_startup = getenv("HOMEVPN_DEFER_STARTUP");
++					if (defer_startup != NULL && strcmp(defer_startup, "1") == 0)
++					{
++						Unlock(a->lock);
++						continue;
++					}
++#endif
+ 					Add(o, CopyUniStr(a->ClientOption->AccountName));
+ 				}
+ 			}
+diff --git a/src/Cedar/Client.h b/src/Cedar/Client.h
+index 232bc47..0e0863c 100644
+--- a/src/Cedar/Client.h
++++ b/src/Cedar/Client.h
+@@ -431,6 +431,12 @@ struct RPC_CLIENT_GET_CONNECTION_STATUS
+ 	UINT NumTcpConnectionsDownload;			// Number of outbound connections
+ 	bool UseEncrypt;						// Use of encryption
+ 	char CipherName[32];					// Cipher algorithm name
++#ifdef __ANDROID__
++	char AndroidTlsVersion[16];
++	char AndroidTlsCipherSuite[64];
++	UINT AndroidCertCheck;				// 0 unavailable, 1 skipped, 2 verified
++	BUF *AndroidPeerCertDer;
++#endif
+ 	char ProtocolName[64];					// Protocol name
+ 	bool UseCompress;						// Use of compression
+ 	bool IsRUDPSession;						// R-UDP session
+@@ -479,6 +485,9 @@ struct CLIENT
+ 	CLIENT_CONFIG Config;					// Client Settings
+ 	LIST *RpcConnectionList;				// RPC connection list
+ 	SOCK *RpcListener;						// RPC listener
++#ifdef __ANDROID__
++	SOCK *AndroidRpcListener6;				// App-owned IPv6 RPC listener
++#endif
+ 	THREAD *RpcThread;						// RPC thread
+ 	LOCK *HelperLock;						// Auxiliary lock
+ 	THREAD *SaverThread;					// Saver thread
+diff --git a/src/Cedar/Command.c b/src/Cedar/Command.c
+index c22a982..73492a3 100644
+--- a/src/Cedar/Command.c
++++ b/src/Cedar/Command.c
+@@ -103,6 +103,9 @@
+ // vpncmd Command Line Management Utility
+ 
+ #include "CedarPch.h"
++#ifdef __ANDROID__
++#include <homevpn_android.h>
++#endif
+ 
+ // System checker definition
+ typedef bool (CHECKER_PROC_DEF)();
+@@ -546,7 +549,11 @@ bool CheckFileSystem()
+ 		UCHAR *buf;
+ 		IO *io;
+ #ifndef	OS_WIN32
++#ifdef __ANDROID__
++		wchar_t *filename = L"@vpn_checker_tmp";
++#else
+ 		wchar_t *filename = L"/tmp/vpn_checker_tmp";
++#endif
+ #else	// OS_WIN32
+ 		wchar_t filename[MAX_PATH];
+ 		CombinePathW(filename, sizeof(filename), MsGetMyTempDirW(), L"vpn_checker_tmp");
+@@ -4719,6 +4726,22 @@ UINT PcAccountPasswordSet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
+ 			HashPassword(t.ClientAuth->HashedPassword, t.ClientAuth->Username,
+ 				GetParamStr(o, "PASSWORD"));
+ 		}
++#ifdef __ANDROID__
++		else if (StrCmpi(typestr, "standard-hex") == 0 && homevpn_android_rootless_rpc_port() != 0)
++		{
++			char decoded[MAX_SIZE];
++			if (!homevpn_android_decode_password(GetParamStr(o, "PASSWORD"), decoded, sizeof(decoded)))
++			{
++				ret = ERR_INVALID_PARAMETER;
++			}
++			else
++			{
++				t.ClientAuth->AuthType = CLIENT_AUTHTYPE_PASSWORD;
++				HashPassword(t.ClientAuth->HashedPassword, t.ClientAuth->Username, decoded);
++			}
++			homevpn_android_clear_password(decoded, sizeof(decoded));
++		}
++#endif
+ 		else if (StartWith("radius", typestr) || StartWith("ntdomain", typestr))
+ 		{
+ 			t.ClientAuth->AuthType = CLIENT_AUTHTYPE_PLAIN_PASSWORD;
+@@ -5849,6 +5872,47 @@ UINT PcAccountDisconnect(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
+ }
+ 
+ // Get the current state of the connection settings
++#ifdef __ANDROID__
++static void CmdPrintAndroidConnectionDetails(CONSOLE *c, RPC_CLIENT_GET_CONNECTION_STATUS *status)
++{
++	wchar_t row[160];
++	BUF *certificate = status->AndroidPeerCertDer;
++	const char *enabled = getenv("HOMEVPN_CONNECTION_DETAILS");
++	if (c->ConsoleType != CONSOLE_CSV || !status->Connected || enabled == NULL || strcmp(enabled, "1") != 0)
++	{
++		return;
++	}
++	if (!IsEmptyStr(status->AndroidTlsVersion))
++	{
++		UniFormat(row, sizeof(row), L"TLS Version,%S", status->AndroidTlsVersion);
++		c->Write(c, row);
++	}
++	if (!IsEmptyStr(status->AndroidTlsCipherSuite))
++	{
++		UniFormat(row, sizeof(row), L"TLS Cipher Suite,%S", status->AndroidTlsCipherSuite);
++		c->Write(c, row);
++	}
++	c->Write(c, status->UseEncrypt ? L"VPN Payload Encryption,1" : L"VPN Payload Encryption,0");
++	if (status->AndroidCertCheck == ANDROID_CERT_CHECK_SKIPPED || status->AndroidCertCheck == ANDROID_CERT_CHECK_VERIFIED)
++	{
++		c->Write(c, status->AndroidCertCheck == ANDROID_CERT_CHECK_VERIFIED ? L"Server Certificate Verified,1" : L"Server Certificate Verified,0");
++	}
++	if (certificate != NULL && certificate->Size > 0)
++	{
++		// Base64 needs no CSV quoting. Write it without the fixed-width table buffer.
++		const char prefix[] = "Server Certificate DER,";
++		char *line = ZeroMalloc(sizeof(prefix) + 4 * ((certificate->Size + 2) / 3));
++		wchar_t *wide_line;
++		Copy(line, (void *)prefix, sizeof(prefix) - 1);
++		B64_Encode(line + sizeof(prefix) - 1, certificate->Buf, certificate->Size);
++		wide_line = CopyStrToUni(line);
++		c->Write(c, wide_line);
++		Free(wide_line);
++		Free(line);
++	}
++}
++#endif
++
+ UINT PcAccountStatusGet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
+ {
+ 	LIST *o;
+@@ -5888,6 +5952,9 @@ UINT PcAccountStatusGet(CONSOLE *c, char *cmd_name, wchar_t *str, void *param)
+ 			CmdPrintStatusToListView(ct, &t);
+ 
+ 			CtFree(ct, c);
++#ifdef __ANDROID__
++			CmdPrintAndroidConnectionDetails(c, &t);
++#endif
+ 		}
+ 	}
+ 
+diff --git a/src/Cedar/Connection.c b/src/Cedar/Connection.c
+index 6bbf651..153df38 100644
+--- a/src/Cedar/Connection.c
++++ b/src/Cedar/Connection.c
+@@ -3495,6 +3495,9 @@ void CleanupConnection(CONNECTION *c)
+ 	{
+ 		FreeX(c->ServerX);
+ 	}
++#ifdef __ANDROID__
++	FreeBuf(c->AndroidPeerCertDer);
++#endif
+ 
+ 	if (c->ClientX != NULL)
+ 	{
+diff --git a/src/Cedar/Connection.h b/src/Cedar/Connection.h
+index f1fde63..7bebdca 100644
+--- a/src/Cedar/Connection.h
++++ b/src/Cedar/Connection.h
+@@ -110,6 +110,13 @@
+ 
+ #define	KEEP_ALIVE_STRING				"Internet Connection Keep Alive Packet"
+ 
++#ifdef __ANDROID__
++#define ANDROID_CERT_CHECK_UNAVAILABLE 0
++#define ANDROID_CERT_CHECK_SKIPPED 1
++#define ANDROID_CERT_CHECK_VERIFIED 2
++#define ANDROID_PEER_CERT_MAX_SIZE (16 * 1024)
++#endif
++
+ #define	UPDATE_LAST_COMM_TIME(v, n)		{if ((v) <= (n)) { v = (n); } }
+ 
+ // KEEP CONNECT structure
+@@ -298,6 +305,11 @@ struct CONNECTION
+ 	X *ServerX;						// Server certificate
+ 	X *ClientX;						// Client certificate
+ 	char *CipherName;				// Encryption algorithm name
++#ifdef __ANDROID__
++	char AndroidTlsVersion[16];		// TLS protocol negotiated by the initial connection socket
++	UINT AndroidCertCheck;			// 0 unavailable, 1 skipped, 2 verified
++	BUF *AndroidPeerCertDer;		// Public leaf from the established socket
++#endif
+ 	UINT64 ConnectedTick;			// Time it is connected
+ 	IP ClientIp;					// Client IP address
+ 	UINT ClientPort;				// Client Port number
+diff --git a/src/Cedar/Protocol.c b/src/Cedar/Protocol.c
+index fb6867c..d751d17 100644
+--- a/src/Cedar/Protocol.c
++++ b/src/Cedar/Protocol.c
+@@ -103,6 +103,9 @@
+ // SoftEther protocol related routines
+ 
+ #include "CedarPch.h"
++#ifdef __ANDROID__
++#include <homevpn_frame.h>
++#endif
+ 
+ static UCHAR ssl_packet_start[3] = {0x17, 0x03, 0x00};
+ 
+@@ -5520,12 +5523,18 @@ bool ClientCheckServerCert(CONNECTION *c, bool *expired)
+ 	if (auth->CheckCertProc == NULL && c->Session->LinkModeClient == false)
+ 	{
+ 		// No checking function
++#ifdef __ANDROID__
++		c->AndroidCertCheck = ANDROID_CERT_CHECK_SKIPPED;
++#endif
+ 		return true;
+ 	}
+ 
+ 	if (c->Session->LinkModeClient && c->Session->Link->CheckServerCert == false)
+ 	{
+ 		// It's in cascade connection mode, but do not check the server certificate
++#ifdef __ANDROID__
++		c->AndroidCertCheck = ANDROID_CERT_CHECK_SKIPPED;
++#endif
+ 		return true;
+ 	}
+ 
+@@ -5558,6 +5567,9 @@ bool ClientCheckServerCert(CONNECTION *c, bool *expired)
+ 			if (CheckSignatureByCa(cedar, x))
+ 			{
+ 				// This certificate can be trusted because it is signed
++#ifdef __ANDROID__
++				c->AndroidCertCheck = ANDROID_CERT_CHECK_VERIFIED;
++#endif
+ 				FreeX(x);
+ 				return true;
+ 			}
+@@ -5568,6 +5580,9 @@ bool ClientCheckServerCert(CONNECTION *c, bool *expired)
+ 			if (CheckSignatureByCaLinkMode(c->Session, x))
+ 			{
+ 				// This certificate can be trusted because it is signed
++#ifdef __ANDROID__
++				c->AndroidCertCheck = ANDROID_CERT_CHECK_VERIFIED;
++#endif
+ 				FreeX(x);
+ 				return true;
+ 			}
+@@ -5586,6 +5601,9 @@ bool ClientCheckServerCert(CONNECTION *c, bool *expired)
+ 					{
+ 						Unlock(c->Session->Link->lock);
+ 						// Exactly match the certificate that is registered in the cascade configuration
++#ifdef __ANDROID__
++						c->AndroidCertCheck = ANDROID_CERT_CHECK_VERIFIED;
++#endif
+ 						FreeX(x);
+ 						return true;
+ 					}
+@@ -5671,6 +5689,20 @@ bool ClientConnect(CONNECTION *c)
+ 
+ 	sess = c->Session;
+ 
++#ifdef __ANDROID__
++	c->AndroidCertCheck = ANDROID_CERT_CHECK_UNAVAILABLE;
++	/* App-managed main account follows the app's explicit UDP setting. This
++	 * does not change imported or manually managed Linux-client accounts. */
++	if (sess->ClientOption != NULL && UniStrCmpi(sess->ClientOption->AccountName, L"home") == 0)
++	{
++		char *disable_udp = getenv("HOMEVPN_DISABLE_UDP_ACCELERATION");
++		if (disable_udp != NULL && strcmp(disable_udp, "1") == 0)
++		{
++			sess->ClientOption->NoUdpAcceleration = true;
++		}
++	}
++#endif
++
+ 	PrintStatus(sess, L"init");
+ 	PrintStatus(sess, _UU("STATUS_1"));
+ 
+@@ -5680,13 +5712,24 @@ REDIRECTED:
+ 	c->Status = CONNECTION_STATUS_CONNECTING;
+ 	c->Session->ClientStatus = CLIENT_STATUS_CONNECTING;
+ 
++#ifdef __ANDROID__
++	// Android diagnostics contain only fixed stages and numeric protocol errors.
++	fputs("SoftEther stage=transport_connecting\n", stderr);
++#endif
+ 	s = ClientConnectToServer(c);
+ 	if (s == NULL)
+ 	{
+ 		PrintStatus(sess, L"free");
++#ifdef __ANDROID__
++		fprintf(stderr, "SoftEther client_error phase=transport code=%u\n", c->Err);
++#endif
+ 		return false;
+ 	}
+ 
++#ifdef __ANDROID__
++	fprintf(stderr, "SoftEther stage=transport_ready peer_family=%s\n",
++		IsIP6(&s->RemoteIP) ? "ipv6" : "ipv4");
++#endif
+ 	Copy(&server_ip, &s->RemoteIP, sizeof(IP));
+ 
+ 	if (c->Halt)
+@@ -5747,6 +5790,10 @@ REDIRECTED:
+ 		goto CLEANUP;
+ 	}
+ 
++#ifdef __ANDROID__
++	fputs("SoftEther stage=hello_received\n", stderr);
++#endif
++
+ 	if (c->Session->ClientOption != NULL && c->Session->ClientOption->FromAdminPack)
+ 	{
+ 		if (IsAdminPackSupportedServerProduct(c->ServerStr) == false)
+@@ -5792,14 +5839,30 @@ REDIRECTED:
+ 			c->Session->ForceStopFlag = true;
+ 		}
+ 
++#ifdef __ANDROID__
++		fprintf(stderr, "SoftEther client_error phase=certificate_check code=%u\n", c->Err);
++#endif
+ 		goto CLEANUP;
+ 	}
+ 
++#ifdef __ANDROID__
++	if (c->AndroidCertCheck == ANDROID_CERT_CHECK_VERIFIED)
++	{
++		fputs("SoftEther stage=certificate_check_passed\n", stderr);
++	}
++	else if (c->AndroidCertCheck == ANDROID_CERT_CHECK_SKIPPED)
++	{
++		fputs("SoftEther stage=certificate_check_disabled\n", stderr);
++	}
++#endif
+ 	PrintStatus(sess, _UU("STATUS_6"));
+ 
+ 	// Send the authentication data
+ 	if (ClientUploadAuth(c) == false)
+ 	{
++#ifdef __ANDROID__
++		fprintf(stderr, "SoftEther client_error phase=authentication_send code=%u\n", c->Err);
++#endif
+ 		goto CLEANUP;
+ 	}
+ 
+@@ -5810,11 +5873,25 @@ REDIRECTED:
+ 		goto CLEANUP;
+ 	}
+ 
++#ifdef __ANDROID__
++	if (c->UseTicket)
++	{
++		fputs("SoftEther stage=authentication_sent auth=redirect_ticket\n", stderr);
++	}
++	else
++	{
++		fprintf(stderr, "SoftEther stage=authentication_sent auth_type=%u\n",
++			sess->ClientAuth->AuthType);
++	}
++#endif
+ 	// Receive a Welcome packet
+ 	p = HttpClientRecv(s);
+ 	if (p == NULL)
+ 	{
+ 		c->Err = ERR_DISCONNECTED;
++#ifdef __ANDROID__
++		fprintf(stderr, "SoftEther client_error phase=authentication_reply_missing code=%u\n", c->Err);
++#endif
+ 		goto CLEANUP;
+ 	}
+ 
+@@ -5823,6 +5900,9 @@ REDIRECTED:
+ 	if (err != 0)
+ 	{
+ 		// An error has occured
++#ifdef __ANDROID__
++		fprintf(stderr, "SoftEther server_error phase=authentication_response code=%u\n", err);
++#endif
+ 		c->Err = err;
+ 		c->ClientConnectError_NoSavePassword = PackGetBool(p, "no_save_password");
+ 		goto CLEANUP;
+@@ -6297,6 +6377,17 @@ REDIRECTED:
+ 		}
+ 
+ 		c->CipherName = CopyStr(c->FirstSock->CipherName);
++#ifdef __ANDROID__
++		StrCpy(c->AndroidTlsVersion, sizeof(c->AndroidTlsVersion), c->FirstSock->TlsVersion);
++		// ServerX can hold the redirect ticket's expected certificate. Report the actual leaf.
++		FreeBuf(c->AndroidPeerCertDer);
++		c->AndroidPeerCertDer = XToBuf(c->FirstSock->RemoteX, false);
++		if (c->AndroidPeerCertDer != NULL && c->AndroidPeerCertDer->Size > ANDROID_PEER_CERT_MAX_SIZE)
++		{
++			FreeBuf(c->AndroidPeerCertDer);
++			c->AndroidPeerCertDer = NULL;
++		}
++#endif
+ 	}
+ 	Unlock(c->lock);
+ 
+@@ -6330,6 +6421,9 @@ REDIRECTED:
+ 
+ 	// Shift the connection to the tunneling mode
+ 	StartTunnelingMode(c);
++#ifdef __ANDROID__
++	fputs("SoftEther stage=tunnel_established\n", stderr);
++#endif
+ 	s = NULL;
+ 
+ 	if (c->Session->HalfConnection)
+@@ -7050,6 +7144,9 @@ bool ClientDownloadHello(CONNECTION *c, SOCK *s)
+ 	if (err = GetErrorFromPack(p))
+ 	{
+ 		// An error has occured
++#ifdef __ANDROID__
++		fprintf(stderr, "SoftEther server_error phase=hello_response code=%u\n", err);
++#endif
+ 		c->Err = err;
+ 		FreePack(p);
+ 		return false;
+@@ -7633,6 +7730,19 @@ SOCK *ClientConnectGetSocket(CONNECTION *c, bool additional_connect, bool no_tls
+ 	host_for_direct_connection = c->ServerName;
+ 	port_for_direct_connection = c->ServerPort;
+ 
++	bool no_nat_t = additional_connect && !is_additonal_rudp_session;
++#ifdef __ANDROID__
++	if (homevpn_frame_active())
++	{
++		no_nat_t = true;
++		if (o->PortUDP != 0)
++		{
++			c->Err = ERR_INVALID_PARAMETER;
++			return NULL;
++		}
++	}
++#endif
++
+ 	switch (o->ProxyType)
+ 	{
+ 	case PROXY_DIRECT:	// TCP/IP
+@@ -7645,7 +7755,7 @@ SOCK *ClientConnectGetSocket(CONNECTION *c, bool additional_connect, bool no_tls
+ 				// If additional_connect == false, enable trying to NAT-T connection
+ 				// If additional_connect == true, follow the IsRUDPSession setting in this session
+ 				s = TcpIpConnectEx(host_for_direct_connection, port_for_direct_connection,
+-					(bool *)cancel_flag, hWnd, &nat_t_err, (additional_connect ? (!is_additonal_rudp_session) : false),
++					(bool *)cancel_flag, hWnd, &nat_t_err, no_nat_t,
+ 					true, no_tls, &ret_ip);
+ 			}
+ 		}
+diff --git a/src/Cedar/Session.c b/src/Cedar/Session.c
+index a98b1f4..870d2d5 100644
+--- a/src/Cedar/Session.c
++++ b/src/Cedar/Session.c
+@@ -1135,6 +1135,15 @@ void SessionAdditionalConnect(SESSION *s)
+ 	ReleaseThread(t);
+ }
+ 
++#ifdef __ANDROID__
++static bool IsAndroidManagedManualRetry(SESSION *s)
++{
++	const char *manual_retry = getenv("HOMEVPN_MANUAL_RETRY");
++	return manual_retry != NULL && strcmp(manual_retry, "1") == 0 &&
++		s->Account != NULL && UniStrCmpi(s->ClientOption->AccountName, L"home") == 0;
++}
++#endif
++
+ // Connect the client session to the server
+ bool SessionConnect(SESSION *s)
+ {
+@@ -1172,6 +1181,16 @@ bool SessionConnect(SESSION *s)
+ 	ret = ClientConnect(c);
+ 	s->Err = c->Err;
+ 
++#ifdef __ANDROID__
++	// Publish the result before AccountStatusGet can observe the lost connection.
++	if (IsAndroidManagedManualRetry(s) && !s->UserCanceled &&
++		s->Err != ERR_NO_ERROR && s->Err != ERR_USER_CANCEL)
++	{
++		fprintf(stderr, "SoftEther managed_session_failed code=%u\n", s->Err);
++		fflush(stderr);
++	}
++#endif
++
+ 	s->CancelConnect = false;
+ 
+ 	if (s->Cedar->Client != NULL)
+@@ -1523,6 +1542,13 @@ void ClientThread(THREAD *t, void *param)
+ 			s->Err = ERR_USER_CANCEL;
+ 		}
+ 		Debug("Disconnected. Err = %u : %S\n", s->Err, _E(s->Err));
++#ifdef __ANDROID__
++		// Android reads native diagnostics from the process output on demand.
++		if (s->Err != ERR_NO_ERROR && s->Err != ERR_USER_CANCEL)
++		{
++			fprintf(stderr, "SoftEther session ended (error %u)\n", s->Err);
++		}
++#endif
+ 
+ 		PrintSessionTotalDataSize(s);
+ 
+@@ -1535,6 +1561,13 @@ void ClientThread(THREAD *t, void *param)
+ 				GetUniErrorStr(s->Err), s->Err);
+ 		}
+ 
++#ifdef __ANDROID__
++		if (IsAndroidManagedManualRetry(s))
++		{
++			break;
++		}
++#endif
++
+ 		s->ClientStatus = CLIENT_STATUS_RETRY;
+ 
+ 		if (s->Link != NULL)
+diff --git a/src/Cedar/VLanUnix.c b/src/Cedar/VLanUnix.c
+index 506aef4..1e66f40 100644
+--- a/src/Cedar/VLanUnix.c
++++ b/src/Cedar/VLanUnix.c
+@@ -117,6 +117,15 @@
+ #include <errno.h>
+ #include <Mayaqua/Mayaqua.h>
+ #include <Cedar/Cedar.h>
++#ifdef __ANDROID__
++#include <homevpn_managed_tap.h>
++#include <homevpn_frame.h>
++/* Upstream TunTap.h carries the older Linux ABI and defines struct tun_pi;
++ * including linux/if_tun.h twice would redefine it. Linux UAPI exclusive bit. */
++#ifndef IFF_TUN_EXCL
++#define IFF_TUN_EXCL 0x8000
++#endif
++#endif
+ #ifdef	UNIX_MACOS
+ #include <net/ethernet.h>
+ #endif
+@@ -125,6 +134,34 @@
+ 
+ static LIST *unix_vlan = NULL;
+ 
++#ifdef __ANDROID__
++/* Only the app-managed home adapter changes OS naming/filter policy. Advanced
++ * Linux-client adapters retain their upstream names and Ethernet behavior. */
++static bool AndroidManagedHome(char *name)
++{
++	char *enabled = getenv("HOMEVPN_MANAGED_HOME");
++	return enabled != NULL && strcmp(enabled, "1") == 0 && StrCmpi(name, "home") == 0;
++}
++static bool AndroidAllowFrame(VLAN *v, const void *packet, UINT size)
++{
++	char *disabled = getenv("HOMEVPN_DISABLE_IPV6");
++	const UCHAR *bytes = packet;
++	UINT offset = 12;
++	UINT type;
++	if (disabled == NULL || strcmp(disabled, "1") != 0 || !AndroidManagedHome(v->InstanceName)) return true;
++	if (size < 14) return false;
++	type = ((UINT)bytes[offset] << 8) | bytes[offset + 1];
++	/* 802.1Q, 802.1ad and common stacked-provider VLAN encapsulations. */
++	while (type == 0x8100 || type == 0x88a8 || type == 0x9100)
++	{
++		offset += 4;
++		if (size < offset + 2) return false;
++		type = ((UINT)bytes[offset] << 8) | bytes[offset + 1];
++	}
++	return type != 0x86dd;
++}
++#endif
++
+ #ifndef	NO_VLAN
+ 
+ // Get the PACKET_ADAPTER
+@@ -252,6 +289,15 @@ bool VLanPutPacket(VLAN *v, void *buf, UINT size)
+ 		return true;
+ 	}
+ 
++#ifdef __ANDROID__
++	if (!AndroidAllowFrame(v, buf, size)) { Free(buf); return true; }
++	if (homevpn_frame_active())
++	{
++		if (homevpn_frame_write(v->fd, buf, size) == HOMEVPN_FRAME_FAILED) return false;
++		Free(buf);
++		return true;
++	}
++#endif
+ 	ret = write(v->fd, buf, size);
+ 
+ 	if (ret >= 1)
+@@ -285,6 +331,21 @@ bool VLanGetNextPacket(VLAN *v, void **buf, UINT *size)
+ 	}
+ 
+ 	// Read
++#ifdef __ANDROID__
++	if (homevpn_frame_active())
++	{
++		size_t length;
++		_Static_assert(TAP_READ_BUF_SIZE >= HOMEVPN_MAX_FRAME, "Frame read buffer too small");
++		switch (homevpn_frame_read(v->fd, tmp, &length))
++		{
++			case HOMEVPN_FRAME_FAILED: return false;
++			case HOMEVPN_FRAME_IDLE: *buf = NULL; *size = 0; return true;
++			case HOMEVPN_FRAME_DELIVERED: ret = (int)length; break;
++			default: return false;
++		}
++	}
++	else
++#endif
+ 	ret = read(v->fd, tmp, sizeof(tmp));
+ 
+ 	if (ret == 0 ||
+@@ -303,6 +364,9 @@ bool VLanGetNextPacket(VLAN *v, void **buf, UINT *size)
+ 	else
+ 	{
+ 		// Reading packet success
++#ifdef __ANDROID__
++		if (!AndroidAllowFrame(v, tmp, (UINT)ret)) { *buf = NULL; *size = 0; return true; }
++#endif
+ 		*buf = Malloc(ret);
+ 		Copy(*buf, tmp, ret);
+ 		*size = ret;
+@@ -424,6 +488,10 @@ int UnixCreateTapDeviceEx(char *name, char *prefix, UCHAR *mac_address)
+ 	struct sockaddr sa;
+ 	char *tap_name = TAP_FILENAME_1;
+ 	int s;
++#ifdef __ANDROID__
++	bool android_managed_home;
++	const char *android_tap_token = NULL;
++#endif
+ #ifdef	UNIX_MACOS
+ 	char tap_macos_name[256] = TAP_MACOS_DIR TAP_MACOS_FILENAME;
+ #endif
+@@ -438,6 +506,29 @@ int UnixCreateTapDeviceEx(char *name, char *prefix, UCHAR *mac_address)
+ 	Trim(instance_name_lower);
+ 	StrLower(instance_name_lower);
+ 	Format(eth_name, sizeof(eth_name), "%s_%s", prefix, instance_name_lower);
++#ifdef __ANDROID__
++	if (homevpn_frame_active())
++	{
++		if (StrCmpi(prefix, "vpn") == 0 && StrCmpi(instance_name_lower, "home") == 0)
++			return homevpn_frame_dup();
++		errno = ENOTSUP;
++		return -1;
++	}
++	android_managed_home = StrCmpi(prefix, "vpn") == 0 && AndroidManagedHome(instance_name_lower);
++	if (android_managed_home)
++	{
++		const char *managed_tap = getenv("HOMEVPN_MANAGED_TAP");
++		android_tap_token = getenv("HOMEVPN_TAP_TOKEN");
++		if (!homevpn_managed_tap_name_valid(managed_tap) ||
++			!homevpn_managed_tap_token_valid(android_tap_token))
++		{
++			fputs("homevpn: valid managed TAP name and ownership token required\n", stderr);
++			errno = EINVAL;
++			return -1;
++		}
++		StrCpy(eth_name, sizeof(eth_name), (char *)managed_tap);
++	}
++#endif
+ 
+ 	eth_name[15] = 0;
+ 
+@@ -496,6 +587,13 @@ int UnixCreateTapDeviceEx(char *name, char *prefix, UCHAR *mac_address)
+ 	Zero(&ifr, sizeof(ifr));
+ 
+ 	ifr.ifr_flags = IFF_TAP | IFF_NO_PI;
++#ifdef __ANDROID__
++	if (android_managed_home)
++	{
++		/* Never attach an interface created by another process or app. */
++		ifr.ifr_flags |= IFF_TUN_EXCL;
++	}
++#endif
+ 	StrCpy(ifr.ifr_name, sizeof(ifr.ifr_name), eth_name);
+ 
+ 	if (ioctl(fd, TUNSETIFF, &ifr) == -1)
+@@ -505,6 +603,38 @@ int UnixCreateTapDeviceEx(char *name, char *prefix, UCHAR *mac_address)
+ 		return -1;
+ 	}
+ 
++#ifdef __ANDROID__
++	if (android_managed_home)
++	{
++		unsigned int actual_index;
++		/* TUNSETIFF returns the kernel-selected name. A non-template exclusive
++		 * request must match exactly; report creation, not connectivity. */
++		if (ifr.ifr_name[sizeof(ifr.ifr_name) - 1] != '\0' || strcmp(ifr.ifr_name, eth_name) != 0)
++		{
++			close(fd);
++			errno = EPROTO;
++			return -1;
++		}
++		actual_index = if_nametoindex(ifr.ifr_name);
++		if (actual_index == 0)
++		{
++			close(fd);
++			return -1;
++		}
++		/* A leading newline isolates the record from unfinished upstream console
++		 * output. Kotlin consumes the nonce before ordinary diagnostics. */
++		flockfile(stdout);
++		int marker_result = fprintf(stdout, "\nHOMEVPN_TAP_CREATED %s %s %u\n", android_tap_token, ifr.ifr_name, actual_index);
++		int marker_flush = fflush(stdout);
++		funlockfile(stdout);
++		if (marker_result < 0 || marker_flush != 0)
++		{
++			close(fd);
++			return -1;
++		}
++	}
++#endif
++
+ 	// MAC address setting
+ 	s = socket(AF_INET, SOCK_DGRAM, 0);
+ 	if (s != -1)
+diff --git a/src/Cedar/VLanUnix.h b/src/Cedar/VLanUnix.h
+index fa878e5..556aecd 100644
+--- a/src/Cedar/VLanUnix.h
++++ b/src/Cedar/VLanUnix.h
+@@ -122,6 +122,7 @@ struct VLAN
+ VLAN *NewVLan(char *instance_name, VLAN_PARAM *param);
+ VLAN *NewTap(char *name, char *mac_address);
+ void FreeVLan(VLAN *v);
++void FreeTap(VLAN *v);
+ CANCEL *VLanGetCancel(VLAN *v);
+ bool VLanGetNextPacket(VLAN *v, void **buf, UINT *size);
+ bool VLanPutPacket(VLAN *v, void *buf, UINT size);
+diff --git a/src/Mayaqua/FileIO.c b/src/Mayaqua/FileIO.c
+index f40d3b3..1442e81 100644
+--- a/src/Mayaqua/FileIO.c
++++ b/src/Mayaqua/FileIO.c
+@@ -1425,6 +1425,14 @@ void GetExeDir(char *name, UINT size)
+ 		return;
+ 	}
+ 
++#ifdef __ANDROID__
++	char *android_data_dir = getenv("HOMEVPN_DATA_DIR");
++	if (android_data_dir != NULL && android_data_dir[0] == '/')
++	{
++		StrCpy(name, size, android_data_dir);
++		return;
++	}
++#endif
+ 	GetDirNameFromFilePath(name, size, exe_file_name);
+ }
+ void GetExeDirW(wchar_t *name, UINT size)
+@@ -1435,6 +1443,14 @@ void GetExeDirW(wchar_t *name, UINT size)
+ 		return;
+ 	}
+ 
++#ifdef __ANDROID__
++	char *android_data_dir = getenv("HOMEVPN_DATA_DIR");
++	if (android_data_dir != NULL && android_data_dir[0] == '/')
++	{
++		UtfToUni(name, size, android_data_dir);
++		return;
++	}
++#endif
+ 	GetDirNameFromFilePathW(name, size, exe_file_name_w);
+ }
+ 
+diff --git a/src/Mayaqua/Internat.c b/src/Mayaqua/Internat.c
+index 59c51dc..4ab418c 100644
+--- a/src/Mayaqua/Internat.c
++++ b/src/Mayaqua/Internat.c
+@@ -1008,7 +1008,14 @@ UINT UnixStrToUni(wchar_t *s, UINT size, char *str)
+ 	}
+ 
+ 	inbuf = (char *)str;
++#ifdef __ANDROID__
++	/* Bionic iconv's UTF-8 decoder reports zero input consumption for NUL.
++	 * Passing the terminator repeats NUL output until E2BIG. Convert payload
++	 * bytes only; the zero-filled destination below supplies the terminator. */
++	insize = StrLen(str);
++#else
+ 	insize = StrLen(str) + 1;
++#endif
+ 	outsize = insize * 5 + 10;
+ 	outbuf_orig = outbuf = ZeroMalloc(outsize);
+ 
+diff --git a/src/Mayaqua/Mayaqua.c b/src/Mayaqua/Mayaqua.c
+index 5d7a9a5..b2fa1b9 100644
+--- a/src/Mayaqua/Mayaqua.c
++++ b/src/Mayaqua/Mayaqua.c
+@@ -712,15 +712,22 @@ void CheckUnixTempDir()
+ {
+ 	if (OS_IS_UNIX(GetOsInfo()->OsType))
+ 	{
+-		char tmp[128], tmp2[64];
++		char tmp[MAX_PATH], tmp2[64], temporary_directory[MAX_PATH];
+ 		UINT64 now = SystemTime64();
+ 		IO *o;
+ 
+-		MakeDir("/tmp");
++#ifdef __ANDROID__
++		/* Android rootfs need not have a writable /tmp. The foreground owner
++		 * already provisions HOMEVPN_DATA_DIR; test only that private directory. */
++		GetExeDir(temporary_directory, sizeof(temporary_directory));
++#else
++		StrCpy(temporary_directory, sizeof(temporary_directory), "/tmp");
++#endif
++		MakeDir(temporary_directory);
+ 
+ 		Format(tmp2, sizeof(tmp2), "%I64u", now);
+ 
+-		Format(tmp, sizeof(tmp), "/tmp/.%s", tmp2);
++		Format(tmp, sizeof(tmp), "%s/.tmp_check_%s", temporary_directory, tmp2);
+ 
+ 		o = FileCreate(tmp);
+ 		if (o == NULL)
+@@ -728,7 +735,7 @@ void CheckUnixTempDir()
+ 			o = FileOpen(tmp, false);
+ 			if (o == NULL)
+ 			{
+-				Print("Unable to use /tmp.\n\n");
++				Print("Unable to use the configured temporary directory.\n\n");
+ 				exit(0);
+ 				return;
+ 			}
+diff --git a/src/Mayaqua/Network.c b/src/Mayaqua/Network.c
+index bc8d02b..6d57d6f 100644
+--- a/src/Mayaqua/Network.c
++++ b/src/Mayaqua/Network.c
+@@ -105,6 +105,9 @@
+ // Network communication module
+ 
+ #include <GlobalConst.h>
++#ifdef __ANDROID__
++#include <homevpn_android.h>
++#endif
+ 
+ #define	ENCRYPT_C
+ #define	NETWORK_C
+@@ -14082,6 +14085,27 @@ bool StartSSLWithSettings(SOCK* sock, UINT ssl_timeout, char* sni_hostname, SSL_
+ 		UnlockOpenSSL();
+ 	}
+ 
++#ifdef __ANDROID__
++	if (!sock->ServerMode)
++	{
++		LockOpenSSL();
++		bool policy_ok = homevpn_android_frame_tls(sock->ssl);
++		if (!policy_ok)
++		{
++			SSL_free(sock->ssl);
++			sock->ssl = NULL;
++		}
++		UnlockOpenSSL();
++		if (!policy_ok)
++		{
++			fputs("homevpn: selected native TLS policy is unavailable\n", stderr);
++			Unlock(sock->ssl_lock);
++			ReleaseSslCtxShared(ssl_ctx_shared);
++			return false;
++		}
++	}
++#endif
++
+ 	if (sock->ServerMode)
+ 	{
+ 
+@@ -15249,6 +15273,9 @@ SOCK *ListenEx62(UINT port, bool local_only, bool enable_ca)
+ 	{
+ 		return NULL;
+ 	}
++#ifdef __ANDROID__
++	if (homevpn_android_prepare_rpc_listener(s) != 0) { closesocket(s); return NULL; }
++#endif
+ 
+ #ifdef	OS_UNIX
+ 	// It is necessary to set the IPv6 Only flag on a UNIX system
+@@ -15360,6 +15387,9 @@ SOCK *ListenEx2(UINT port, bool local_only, bool enable_ca)
+ 	{
+ 		return NULL;
+ 	}
++#ifdef __ANDROID__
++	if (homevpn_android_prepare_rpc_listener(s) != 0) { closesocket(s); return NULL; }
++#endif
+ 
+ 	//SetSocketSendRecvBufferSize(s, SOCKET_BUFFER_SIZE);
+ 
+diff --git a/src/Mayaqua/Unix.c b/src/Mayaqua/Unix.c
+index c988ea2..082a9d9 100644
+--- a/src/Mayaqua/Unix.c
++++ b/src/Mayaqua/Unix.c
+@@ -309,9 +309,9 @@ OS_DISPATCH_TABLE *UnixGetDispatchTable()
+ 	return &t;
+ }
+ 
+-static void *signal_received_for_ignore(int sig, siginfo_t *info, void *ucontext) 
++static void signal_received_for_ignore(int sig, siginfo_t *info, void *ucontext)
+ {
+-	return NULL;
++	(void)sig; (void)info; (void)ucontext;
+ }
+ 
+ // Ignore the signal flew to the thread
+@@ -2895,6 +2895,17 @@ UINT UnixService(int argc, char *argv[], char *name, SERVICE_FUNCTION *start, SE
+ 		return 0;
+ 	}
+ 
++#ifdef __ANDROID__
++	// Android owns lifetime through its foreground service. Keep one process
++	// instead of spawning the official Unix crash-restart supervisor.
++	if (argc >= 2 && StrCmpi(argv[1], "androidsvc") == 0)
++	{
++		argv[1] = UNIX_SVC_ARG_EXEC_SVC;
++		UnixServiceMain(argc, argv, name, start, stop);
++		return 0;
++	}
++#endif
++
+ 	if (argc >= 2 && StrCmpi(argv[1], UNIX_SVC_ARG_EXEC_SVC) == 0)
+ 	{
+ 		UINT pid;
+diff --git a/src/vpnclient/vpncsvc.c b/src/vpnclient/vpncsvc.c
+index 99a4902..6af2cd4 100644
+--- a/src/vpnclient/vpncsvc.c
++++ b/src/vpnclient/vpncsvc.c
+@@ -114,6 +114,9 @@
+ #include <time.h>
+ #include <Mayaqua/Mayaqua.h>
+ #include <Cedar/Cedar.h>
++#ifdef __ANDROID__
++#include <homevpn_android.h>
++#endif
+ 
+ // Process start function
+ void StartProcess()
+@@ -134,6 +137,14 @@ void StopProcess()
+ // WinMain function
+ int main(int argc, char *argv[])
+ {
++#ifdef __ANDROID__
++	if (argc >= 2 && (strcmp(argv[1], "androidsvc") == 0 || strcmp(argv[1], "execsvc") == 0))
++	{
++		int android_prepare = strcmp(argv[1], "androidsvc") == 0 ?
++			homevpn_android_prepare_daemon() : homevpn_android_prepare(0);
++		if (android_prepare != 0) return 78;
++	}
++#endif
+ 	InitProcessCallOnce();
+ 
+ #ifdef	OS_WIN32
+diff --git a/src/vpncmd/vpncmd.c b/src/vpncmd/vpncmd.c
+index a6928b6..2728e50 100644
+--- a/src/vpncmd/vpncmd.c
++++ b/src/vpncmd/vpncmd.c
+@@ -121,12 +121,18 @@
+ #include <time.h>
+ #include <Mayaqua/Mayaqua.h>
+ #include <Cedar/Cedar.h>
++#ifdef __ANDROID__
++#include <homevpn_android.h>
++#endif
+ 
+ // main function
+ int main(int argc, char *argv[])
+ {
+ 	wchar_t *s;
+ 	UINT ret = 0;
++#ifdef __ANDROID__
++	if (getenv("HOMEVPN_ADMIN_SECRET_FILE") != NULL && homevpn_android_add_password_argument(&argc, &argv) != 0) return 78;
++#endif
+ 
+ 	InitProcessCallOnce();
+ 

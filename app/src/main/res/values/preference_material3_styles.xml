@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="HomeVpn.Preference3.Row" parent="">
+        <item name="layout">@layout/preference_material3_row</item>
+    </style>
+
+    <style name="HomeVpn.Preference3.Switch" parent="HomeVpn.Preference3.Row">
+        <item name="widgetLayout">@layout/preference_material3_switch</item>
+    </style>
+
+    <style name="HomeVpn.Preference3.DropDown" parent="HomeVpn.Preference3.Row">
+        <item name="layout">@layout/preference_material3_dropdown</item>
+    </style>
+
+    <style name="HomeVpn.Preference3.Section" parent="">
+        <item name="layout">@layout/preference_material3_category</item>
+    </style>
+
+    <style name="HomeVpn.Preference3.InteractiveSurface" parent="">
+        <item name="android:minHeight">56dp</item>
+        <item name="android:background">?android:attr/listChoiceBackgroundIndicator</item>
+    </style>
+
+    <style name="HomeVpn.Preference3.Title" parent="TextAppearance.Material3.BodyLarge">
+        <item name="android:textColor">@color/ui_text_primary</item>
+    </style>
+
+    <style name="HomeVpn.Preference3.Summary" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:textColor">@color/ui_text_secondary</item>
+    </style>
+
+    <style name="HomeVpn.Preference3.Category" parent="TextAppearance.Material3.LabelLarge">
+        <item name="android:textColor">?attr/colorSecondary</item>
+    </style>
+</resources>

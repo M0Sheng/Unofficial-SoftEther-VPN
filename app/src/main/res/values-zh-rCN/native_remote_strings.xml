@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="native_remote_category">电脑远程管理</string>
+    <string name="native_remote_enable_title">允许电脑远程管理客户端</string>
+    <string name="native_remote_enable_summary">须先设置管理密码，仅在 TAP 下有效。启用后监听各网络接口，请通过已有加密 VPN 访问。更改开关或密码会结束当前 TAP 会话，重新连接后生效。</string>
+    <string name="native_remote_native_only">仅适用于 TAP。可在未连接时配置，不会自行启动 VPN。</string>
+    <string name="native_remote_password_title">设置远程管理密码</string>
+    <string name="native_remote_password_rules">使用 12～128 个 ASCII 可见字符，不含空格。输入框不会恢复或预填密码，仅保存 SoftEther 管理协议所用的 SHA-0 摘要。</string>
+    <string name="native_remote_new_password">新的管理密码</string>
+    <string name="native_remote_confirm_password">再次输入管理密码</string>
+    <string name="native_remote_password_save">保存密码</string>
+    <string name="native_remote_password_mismatch">两次密码不一致。</string>
+    <string name="native_remote_password_saved">管理密码已保存。如果 TAP 正在运行，请重新连接以使用新密码。</string>
+    <string name="native_remote_password_failed">无法保存管理密码，请重试。</string>
+    <string name="native_remote_password_required">请先设置管理密码，再开启远程管理。</string>
+    <string name="native_remote_password_configured">已设置管理密码。若核心拒绝凭据文件，请重新设置。</string>
+    <string name="native_remote_password_unset">尚未配置有效管理密码，请先设置或重设，再开启远程管理。</string>
+    <string name="native_remote_connection_title">电脑连接方式</string>
+    <string name="native_remote_connection_summary">查看当前 Wi-Fi / 虚拟网卡 地址、9930 端口和客户端管理器 / vpncmd 用法。管理 RPC 不提供 TLS 加密。</string>
+    <string name="native_remote_no_addresses">暂无 Wi-Fi 或虚拟网卡 地址，请先连接 Wi-Fi 或建立 VPN。</string>
+    <string name="native_remote_connection_help">手机当前网络端点（TCP 9930，仅供参考）：\n%1$s\n\n请先启用远程管理并运行 TAP 管理服务。核心可在 VPN 未连接时运行；管理端口开放不代表 VPN 已连接。\n\nWindows：打开 SoftEther VPN Client Manager，选择“Manage SoftEther VPN Client on a Separate Computer”（管理另一台电脑上的 VPN 客户端）。主机栏仅填写可达的手机 Wi-Fi 或虚拟网卡 的 IP，不带端口，再使用远程管理密码连接。请使用客户端管理器，而非 VPN Server Manager。\n\n命令行：\nvpncmd 手机IP /CLIENT\nIPv6 使用不带方括号的原始地址。主机后不要拼接 :9930，管理端口由 vpncmd 选择。在提示时输入密码，不要将密码写入命令。\n\nSoftEther 管理协议不提供 TLS 加密。建议通过已有加密 VPN 路径连接手机的 VPN 地址，并仅在可信网络启用；直接通过 Wi-Fi / 局域网连接时，此管理协议本身不提供加密。电脑须有到所选手机 IP 的路由。\n\n端点列表只显示当前接口，不代表已验证连通性或核心正在监听；不要把完整端点粘贴到客户端主机栏，只填写其中的 IP。\n\nSoftEther 文档：https://www.softether.org/4-docs/1-manual/4/4.7</string>
+    <string name="native_remote_interface_address">%1$s（%2$s）  %3$s</string>
+</resources>

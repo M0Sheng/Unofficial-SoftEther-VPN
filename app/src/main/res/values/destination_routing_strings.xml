@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="destination_routing_title">Address routing</string>
+    <string name="destination_mode_exclude">Blocklist</string>
+    <string name="destination_mode_include">Allowlist</string>
+    <string name="destination_mode_all">All addresses</string>
+    <string name="destination_routing_exclude_hint">Listed destinations use the underlying network. Other destinations use the VPN.</string>
+    <string name="destination_routing_include_hint">Only listed destinations use the VPN. Add at least one rule. Include the VPN subnet if you need to reach it.</string>
+    <string name="destination_routing_all_hint">All destinations follow the VPN routes. The IPv6 forwarding setting controls IPv6 traffic.</string>
+    <string name="destination_routing_select_hint">Select an address routing mode.</string>
+    <string name="destination_routing_exclude_label">Destinations that bypass the VPN</string>
+    <string name="destination_routing_include_label">Destinations that use the VPN</string>
+    <string name="destination_routing_retained">This mode uses no address list. The blocklist and allowlist are saved separately. Switch to a list mode to edit it.</string>
+    <string name="destination_routing_rules_help">Enter one IP address, CIDR subnet, or exact domain name per line, or separate the entries with commas.\n\nExample rules\n192.0.2.0/24\n2001:db8::/32\nexample.com\n\nLeave out wildcards, URL paths, ports, and IPv6 zone IDs. The underlying network resolves domains before reconnecting. Services that share an IP address use the same routes.</string>
+    <string name="destination_routing_ipv6_on">IPv6 destinations follow the selected routing mode. The VPN network must provide a usable address and route for IPv6 traffic to pass through it.</string>
+    <string name="destination_routing_ipv6_off">When IPv6 forwarding is off, Allowlist mode sends IPv6 traffic over the underlying network. Blocklist and All addresses modes block IPv6 for apps that use the VPN. Enable IPv6 forwarding before adding IPv6 addresses or subnets. Domain rules only use IPv4 results while forwarding is off.</string>
+    <string name="destination_routing_legacy_banner">Saving an address routing mode applies the same rules to TAP and TUN for the current profile.</string>
+    <string name="destination_routing_legacy_details">Current route · %1$s\nSaved IPv4 subnets · %2$s\nSaved IPv4 bypass rules · %3$s</string>
+    <string name="destination_routing_summary_legacy">Choose Blocklist, Allowlist, or All addresses</string>
+    <string name="destination_routing_summary_mode">%1$s · Save and reconnect to apply</string>
+    <string name="destination_routing_none">Not set</string>
+    <string name="destination_routing_choose_before_save">Select an address routing mode.</string>
+    <string name="destination_routing_save_hint">Rules are saved to the current profile. TAP and TUN share them. Reconnect to apply changes.</string>
+
+    <string name="destination_routing_backend_changed">The access method has changed. Go back and reopen Address routing.</string>
+    <string name="destination_routing_stale">The active profile has changed. Your draft is preserved. Return to Settings and reopen Address routing for the active profile.</string>
+    <string name="destination_routing_no_profile">Create or import a profile to change its address routing.</string>
+    <string name="destination_routing_save_failed">Could not save. The profile changed or the write failed. Your draft is preserved. Check the profile and try again.</string>
+    <string name="destination_routing_saved">Address routing saved. Reconnect to apply.</string>
+    <string name="destination_routing_invalid">Invalid address rule format. Check the rules before saving.</string>
+    <string name="destination_routing_load_error">Could not load the current address rules (%1$s). Check the rules before saving.</string>
+    <string name="destination_routing_help_message">TAP and TUN share the active mode and both lists for the same profile. Blocklisted destinations use the underlying network. In Allowlist mode, only listed destinations use the VPN. All addresses mode applies the VPN routes without a list. The blocklist and allowlist are saved separately.\n\nEnter an IP address, CIDR subnet, or exact domain for each rule. The underlying network resolves domains before connecting and refreshes them on reconnect. Services that share an IP address follow the same routes.\n\nEnable IPv6 forwarding to use IPv6 address and subnet rules. When forwarding is off, domain rules only use IPv4 results. If the VPN has no usable IPv6 address or required route, the app keeps the IPv4 connection and shows the IPv6 status.\n\nTraffic goes through the VPN only when both the app and the destination match the routing rules. Android’s “Block connections without VPN” setting can restrict traffic on the underlying network. Save and reconnect to apply your changes.</string>
+    <string name="destination_routing_tap_hint">Listed destinations use the device’s underlying network. The rules apply to IP traffic from this device.</string>
+    <string name="destination_routing_tap_all_hint">Eligible app IP traffic follows the VPN routes without an address list. The IPv6 forwarding setting controls IPv6 traffic.</string>
+    <string name="destination_routing_tap_exclude_hint">Listed destinations use the underlying network. Other app IP traffic follows the per-app routing and VPN rules.</string>
+    <string name="destination_routing_tap_help_message">TAP supports Blocklist, Allowlist, and All addresses modes. Blocklisted destinations use the underlying network. In Allowlist mode, only listed destinations use the VPN. All addresses mode applies the VPN routes without a list. The two lists are saved separately. TAP and TUN share the active mode and both lists for the same profile.\n\nApp IP traffic goes through the VPN only when it matches both per-app and address routing rules. Layer 2 traffic such as broadcasts, ARP, and neighbor discovery follows its existing rules and is outside the address list filter.\n\nEnter an IP address, CIDR subnet, or exact domain for each rule. The underlying network resolves domains before connecting and refreshes them on reconnect. Services that share an IP address follow the same routes. With TAP IPv6 forwarding off, the VPN cannot connect using an allowlist with IPv6 rules, and domain rules only use IPv4 results. Blocklist rules can still bypass IPv4 or IPv6 addresses.\n\nThe underlying network needs a usable route for each address family that bypasses the VPN. Android selects the system DNS servers. Check that the current rules allow access to them. An allowlist may need the VPN DNS server addresses. Address rules do not set up a DNS proxy.\n\nSave and reconnect to apply your changes.</string>
+    <string name="destination_routing_tap_include_hint">Only app IP traffic that matches both the app rules and the address allowlist uses the VPN. Other destinations use the underlying network. Add at least one rule. Include the VPN subnet if you need to reach it.</string>
+    <string name="destination_routing_tap_ipv6_off">TAP IPv6 forwarding is off. Allowlist mode accepts IPv4 addresses and subnets and only uses IPv4 results for domains. Blocklist mode can bypass IPv4 and IPv6 addresses if the underlying network can reach them.</string>
+    <string name="destination_routing_tap_ipv6_on">TAP IPv6 forwarding is on. Domain rules use IPv4 and IPv6 addresses resolved by the underlying network. IPv6 connectivity through the VPN depends on router advertisements and routes from the server. The underlying network must support the address families that bypass the VPN.</string>
+</resources>

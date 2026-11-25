@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_battery_usage_title">App battery usage</string>
+    <string name="app_battery_usage_summary">If the VPN disconnects while the screen is off, set battery usage for this app to Unrestricted in system settings.</string>
+    <string name="app_battery_usage_open_failed">Open this app manually in system settings to change its battery usage.</string>
+    <string name="diagnostic_logs_title">Logs</string>
+    <string name="diagnostic_logs_summary">Collect, filter, and export diagnostic logs</string>
+    <string name="section_support_information">Support &amp; information</string>
+    <string name="section_appearance">Appearance &amp; shortcuts</string>
+    <string name="notification_traffic_title">Show traffic in the notification</string>
+    <string name="notification_traffic_summary">Show tunnel speed and total traffic while connected</string>
+    <string name="notification_traffic_permission_denied">The traffic notification is off because notification permission was denied.</string>
+    <string name="quick_tile_add">Add Quick Settings tile</string>
+    <string name="quick_tile_add_hint">Start or stop the VPN from Android Quick Settings.</string>
+    <string name="quick_connect_working">Updating VPN connection…</string>
+    <string name="quick_tile_added">Quick Settings tile added</string>
+    <string name="quick_tile_not_added">Add Unofficial SoftEther VPN from the Quick Settings tile editor.</string>
+    <string name="backend_mode_native">TAP</string>
+    <string name="pref_backend_mode_native_summary">TAP · Layer 2 (data link) · Root required</string>
+    <string name="native_command_title">vpncmd command</string>
+    <string name="native_command_summary">Manage TAP accounts, certificates, proxies, and connection settings with vpncmd</string>
+    <string name="native_management_only_title">Start management service only</string>
+    <string name="native_management_only_summary">In TAP mode, start the management service to configure accounts, certificate authentication, and proxies in advanced settings. Start the VPN connection manually.</string>
+    <string name="native_managed_endpoint">Configured in advanced settings. Use AccountGet to view it.</string>
+    <string name="native_command_execute">Run command</string>
+    <string name="native_command_service_unavailable">Start the TAP management service first.</string>
+    <string name="native_management_running">TAP management is running. Open the app for connection status.</string>
+    <string name="native_management_started">The TAP management service has started. Automatic account connections are paused. Saved adapters may be restored. Use vpncmd to configure the server connection and virtual adapter.</string>
+    <string name="native_management_server_disconnected">The TAP management service is running and has yet to connect to a server. Use vpncmd to configure the connection and connect.</string>
+</resources>
