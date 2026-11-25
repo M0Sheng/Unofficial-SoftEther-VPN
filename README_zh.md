@@ -4,7 +4,7 @@
 
 预发布版本 **1.8.67**（247）支持 **Android 16 及以上版本**。可在「设置 → 外观与快捷操作 → 应用语言」切换简体中文、英语和日语。
 
-[v1.8.68 预发布页](https://github.com/M0Sheng/Unofficial-SoftEther-VPN/releases/tag/v1.8.68)提供五个签名 APK 和 SHA-256 校验文件。按设备架构选择 `armeabi-v7a`、`arm64-v8a`、`x86` 或 `x86_64`。不确定架构时，下载覆盖全部四种架构的 `-universal.apk`。应用 ID 为 `io.github.m0sheng.unofficialsoftethervpn`。
+[v1.8.69 预发布页](https://github.com/M0Sheng/Unofficial-SoftEther-VPN/releases/tag/v1.8.69)提供五个签名 APK 和 SHA-256 校验文件。按设备架构选择 `armeabi-v7a`、`arm64-v8a`、`x86` 或 `x86_64`。不确定架构时，下载覆盖全部四种架构的 `-universal.apk`。应用 ID 为 `io.github.m0sheng.unofficialsoftethervpn`。
 
 ## 从旧版迁移
 

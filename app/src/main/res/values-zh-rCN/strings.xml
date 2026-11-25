@@ -90,7 +90,7 @@
     <string name="vpn_route_session_name">VPN · %1$s</string>
     <string name="backend_mode_tun">TUN</string>
     <string name="pref_backend_mode_tun_summary">TUN · 三层（网络层）· 免 Root</string>
-    <string name="access_method_help">TAP · 二层（数据链路层），需要 Root。使用 SoftEther 原生客户端传输以太网帧，支持局域网广播、组播、分应用路由和地址绕过。IPv6 由 VPN 侧网络和 Android 系统配置。\n\nTUN · 三层（网络层），免 Root。使用 Android VPN 转发 IPv4 和已启用的 IPv6。分应用与分地址路由共同决定哪些流量经过 VPN。地址规则支持 IP、CIDR 网段和精确域名。\n\n切换接入方式后，重新连接生效。</string>
+    <string name="access_method_help">TAP · 二层（数据链路层），需要 Root。使用 SoftEther 原生客户端传输以太网帧，支持局域网广播、组播、分应用路由和地址绕过。IPv6 由 VPN 侧网络和 Android 系统配置。\n\nTAP 网卡成为系统默认网络时，部分系统（如 HyperOS）即使联网正常，也可能在 WLAN 图标旁显示叹号。可在首页的「网络详情」查看系统联网验证结果。\n\nTUN · 三层（网络层），免 Root。使用 Android VPN 转发 IPv4 和已启用的 IPv6。分应用与分地址路由共同决定哪些流量经过 VPN。地址规则支持 IP、CIDR 网段和精确域名。\n\n切换接入方式后，重新连接生效。</string>
     <string name="certificate_first_title">确认服务器证书</string>
     <string name="certificate_changed_title">服务器证书已变化</string>
     <string name="certificate_first_message">无法自动验证服务器证书。请向服务器管理员核对地址及指纹，确认后将记住此证书，以后连接自动验证。确认前不会发送 VPN 登录信息。</string>

@@ -90,7 +90,7 @@
     <string name="vpn_route_session_name">VPN · %1$s</string>
     <string name="backend_mode_tun">TUN</string>
     <string name="pref_backend_mode_tun_summary">TUN · レイヤー 3（ネットワーク層）· Root 権限不要</string>
-    <string name="access_method_help">TAP はレイヤー 2（データリンク層）で動作し、Root 権限が必要です。SoftEther のネイティブクライアントが Ethernet フレームを転送し、LAN のブロードキャストとマルチキャスト、アプリ別ルーティング、宛先アドレスによる迂回に対応します。IPv6 は VPN 側のネットワークと Android が設定します。\n\nTUN はレイヤー 3（ネットワーク層）で動作し、Root 権限は不要です。Android VPN が IPv4 通信と、有効にしている場合は IPv6 通信を転送します。アプリ別と宛先別のルールを組み合わせて VPN を経由する通信を選べます。宛先ルールには IP アドレス、CIDR 表記のサブネット、完全一致のドメインを指定できます。\n\n接続方式を変更したら再接続してください。</string>
+    <string name="access_method_help">TAP はレイヤー 2（データリンク層）で動作し、Root 権限が必要です。SoftEther のネイティブクライアントが Ethernet フレームを転送し、LAN のブロードキャストとマルチキャスト、アプリ別ルーティング、宛先アドレスによる迂回に対応します。IPv6 は VPN 側のネットワークと Android が設定します。\n\nTAP の仮想アダプターがシステムの既定のネットワークになると、HyperOS など一部のシステムでは、通信できていても Wi-Fi アイコンに「!」が表示されることがあります。ホームの「ネットワークの詳細」で Android のネットワーク検証結果を確認できます。\n\nTUN はレイヤー 3（ネットワーク層）で動作し、Root 権限は不要です。Android VPN が IPv4 通信と、有効にしている場合は IPv6 通信を転送します。アプリ別と宛先別のルールを組み合わせて VPN を経由する通信を選べます。宛先ルールには IP アドレス、CIDR 表記のサブネット、完全一致のドメインを指定できます。\n\n接続方式を変更したら再接続してください。</string>
     <string name="certificate_first_title">サーバー証明書を確認</string>
     <string name="certificate_changed_title">サーバー証明書が変更されました</string>
     <string name="certificate_first_message">サーバー証明書を自動で検証できませんでした。アドレスとフィンガープリントをサーバー管理者に確認してください。承認すると証明書が保存され、次回以降の接続に使われます。VPN の認証情報は承認後に送信されます。</string>

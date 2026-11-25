@@ -4,7 +4,7 @@ An independent Android client by M0Sheng for connecting to a SoftEther VPN serve
 
 Prerelease **1.8.67** (247) requires **Android 16 or later**. Choose English, Simplified Chinese, or Japanese in **Settings → Appearance & shortcuts → App language**.
 
-The [v1.8.68 prerelease](https://github.com/M0Sheng/Unofficial-SoftEther-VPN/releases/tag/v1.8.68) includes five signed APKs and the SHA-256 checksums. Choose the APK for your device architecture (`armeabi-v7a`, `arm64-v8a`, `x86`, or `x86_64`), or use `-universal.apk` for all four. The app ID is `io.github.m0sheng.unofficialsoftethervpn`.
+The [v1.8.69 prerelease](https://github.com/M0Sheng/Unofficial-SoftEther-VPN/releases/tag/v1.8.69) includes five signed APKs and the SHA-256 checksums. Choose the APK for your device architecture (`armeabi-v7a`, `arm64-v8a`, `x86`, or `x86_64`), or use `-universal.apk` for all four. The app ID is `io.github.m0sheng.unofficialsoftethervpn`.
 
 ## Move from an earlier build
 
