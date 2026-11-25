@@ -1,11 +1,13 @@
 package kittoku.mvc.preference
 
+import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Context
 import android.graphics.Rect
 import android.graphics.drawable.InsetDrawable
 import android.os.Bundle
 import android.view.View
+import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.Toast
 import androidx.fragment.app.DialogFragment
@@ -19,15 +21,21 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceDialogFragmentCompat
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceGroup
+import androidx.preference.PreferenceGroupAdapter
 import androidx.preference.PreferenceManager
 import androidx.preference.PreferenceScreen
+import androidx.preference.PreferenceViewHolder
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.shape.MaterialShapeDrawable
 import kittoku.mvc.R
 import kittoku.mvc.profile.ProfileStore
 
 /** One immutable identity per inflated screen; never rebind old editors to a new activation. */
-internal class ProfilePreferenceGuard(private val host: PreferenceFragmentCompat) {
+internal class ProfilePreferenceGuard(
+    private val host: PreferenceFragmentCompat,
+    private val profiles: ProfileStore,
+) {
     private var prepared: ProfileEditorIdentity? = null
     private var bound: ProfileEditorIdentity? = null
     private var screen: PreferenceScreen? = null
@@ -35,6 +43,37 @@ internal class ProfilePreferenceGuard(private val host: PreferenceFragmentCompat
     private var pendingEnabled = true
 
     fun prepareInflation() { prepared = ProfileEditorIdentity.current(host.requireContext()) }
+
+    /** A disabled setting still accepts a tap to explain how to enable it. */
+    @SuppressLint("RestrictedApi")
+    fun unavailableSettingsAdapter(screen: PreferenceScreen): RecyclerView.Adapter<*>? {
+        if (prepared != null) return null
+        return object : PreferenceGroupAdapter(screen) {
+            override fun onBindViewHolder(holder: PreferenceViewHolder, position: Int) {
+                super.onBindViewHolder(holder, position)
+                val preference = getItem(position)
+                val unavailable = preference?.key in ProfileStore.SETTINGS_KEYS || preference?.key == "DESTINATION_ROUTING"
+                val row = holder.itemView
+                row.alpha = if (unavailable) 0.38f else 1f
+                if (!unavailable) return
+                fun disableChildren(view: View) {
+                    if (view is ViewGroup) {
+                        for (index in 0 until view.childCount) {
+                            val child = view.getChildAt(index)
+                            child.isEnabled = false
+                            disableChildren(child)
+                        }
+                    }
+                }
+                disableChildren(row)
+                row.isEnabled = true
+                row.isFocusable = true
+                row.setOnClickListener {
+                    Toast.makeText(row.context, R.string.settings_no_profile, Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
 
     /** onCreateAdapter precedes onAttached in AndroidX 1.2.1. Keep the screen disabled until
      * this posted task runs after that synchronous bind, using only public lifecycle APIs. */
@@ -60,13 +99,23 @@ internal class ProfilePreferenceGuard(private val host: PreferenceFragmentCompat
         bound = prepared
         val identity = bound
         fun visit(preference: Preference) {
-            if (preference.key in ProfileStore.PROFILE_KEYS) {
+            if (preference.key in ProfileStore.SETTINGS_KEYS) {
                 val previous = preference.onPreferenceChangeListener
                 preference.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { changed, value ->
-                    if (identity == null || identity != ProfileEditorIdentity.current(changed.context)) {
-                        ProfileEditorIdentity.notifyChanged(changed.context)
-                        false
-                    } else previous?.onPreferenceChange(changed, value) ?: true
+                    when {
+                        identity == null || identity != ProfileEditorIdentity.current(changed.context) -> {
+                            ProfileEditorIdentity.notifyChanged(changed.context)
+                            false
+                        }
+                        value == null || previous?.onPreferenceChange(changed, value) == false -> false
+                        else -> try {
+                            profiles.saveSettings(identity.profileId, identity.activation, mapOf(changed.key to value))
+                                .also { if (!it) ProfileEditorIdentity.notifyChanged(changed.context) }
+                        } catch (_: RuntimeException) {
+                            Toast.makeText(changed.context, R.string.profile_runtime_save_profiles_failed, Toast.LENGTH_LONG).show()
+                            false
+                        }
+                    }
                 }
             }
             if (preference is PreferenceGroup) for (index in 0 until preference.preferenceCount) visit(preference.getPreference(index))
@@ -139,7 +188,10 @@ private data class ProfileEditorIdentity(val profileId: String, val activation: 
             dialog.dismissAllowingStateLoss()
         }
 
-        fun notifyChanged(context: Context) { Toast.makeText(context, R.string.profile_changed, Toast.LENGTH_LONG).show() }
+        fun notifyChanged(context: Context) {
+            val message = if (current(context) == null) R.string.settings_no_profile else R.string.profile_changed
+            Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+        }
         fun notifyChanged(dialog: DialogFragment) { dialog.context?.let(::notifyChanged) }
     }
 }

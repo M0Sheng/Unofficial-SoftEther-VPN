@@ -2,7 +2,7 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <PreferenceCategory style="@style/HomeVpn.Preference3.Section" android:title="@string/section_network">
-        <kittoku.mvc.preference.custom.BackendModePreference style="@style/HomeVpn.Preference3.Row" android:key="BACKEND_MODE" android:defaultValue="ROOT_NATIVE"/>
+        <kittoku.mvc.preference.custom.BackendModePreference style="@style/HomeVpn.Preference3.Row" android:key="BACKEND_MODE"/>
         <kittoku.mvc.preference.custom.IPv6Preference style="@style/HomeVpn.Preference3.Switch" android:key="VPN_FORWARD_IPV6"/>
         <kittoku.mvc.preference.custom.IPv6Preference style="@style/HomeVpn.Preference3.Switch" android:key="TUN_FORWARD_IPV6"/>
         <kittoku.mvc.preference.custom.DestinationRoutingPreference style="@style/HomeVpn.Preference3.Row" android:key="DESTINATION_ROUTING" />
@@ -10,7 +10,7 @@
     </PreferenceCategory>
     <PreferenceCategory style="@style/HomeVpn.Preference3.Section" android:key="NATIVE_CLIENT_SETTINGS" android:title="@string/native_client_settings">
         <Preference style="@style/HomeVpn.Preference3.Row" android:key="NATIVE_COMMAND" android:title="@string/native_command_title" android:summary="@string/native_command_summary" />
-        <SwitchPreferenceCompat style="@style/HomeVpn.Preference3.Switch" android:key="NATIVE_MANAGEMENT_ONLY" android:defaultValue="false"
+        <SwitchPreferenceCompat style="@style/HomeVpn.Preference3.Switch" android:key="NATIVE_MANAGEMENT_ONLY"
             android:title="@string/native_management_only_title" android:summary="@string/native_management_only_summary" />
         <SwitchPreferenceCompat style="@style/HomeVpn.Preference3.Switch" android:key="NATIVE_REMOTE_MANAGEMENT" android:defaultValue="false"
             android:title="@string/native_remote_enable_title" android:summary="@string/native_remote_enable_summary" />
@@ -19,12 +19,11 @@
             android:summary="@string/native_remote_connection_summary" />
     </PreferenceCategory>
     <PreferenceCategory style="@style/HomeVpn.Preference3.Section" android:key="TUN_CONNECTION_SETTINGS" android:title="@string/tun_connection_settings">
-        <kittoku.mvc.preference.custom.PasswordEncodingPreference style="@style/HomeVpn.Preference3.Row" android:key="AUTH_PASSWORD_ENCODING" android:defaultValue="UTF-8"/>
+        <kittoku.mvc.preference.custom.PasswordEncodingPreference style="@style/HomeVpn.Preference3.Row" android:key="AUTH_PASSWORD_ENCODING"/>
         <kittoku.mvc.preference.custom.EthernetMTUPreference style="@style/HomeVpn.Preference3.Row" android:key="ETHERNET_MTU"/>
         <kittoku.mvc.preference.custom.EthernetMacAddressPreference style="@style/HomeVpn.Preference3.Row" android:key="ETHERNET_MAC_ADDRESS"/>
         <SwitchPreferenceCompat style="@style/HomeVpn.Preference3.Switch" android:key="UDP_ENABLE_ACCELERATION"
-            android:title="@string/pref_udp_acceleration" android:summary="@string/pref_udp_acceleration_description"
-            android:defaultValue="false" app:singleLineTitle="false"/>
+            android:title="@string/pref_udp_acceleration" android:summary="@string/pref_udp_acceleration_description" app:singleLineTitle="false"/>
     </PreferenceCategory>
     <PreferenceCategory style="@style/HomeVpn.Preference3.Section" android:key="TLS_SETTINGS" android:title="@string/section_tls">
         <DropDownPreference style="@style/HomeVpn.Preference3.DropDown" android:key="SSL_VERSION"

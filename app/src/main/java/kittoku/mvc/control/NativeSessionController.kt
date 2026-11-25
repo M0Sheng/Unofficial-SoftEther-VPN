@@ -1,7 +1,6 @@
 package kittoku.mvc.control
 
 import android.net.ConnectivityManager
-import android.net.Network
 import android.os.SystemClock
 import kittoku.mvc.R
 import kittoku.mvc.nativecore.ManagedTapIdentity
@@ -11,7 +10,6 @@ import kittoku.mvc.nativecore.NativeRemoteManagementSettings
 import kittoku.mvc.nativecore.RootAccess
 import kittoku.mvc.nativecore.TapTlsPreflight
 import kittoku.mvc.network.PhysicalUnderlayLostException
-import kittoku.mvc.network.physicalUnderlays
 import kittoku.mvc.routing.AppRoutingSettings
 import kittoku.mvc.routing.RootBypassSettings
 import kittoku.mvc.routing.root.RootRoutingSession
@@ -37,6 +35,8 @@ internal class NativeSessionController(private val bridge: ConnectionContext) {
 
     val interfaceName: String?
         get() = if (closed.get()) null else runner?.currentTapName()
+    val hasNetworkAddress: Boolean
+        get() = !closed.get() && networkObserver?.hasUsableAddress == true
 
     fun refreshStatus(): Boolean {
         val observer = networkObserver ?: return false
@@ -53,10 +53,7 @@ internal class NativeSessionController(private val bridge: ConnectionContext) {
                 RootAccess.requireGranted()
                 ensureActive()
                 if (closed.get()) return@launch
-                val pem = if (managementOnly) {
-                    bridge.underlyingNetwork = selectUnderlyingNetwork()
-                    null
-                } else {
+                val pem = if (managementOnly) null else {
                     bridge.service.updateConnectionStatus(bridge, bridge.service.getString(R.string.network_runtime_status_verifying_server_certificate))
                     val preflight = TapTlsPreflight(
                         bridge.service.getSystemService(ConnectivityManager::class.java),
@@ -66,14 +63,13 @@ internal class NativeSessionController(private val bridge: ConnectionContext) {
                     if (closed.get()) return@launch
                     val verified = preflight.verify(
                         bridge.serverHostname, bridge.serverPort, bridge.certificateSha256, bridge.sslVersion,
-                        bridge.cipherSuites, bridge.excludedUnderlay,
+                        bridge.cipherSuites, bridge.underlyingNetwork,
                     )
-                    bridge.underlyingNetwork = verified.network
                     verified.certificatePem
                 }
                 ensureActive()
                 if (closed.get()) return@launch
-                val network = bridge.underlyingNetwork ?: throw IOException(bridge.service.getString(R.string.network_runtime_error_underlay_unavailable))
+                val network = bridge.underlyingNetwork
                 val tapName = selectTapName()
                 val bypass = RootBypassSettings(bridge.service).resolveForRoot(
                     network, sessionId, requireNotNull(bridge.destinationConfiguration), bridge.forwardIpv6,
@@ -180,12 +176,6 @@ internal class NativeSessionController(private val bridge: ConnectionContext) {
         }
         val occupied = NetworkInterface.getNetworkInterfaces()?.toList().orEmpty().map { it.name }.toSet() + systemNetworkNames()
         return ManagedTapName.select(bridge.service, occupied)
-    }
-
-    private fun selectUnderlyingNetwork(): Network {
-        val manager = bridge.service.getSystemService(ConnectivityManager::class.java)
-        return manager.physicalUnderlays().firstOrNull()?.network
-            ?: throw IOException(bridge.service.getString(R.string.network_runtime_error_enable_underlay_network))
     }
 
     @Synchronized private fun countTraffic(received: Long, sent: Long) {

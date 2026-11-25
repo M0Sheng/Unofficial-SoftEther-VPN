@@ -5,7 +5,6 @@
     <string name="profile_auth_standard_password">標準パスワード認証</string>
     <string name="profile_auth_external_password">RADIUS または NT ドメイン</string>
     <string name="profile_auth_client_certificate">クライアント証明書</string>
-    <string name="profile_auth_smartcard_unavailable">スマートカード（Android では利用不可）</string>
     <string name="profile_auth_anonymous_rejected">匿名認証に失敗しました。ユーザー名とサーバーの認証設定を確認してください。</string>
     <string name="profile_auth_certificate_rejected">クライアント証明書による認証に失敗しました。ユーザー名、証明書、サーバー設定を確認してください。</string>
     <string name="profile_auth_certificate_hint">X.509 クライアント証明書と、対応する暗号化されていない RSA 秘密鍵を選択してください。秘密鍵は保存時に暗号化されます。</string>

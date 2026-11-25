@@ -70,6 +70,7 @@
     <string name="error_unexpected">The connection was interrupted. Check the network and try again.</string>
     <string name="error_native_session_status">%2$s (Error code: %1$d)</string>
     <string name="error_session_disconnected">The VPN session ended.</string>
+    <string name="error_server_disconnected">The connection was closed by the server.</string>
     <string name="error_underlying_network_lost">The Wi-Fi or mobile network used for the VPN disconnected.</string>
     <string name="error_management_settings_changed">Remote management settings changed. Reconnect to apply them.</string>
     <string name="error_preflight_tls">TLS connection failed. Check the server certificate and TLS settings.</string>

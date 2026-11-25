@@ -96,8 +96,8 @@
     },
     {
         "path":  "softether-android.patch",
-        "size":  46293,
-        "sha256":  "332fc188a8830f9d76a6551ab723a6f11ccf48394d0792e3c9e2853de0396660"
+        "size":  50698,
+        "sha256":  "b69422080e9c05575146d5477fd307a12521315470483a6bca8de331f6336012"
     },
     {
         "path":  "test-auth-policy.ps1",

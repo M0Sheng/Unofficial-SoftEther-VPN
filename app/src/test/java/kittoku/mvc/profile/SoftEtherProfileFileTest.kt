@@ -16,6 +16,7 @@ class SoftEtherProfileFileTest {
         val imported = read(text)
         assertEquals("配置名 一", imported.name)
         assertEquals("vpn.example.test", imported.values["HOME_HOSTNAME"])
+        assertEquals("TUN", imported.values["BACKEND_MODE"])
         assertEquals("Alice Smith$", imported.values["HOME_USERNAME"])
         assertEquals("5555", imported.values["SSL_PORT"])
         assertEquals("STANDARD_PASSWORD", imported.values["HOME_AUTH_TYPE"])

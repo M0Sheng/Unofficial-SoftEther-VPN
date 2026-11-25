@@ -142,4 +142,6 @@
     <string name="network_runtime_status_verifying_server_certificate">正在验证服务器证书，尚未发送登录信息</string>
     <string name="network_runtime_tap_command_private_authentication">配置 VPN 认证凭据</string>
     <string name="network_runtime_vpn_tile_description">%1$s：%2$s</string>
+    <string name="network_runtime_network_details_app_default">应用当前网络</string>
+    <string name="network_runtime_network_validation_local">仅本地网络</string>
 </resources>

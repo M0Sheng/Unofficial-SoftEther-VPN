@@ -29,8 +29,8 @@ android {
         applicationId "io.github.m0sheng.unofficialsoftethervpn"
         minSdk 36
         targetSdk 36
-        versionCode 247
-        versionName "1.8.67"
+        versionCode 248
+        versionName "1.8.68"
         resourceConfigurations += ['en', 'zh-rCN', 'ja']
     }
 

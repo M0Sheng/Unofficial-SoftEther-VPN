@@ -39,6 +39,17 @@
             </intent-filter>
         </activity>
 
+        <activity-alias
+            android:name=".activity.QuickSettingsPreferences"
+            android:exported="true"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE"
+            android:targetActivity=".activity.MainActivity">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE_PREFERENCES" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity-alias>
+
         <activity android:name=".activity.AppRoutingActivity" android:exported="false" />
         <activity android:name=".activity.DestinationRoutingActivity" android:exported="false" />
         <activity android:name=".activity.LogActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />

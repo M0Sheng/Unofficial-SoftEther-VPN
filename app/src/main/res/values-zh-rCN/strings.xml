@@ -70,6 +70,7 @@
     <string name="error_unexpected">连接中断，请检查网络后重试</string>
     <string name="error_native_session_status">%2$s（错误代码：%1$d）</string>
     <string name="error_session_disconnected">VPN 会话已断开</string>
+    <string name="error_server_disconnected">连接被服务端断开</string>
     <string name="error_underlying_network_lost">VPN 使用的 Wi-Fi 或移动网络已断开</string>
     <string name="error_management_settings_changed">远程管理设置已更新，重新连接后生效</string>
     <string name="error_preflight_tls">TLS 连接失败，请核对服务器证书和 TLS 设置</string>

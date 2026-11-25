@@ -36,4 +36,5 @@
     <string name="profile_read_failed">Could not read the profiles. Reopen this page and try again.</string>
     <string name="profile_operation_complete">Profile updated.</string>
     <string name="profile_operation_failed">Could not update the profile. Check the name and available storage, then try again.</string>
+    <string name="settings_no_profile">No profile. Create a profile first.</string>
 </resources>

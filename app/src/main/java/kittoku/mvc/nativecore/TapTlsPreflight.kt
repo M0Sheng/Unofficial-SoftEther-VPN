@@ -50,8 +50,8 @@ internal class TapTlsPreflight(
     private var activeSocket: Socket? = null
 
     fun verify(host: String, port: Int, sha256: String, protocol: String, cipherSuites: Set<String>?,
-               excludedUnderlay: Network? = null): VerifiedServer {
-        val destination = resolveOnUnderlay(host, excludedUnderlay)
+               underlyingNetwork: Network): VerifiedServer {
+        val destination = resolveOnUnderlay(host, underlyingNetwork)
         retain(destination.underlay)
 
         val certificate = withVerifiedSocket(destination, host, port, sha256, protocol, cipherSuites) { _, leaf -> leaf }
@@ -90,11 +90,12 @@ internal class TapTlsPreflight(
             }
         }
 
-    private fun resolveOnUnderlay(host: String, excludedUnderlay: Network? = null): Destination {
+    private fun resolveOnUnderlay(host: String, underlyingNetwork: Network? = null): Destination {
         ensureOpen()
-        val underlays = connectivity.physicalUnderlays(excludedUnderlay)
+        val underlays = if (underlyingNetwork == null) connectivity.physicalUnderlays()
+            else listOfNotNull(connectivity.physicalUnderlay(underlyingNetwork))
         if (underlays.isEmpty()) throw PhysicalUnderlayLostException(
-            excludedUnderlay, R.string.network_runtime_error_preflight_no_underlay,
+            underlyingNetwork, R.string.network_runtime_error_preflight_no_underlay,
         )
 
         var lastDnsFailure: UnknownHostException? = null

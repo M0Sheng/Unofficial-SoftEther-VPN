@@ -20,6 +20,10 @@ internal class PhysicalUnderlayLostException(
 
 internal data class PhysicalUnderlay(val network: Network, val transport: Int, val validated: Boolean)
 
+private fun LinkProperties.hasUsableAddress(): Boolean = linkAddresses.any { address ->
+    !address.address.isAnyLocalAddress && !address.address.isLinkLocalAddress && !address.address.isLoopbackAddress
+}
+
 internal fun ConnectivityManager.physicalUnderlay(network: Network): PhysicalUnderlay? {
     val caps = getNetworkCapabilities(network) ?: return null
     if (!caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) ||
@@ -33,37 +37,68 @@ internal fun ConnectivityManager.physicalUnderlay(network: Network): PhysicalUnd
 }
 
 @Suppress("DEPRECATION")
-internal fun ConnectivityManager.physicalUnderlays(excluded: Network? = null): List<PhysicalUnderlay> {
+internal fun ConnectivityManager.physicalUnderlays(): List<PhysicalUnderlay> {
     val preferred = activeNetwork
     return (listOfNotNull(preferred) + allNetworks).distinct()
-        .filterNot { it == excluded }
         .mapNotNull { physicalUnderlay(it) }
-        .filter { candidate ->
-            getLinkProperties(candidate.network)?.linkAddresses?.any { address ->
-                !address.address.isAnyLocalAddress && !address.address.isLinkLocalAddress && !address.address.isLoopbackAddress
-            } == true
-        }
+        .filter { getLinkProperties(it.network)?.hasUsableAddress() == true }
         .sortedWith(compareByDescending<PhysicalUnderlay> { it.network == preferred }
             .thenByDescending { it.validated }
             .thenByDescending { it.transport == NetworkCapabilities.TRANSPORT_WIFI })
 }
 
-/** Waits for a physical link during a handover, with callbacks delivered on the service handler. */
-internal class PhysicalUnderlayWait(
+internal class PhysicalLinkSelection<T : Any> {
+    private var offered: T? = null
+    var ready: T? = null
+        private set
+
+    fun offer(network: T): Boolean {
+        if (offered == network) return false
+        offered = network
+        ready = null
+        return true
+    }
+
+    fun addressChanged(network: T, usable: Boolean): Boolean {
+        if (network != offered) return false
+        val candidate = network.takeIf { usable }
+        if (ready == candidate) return false
+        ready = candidate
+        return true
+    }
+
+    fun lost(network: T): Boolean {
+        if (network != offered) return false
+        offered = null
+        ready = null
+        return true
+    }
+}
+
+/** Android selects the preferred physical link independently of the app's VPN default network. */
+internal class PhysicalUnderlayMonitor(
     private val manager: ConnectivityManager,
     private val handler: Handler,
-    private val excluded: Network?,
-    private val complete: (available: Boolean) -> Unit,
+    private val onChanged: (Network?) -> Unit,
 ) : Closeable {
     private var registered = false
     private var closed = false
-    private val probe = Runnable { if (hasUsableLink()) finish(true) }
-    private val expiry = Runnable { finish(hasUsableLink()) }
+    private val selection = PhysicalLinkSelection<Network>()
+    val readyNetwork: Network? get() = selection.ready
+    private val dispatch = Runnable { if (!closed) onChanged(readyNetwork) }
+
     private val callback = object : ConnectivityManager.NetworkCallback() {
-        override fun onAvailable(network: Network) = probeSoon()
-        override fun onLost(network: Network) = probeSoon()
-        override fun onCapabilitiesChanged(network: Network, capabilities: NetworkCapabilities) = probeSoon()
-        override fun onLinkPropertiesChanged(network: Network, linkProperties: LinkProperties) = probeSoon()
+        override fun onAvailable(network: Network) {
+            if (selection.offer(network)) dispatchAfterSettling()
+        }
+
+        override fun onLinkPropertiesChanged(network: Network, linkProperties: LinkProperties) {
+            if (selection.addressChanged(network, linkProperties.hasUsableAddress())) dispatchAfterSettling()
+        }
+
+        override fun onLost(network: Network) {
+            if (selection.lost(network)) dispatchAfterSettling()
+        }
     }
 
     fun start() {
@@ -73,42 +108,24 @@ internal class PhysicalUnderlayWait(
             .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
             .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
             .build()
-        try {
-            manager.registerNetworkCallback(request, callback, handler)
-            registered = true
-        } catch (_: RuntimeException) {
-            finish(false)
-            return
-        }
-        handler.postDelayed(expiry, WAIT_MILLIS)
-        probeSoon()
+        manager.registerBestMatchingNetworkCallback(request, callback, handler)
+        registered = true
     }
 
-    private fun probeSoon() {
+    fun dispatchAfterSettling() {
         if (closed) return
-        // Check after Android publishes the new capabilities, address and default network together.
-        handler.removeCallbacks(probe)
-        handler.postDelayed(probe, SETTLE_MILLIS)
-    }
-
-    private fun hasUsableLink(): Boolean = manager.physicalUnderlays(excluded).isNotEmpty()
-
-    private fun finish(available: Boolean) {
-        if (closed) return
-        close()
-        complete(available)
+        handler.removeCallbacks(dispatch)
+        handler.postDelayed(dispatch, SETTLE_MILLIS)
     }
 
     override fun close() {
         if (closed) return
         closed = true
-        handler.removeCallbacks(probe)
-        handler.removeCallbacks(expiry)
+        handler.removeCallbacks(dispatch)
         if (registered) runCatching { manager.unregisterNetworkCallback(callback) }
     }
 
-    private companion object {
-        const val WAIT_MILLIS = 30_000L
+    companion object {
         const val SETTLE_MILLIS = 350L
     }
 }

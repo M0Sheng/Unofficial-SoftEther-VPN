@@ -9,12 +9,13 @@ internal object BackendModePolicy {
     const val RETIRED_ROOT_TAP = "ROOT_TAP"
 
     fun effective(stored: String?): String = when (stored) {
-        null, RETIRED_ROOT_TAP -> ROOT_NATIVE
+        null -> TUN
+        RETIRED_ROOT_TAP -> ROOT_NATIVE
         ROOT_NATIVE, TUN -> stored
         else -> throw IllegalArgumentException(appText(R.string.profile_runtime_backend_select))
     }
 
-    fun needsMigration(stored: String?): Boolean = stored == null || stored == RETIRED_ROOT_TAP
+    fun needsMigration(stored: String?): Boolean = stored == RETIRED_ROOT_TAP
 
     fun migrate(stored: String?, clearPending: () -> Boolean, persistNative: () -> Boolean): String {
         val mode = effective(stored)

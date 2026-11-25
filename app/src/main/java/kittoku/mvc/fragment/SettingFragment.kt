@@ -57,7 +57,7 @@ import javax.net.ssl.SSLContext
 internal class SettingFragment : PreferenceFragmentCompat() {
     private val profiles by lazy { ProfileStore(requireContext()) }
     private val appRouting by lazy { AppRoutingSettings(requireContext()) }
-    private val preferenceGuard by lazy { ProfilePreferenceGuard(this) }
+    private val preferenceGuard by lazy { ProfilePreferenceGuard(this, profiles) }
     private var renderedProfile: Pair<String?, String?>? = null
     private val profileRefresh = Runnable { refreshProfileScreen() }
     private val remoteManagement by lazy { NativeRemoteManagementSettings(requireContext()) }
@@ -212,7 +212,7 @@ internal class SettingFragment : PreferenceFragmentCompat() {
     }
 
     override fun onCreateAdapter(preferenceScreen: PreferenceScreen): RecyclerView.Adapter<*> {
-        val adapter = super.onCreateAdapter(preferenceScreen)
+        val adapter = preferenceGuard.unavailableSettingsAdapter(preferenceScreen) ?: super.onCreateAdapter(preferenceScreen)
         preferenceGuard.bindAfterAdapter(preferenceScreen)
         return adapter
     }

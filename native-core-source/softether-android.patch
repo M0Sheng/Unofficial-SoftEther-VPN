@@ -650,10 +650,23 @@ index c22a982..73492a3 100644
  	}
  
 diff --git a/src/Cedar/Connection.c b/src/Cedar/Connection.c
-index 6bbf651..153df38 100644
+index 6bbf651..9470583 100644
 --- a/src/Cedar/Connection.c
 +++ b/src/Cedar/Connection.c
-@@ -3495,6 +3495,9 @@ void CleanupConnection(CONNECTION *c)
+@@ -2061,6 +2061,12 @@ DISCONNECT_THIS_TCP:
+ 					{
+ 						// Remove the socket from socket list
+ 						Delete(tcp->TcpSockList, ts);
++#ifdef __ANDROID__
++						if (!s->ServerMode && ts->Sock->AndroidPeerClosed && LIST_NUM(tcp->TcpSockList) == 0)
++						{
++							c->AndroidServerClosed = true;
++						}
++#endif
+ 						// Release of TCPSOCK
+ 						FreeTcpSock(ts);
+ 						// Decrement
+@@ -3495,6 +3501,9 @@ void CleanupConnection(CONNECTION *c)
  	{
  		FreeX(c->ServerX);
  	}
@@ -664,7 +677,7 @@ index 6bbf651..153df38 100644
  	if (c->ClientX != NULL)
  	{
 diff --git a/src/Cedar/Connection.h b/src/Cedar/Connection.h
-index f1fde63..7bebdca 100644
+index f1fde63..4b28646 100644
 --- a/src/Cedar/Connection.h
 +++ b/src/Cedar/Connection.h
 @@ -110,6 +110,13 @@
@@ -681,7 +694,17 @@ index f1fde63..7bebdca 100644
  #define	UPDATE_LAST_COMM_TIME(v, n)		{if ((v) <= (n)) { v = (n); } }
  
  // KEEP CONNECT structure
-@@ -298,6 +305,11 @@ struct CONNECTION
+@@ -280,6 +287,9 @@ struct CONNECTION
+ 	char ServerStr[MAX_SERVER_STR_LEN + 1];	// Server string
+ 	char ClientStr[MAX_CLIENT_STR_LEN + 1];	// Client string
+ 	UINT Err;						// Error value
++#ifdef __ANDROID__
++	bool AndroidServerClosed;		// The server closed the last established transport.
++#endif
+ 	bool ClientConnectError_NoSavePassword;	// Don't save the password for the specified user name
+ 	QUEUE *ReceivedBlocks;			// Block queue that is received
+ 	QUEUE *SendBlocks;				// Block queue planned to be sent
+@@ -298,6 +308,11 @@ struct CONNECTION
  	X *ServerX;						// Server certificate
  	X *ClientX;						// Client certificate
  	char *CipherName;				// Encryption algorithm name
@@ -948,10 +971,36 @@ index fb6867c..d751d17 100644
  			}
  		}
 diff --git a/src/Cedar/Session.c b/src/Cedar/Session.c
-index a98b1f4..870d2d5 100644
+index a98b1f4..7da6c3f 100644
 --- a/src/Cedar/Session.c
 +++ b/src/Cedar/Session.c
-@@ -1135,6 +1135,15 @@ void SessionAdditionalConnect(SESSION *s)
+@@ -104,6 +104,10 @@
+ 
+ #include "CedarPch.h"
+ 
++#ifdef __ANDROID__
++static bool IsAndroidManagedManualRetry(SESSION *s);
++#endif
++
+ // Main routine of the session
+ void SessionMain(SESSION *s)
+ {
+@@ -352,6 +356,14 @@ void SessionMain(SESSION *s)
+ 		// Receive a block
+ 		ConnectionReceive(c, s->Cancel1, s->Cancel2);
+ 
++#ifdef __ANDROID__
++		if (!s->Halt && c->AndroidServerClosed && IsAndroidManagedManualRetry(s))
++		{
++			err = ERR_DISCONNECTED;
++			break;
++		}
++#endif
++
+ 		// Get the current time
+ 		now = Tick64();
+ 
+@@ -1135,6 +1147,15 @@ void SessionAdditionalConnect(SESSION *s)
  	ReleaseThread(t);
  }
  
@@ -967,7 +1016,7 @@ index a98b1f4..870d2d5 100644
  // Connect the client session to the server
  bool SessionConnect(SESSION *s)
  {
-@@ -1172,6 +1181,16 @@ bool SessionConnect(SESSION *s)
+@@ -1172,6 +1193,17 @@ bool SessionConnect(SESSION *s)
  	ret = ClientConnect(c);
  	s->Err = c->Err;
  
@@ -976,7 +1025,8 @@ index a98b1f4..870d2d5 100644
 +	if (IsAndroidManagedManualRetry(s) && !s->UserCanceled &&
 +		s->Err != ERR_NO_ERROR && s->Err != ERR_USER_CANCEL)
 +	{
-+		fprintf(stderr, "SoftEther managed_session_failed code=%u\n", s->Err);
++		fprintf(stderr, "SoftEther managed_session_failed code=%u%s\n", s->Err,
++			s->Err == ERR_DISCONNECTED && c->AndroidServerClosed ? " peer_closed=1" : "");
 +		fflush(stderr);
 +	}
 +#endif
@@ -984,7 +1034,7 @@ index a98b1f4..870d2d5 100644
  	s->CancelConnect = false;
  
  	if (s->Cedar->Client != NULL)
-@@ -1523,6 +1542,13 @@ void ClientThread(THREAD *t, void *param)
+@@ -1523,6 +1555,13 @@ void ClientThread(THREAD *t, void *param)
  			s->Err = ERR_USER_CANCEL;
  		}
  		Debug("Disconnected. Err = %u : %S\n", s->Err, _E(s->Err));
@@ -998,7 +1048,7 @@ index a98b1f4..870d2d5 100644
  
  		PrintSessionTotalDataSize(s);
  
-@@ -1535,6 +1561,13 @@ void ClientThread(THREAD *t, void *param)
+@@ -1535,6 +1574,13 @@ void ClientThread(THREAD *t, void *param)
  				GetUniErrorStr(s->Err), s->Err);
  		}
  
@@ -1314,7 +1364,7 @@ index 5d7a9a5..b2fa1b9 100644
  				return;
  			}
 diff --git a/src/Mayaqua/Network.c b/src/Mayaqua/Network.c
-index bc8d02b..6d57d6f 100644
+index bc8d02b..5e46fb4 100644
 --- a/src/Mayaqua/Network.c
 +++ b/src/Mayaqua/Network.c
 @@ -105,6 +105,9 @@
@@ -1355,7 +1405,97 @@ index bc8d02b..6d57d6f 100644
  	if (sock->ServerMode)
  	{
  
-@@ -15249,6 +15273,9 @@ SOCK *ListenEx62(UINT port, bool local_only, bool enable_ca)
+@@ -14368,6 +14392,24 @@ void SetNoNeedToRead(SOCK *sock)
+ 	sock->NoNeedToRead = true;
+ }
+ 
++#ifdef __ANDROID__
++static bool AndroidTlsPeerClosed(int ssl_error)
++{
++	if (ssl_error == SSL_ERROR_ZERO_RETURN)
++	{
++		return true;
++	}
++	if (ssl_error == SSL_ERROR_SSL)
++	{
++		unsigned long reason = ERR_peek_last_error();
++		// SoftEther servers can close TCP without sending a TLS close_notify.
++		return ERR_GET_LIB(reason) == ERR_LIB_SSL &&
++			ERR_GET_REASON(reason) == SSL_R_UNEXPECTED_EOF_WHILE_READING;
++	}
++	return false;
++}
++#endif
++
+ // TCP-SSL receive
+ UINT SecureRecv(SOCK *sock, void *data, UINT size)
+ {
+@@ -14396,6 +14438,9 @@ UINT SecureRecv(SOCK *sock, void *data, UINT size)
+ 				Debug("%s %u SecureRecv() Disconnect\n", __FILE__, __LINE__);
+ 				return 0;
+ 			}
++#ifdef __ANDROID__
++			ERR_clear_error();
++#endif
+ 			ret = SSL_peek(ssl, &c, sizeof(c));
+ 		}
+ 		Unlock(sock->ssl_lock);
+@@ -14416,6 +14461,14 @@ UINT SecureRecv(SOCK *sock, void *data, UINT size)
+ 		{
+ 			// An error has occurred
+ 			e = SSL_get_error(ssl, ret);
++#ifdef __ANDROID__
++			if (!sock->Disconnecting && AndroidTlsPeerClosed(e))
++			{
++				sock->AndroidPeerClosed = true;
++				Disconnect(sock);
++				return 0;
++			}
++#endif
+ 			if (e == SSL_ERROR_WANT_READ || e == SSL_ERROR_WANT_WRITE || e == SSL_ERROR_SSL)
+ 			{
+ 				if (e == SSL_ERROR_SSL
+@@ -14461,6 +14514,9 @@ UINT SecureRecv(SOCK *sock, void *data, UINT size)
+ 		ttparam = NewSocketTimeout(sock);
+ #endif // UNIX_SOLARIS
+ 
++#ifdef __ANDROID__
++		ERR_clear_error();
++#endif
+ 		ret = SSL_read(ssl, data, size);
+ 
+ 		// Stop the timeout thread
+@@ -14488,6 +14544,15 @@ UINT SecureRecv(SOCK *sock, void *data, UINT size)
+ 	}
+ 	Unlock(sock->ssl_lock);
+ 
++#ifdef __ANDROID__
++	if (ret <= 0 && !sock->Disconnecting && AndroidTlsPeerClosed(e))
++	{
++		sock->AndroidPeerClosed = true;
++		Disconnect(sock);
++		return 0;
++	}
++#endif
++
+ #ifdef	ENABLE_SSL_LOGGING
+ 	if (ret > 0)
+ 	{
+@@ -14720,6 +14785,13 @@ UINT Recv(SOCK *sock, void *data, UINT size, bool secure)
+ 
+ 	ret = recv(s, data, size, 0);
+ 
++#ifdef __ANDROID__
++	if (ret == 0 && !sock->Disconnecting)
++	{
++		sock->AndroidPeerClosed = true;
++	}
++#endif
++
+ // Stop the timeout thread
+ #ifdef UNIX_SOLARIS
+ 	FreeSocketTimeout(ttparam);
+@@ -15249,6 +15321,9 @@ SOCK *ListenEx62(UINT port, bool local_only, bool enable_ca)
  	{
  		return NULL;
  	}
@@ -1365,7 +1505,7 @@ index bc8d02b..6d57d6f 100644
  
  #ifdef	OS_UNIX
  	// It is necessary to set the IPv6 Only flag on a UNIX system
-@@ -15360,6 +15387,9 @@ SOCK *ListenEx2(UINT port, bool local_only, bool enable_ca)
+@@ -15360,6 +15435,9 @@ SOCK *ListenEx2(UINT port, bool local_only, bool enable_ca)
  	{
  		return NULL;
  	}
@@ -1375,6 +1515,20 @@ index bc8d02b..6d57d6f 100644
  
  	//SetSocketSendRecvBufferSize(s, SOCKET_BUFFER_SIZE);
  
+diff --git a/src/Mayaqua/Network.h b/src/Mayaqua/Network.h
+index 2cddd9e..49b36e0 100644
+--- a/src/Mayaqua/Network.h
++++ b/src/Mayaqua/Network.h
+@@ -291,6 +291,9 @@ struct SOCK
+ 	bool WriteBlocked;			// Previous write is blocked
+ 	bool NoNeedToRead;			// Is not required to read
+ 	bool Disconnecting;			// Disconnecting
++#ifdef __ANDROID__
++	bool AndroidPeerClosed;		// A peer close or TCP EOF was observed on receive.
++#endif
+ 	bool UdpBroadcast;			// UDP broadcast mode
+ 	void *Param;				// Any parameters
+ 	bool IPv6;					// IPv6
 diff --git a/src/Mayaqua/Unix.c b/src/Mayaqua/Unix.c
 index c988ea2..082a9d9 100644
 --- a/src/Mayaqua/Unix.c

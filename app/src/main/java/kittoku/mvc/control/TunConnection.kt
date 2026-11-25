@@ -34,6 +34,7 @@ internal class TunConnection(private val connection: ConnectionContext) {
     @Volatile private var routingSummary = emptyList<Int>()
 
     val interfaceName: String? get() = monitor?.interfaceName
+    val hasNetworkAddress: Boolean get() = !closing.get() && activeAddresses.isNotEmpty()
 
     private val transport = TunNativeSession(service, TunNativeSession.Config(
         serverHostname = connection.serverHostname,
@@ -48,10 +49,9 @@ internal class TunConnection(private val connection: ConnectionContext) {
         ipv6Enabled = connection.tunIpv6Forward,
         requestedMac = connection.tunMac,
         sessionId = sessionId,
-        excludedUnderlay = connection.excludedUnderlay,
+        underlyingNetwork = connection.underlyingNetwork,
     ), object : TunNativeSession.Callbacks {
         override fun onReady(network: Network, endpoint: FrameEndpoint, mac: ByteArray) {
-            connection.underlyingNetwork = network
             connection.scope.launch(connection.handler) {
                 if (!closing.get()) runTunnel(network, endpoint, mac)
             }

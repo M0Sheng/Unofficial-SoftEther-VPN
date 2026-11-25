@@ -27,9 +27,11 @@ internal class NetworkStatusMonitor(
     private val manager = connection.service.getSystemService(ConnectivityManager::class.java)
     private val transport = if (tap) NetworkCapabilities.TRANSPORT_ETHERNET else NetworkCapabilities.TRANSPORT_VPN
     private val closed = AtomicBoolean(false)
-    private val registration = ArrayList<ConnectivityManager.NetworkCallback>(2)
+    private val registration = ArrayList<ConnectivityManager.NetworkCallback>(3)
     private var lastMessage = ""
     @Volatile var interfaceName: String? = null
+        private set
+    @Volatile var hasUsableAddress = false
         private set
 
     private val interfaceCallback = object : ConnectivityManager.NetworkCallback() {
@@ -49,6 +51,10 @@ internal class NetworkStatusMonitor(
             }
         }
     }
+    private val appDefaultCallback = object : ConnectivityManager.NetworkCallback() {
+        override fun onAvailable(network: Network) = refreshAfterDefaultChange()
+        override fun onLost(network: Network) = refreshAfterDefaultChange()
+    }
 
     init {
         try {
@@ -61,12 +67,19 @@ internal class NetworkStatusMonitor(
                     .addCapability(NetworkCapabilities.NET_CAPABILITY_NOT_VPN).build()
                 manager.registerNetworkCallback(internet, underlayCallback)
                 registration.add(underlayCallback)
+                manager.registerDefaultNetworkCallback(appDefaultCallback)
+                registration.add(appDefaultCallback)
             }
             refresh()
         } catch (failure: RuntimeException) {
             close()
             throw failure
         }
+    }
+
+    private fun refreshAfterDefaultChange() {
+        // Read the app's default after ConnectivityManager has dispatched its event.
+        connection.service.mainExecutor.execute { refresh() }
     }
 
     @Suppress("DEPRECATION")
@@ -80,6 +93,7 @@ internal class NetworkStatusMonitor(
             describe(link.first, link.second)
         } else {
             interfaceName = null
+            hasUsableAddress = false
             if (tap) {
                 val status = connection.service.getString(R.string.vpn_virtual_adapter_waiting)
                 publish((listOf(status) + securityDetails()).joinToString("\n"))
@@ -91,13 +105,13 @@ internal class NetworkStatusMonitor(
         if (closed.get() || !owns(properties)) return
         interfaceName = properties.interfaceName
         val service = connection.service
-        val hasAddress = properties.linkAddresses.any {
+        hasUsableAddress = properties.linkAddresses.any {
             val ip = it.address
             !ip.isAnyLocalAddress && !ip.isLinkLocalAddress && !ip.isLoopbackAddress
         }
         val header = when {
             !tap -> R.string.status_connected
-            hasAddress -> R.string.vpn_virtual_adapter_connected
+            hasUsableAddress -> R.string.vpn_virtual_adapter_connected
             else -> R.string.vpn_virtual_adapter_waiting
         }
         val body = buildList {
@@ -109,6 +123,7 @@ internal class NetworkStatusMonitor(
                 add(service.getString(R.string.network_runtime_network_details_validation))
                 add(validation(service.getString(R.string.network_runtime_network_details_underlay), connection.underlyingNetwork))
                 add(validation(service.getString(R.string.network_runtime_network_details_virtual_adapter), network))
+                add(validation(service.getString(R.string.network_runtime_network_details_app_default), manager.activeNetwork))
             }
             add("")
             add(service.getString(R.string.network_runtime_network_details_ipv4))
@@ -170,6 +185,7 @@ internal class NetworkStatusMonitor(
             capabilities == null -> connection.service.getString(R.string.network_runtime_network_validation_unknown)
             capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED) -> connection.service.getString(R.string.network_runtime_network_validation_validated)
             capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_CAPTIVE_PORTAL) -> connection.service.getString(R.string.network_runtime_network_validation_sign_in)
+            !capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) -> connection.service.getString(R.string.network_runtime_network_validation_local)
             else -> connection.service.getString(R.string.network_runtime_network_validation_failed)
         }
         val device = network?.let(manager::getLinkProperties)?.interfaceName
@@ -188,6 +204,7 @@ internal class NetworkStatusMonitor(
         if (!closed.compareAndSet(false, true)) return
         registration.forEach { callback -> runCatching { manager.unregisterNetworkCallback(callback) } }
         interfaceName = null
+        hasUsableAddress = false
     }
 
     private companion object {

@@ -39,7 +39,7 @@ internal class TunNativeSession(context: Context, private val config: Config, pr
         val ipv6Enabled: Boolean,
         val requestedMac: ByteArray,
         val sessionId: String,
-        val excludedUnderlay: Network? = null,
+        val underlyingNetwork: Network,
     )
 
     /** Callbacks use the session worker. Start the lease and TUN workers separately from [onReady]. */
@@ -113,7 +113,7 @@ internal class TunNativeSession(context: Context, private val config: Config, pr
                 preflight = probe
             }
             val verified = probe.verify(config.serverHostname.removeSurrounding("[", "]"), config.serverPort,
-                config.certificateSha256, config.sslVersion, requestedCiphers, config.excludedUnderlay)
+                config.certificateSha256, config.sslVersion, requestedCiphers, config.underlyingNetwork)
             checkRunning()
 
             val port = ServerSocket(0, 1, LOOPBACK).use { it.localPort }

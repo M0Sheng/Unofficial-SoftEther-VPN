@@ -30,6 +30,7 @@ import kittoku.mvc.ui.configureRoutingToolbar
 class DestinationRoutingActivity : AppCompatActivity() {
     private lateinit var binding: ActivityDestinationRoutingBinding
     private val preferences by lazy { PreferenceManager.getDefaultSharedPreferences(this) }
+    private val profiles by lazy { ProfileStore(this) }
     private val main = Handler(Looper.getMainLooper())
     private var expectedBackend = ""
     private val isTap get() = expectedBackend == BackendModePolicy.ROOT_NATIVE
@@ -224,7 +225,7 @@ class DestinationRoutingActivity : AppCompatActivity() {
                 if (!identityMatches() || currentBackend() != expectedBackend) {
                     false
                 } else {
-                    TunDestinationSettings.saveForProfile(preferences,
+                    TunDestinationSettings.saveForProfile(profiles,
                         TunDestinationConfiguration(mode, includeDraft, excludeDraft), expectedProfileId, expectedActivation)
                 }
             }

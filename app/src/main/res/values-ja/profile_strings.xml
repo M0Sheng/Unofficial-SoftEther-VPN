@@ -36,4 +36,5 @@
     <string name="profile_read_failed">プロファイルを読み込めませんでした。この画面を開き直して再試行してください。</string>
     <string name="profile_operation_complete">プロファイルを更新しました。</string>
     <string name="profile_operation_failed">プロファイルを更新できませんでした。名前とストレージの空き容量を確認して再試行してください。</string>
+    <string name="settings_no_profile">プロファイルがありません。先にプロファイルを作成してください。</string>
 </resources>

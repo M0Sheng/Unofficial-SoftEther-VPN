@@ -5,7 +5,6 @@
     <string name="profile_auth_standard_password">标准密码验证</string>
     <string name="profile_auth_external_password">RADIUS 或 NT 域验证</string>
     <string name="profile_auth_client_certificate">客户端证书认证</string>
-    <string name="profile_auth_smartcard_unavailable">智能卡身份验证（Android 不可用）</string>
     <string name="profile_auth_anonymous_rejected">匿名身份验证失败。请检查用户名和服务器上的认证设置。</string>
     <string name="profile_auth_certificate_rejected">客户端证书认证失败。请检查用户名、证书和服务器设置。</string>
     <string name="profile_auth_certificate_hint">选择 X.509 客户端证书及配对的未加密 RSA 私钥。应用会加密保存私钥。</string>

@@ -25,15 +25,12 @@ class BackendModePolicyTest {
         })
     }
 
-    @Test fun absentModeBecomesNativeWithoutDroppingOtherSettingsOrRememberedTrust() {
+    @Test fun absentModeDefaultsToTunWithoutWritesOrApprovalChanges() {
         val store = Store(null)
-        val settings = store.settings.toMap()
-        assertEquals("ROOT_NATIVE", store.migrate())
-        assertEquals("ROOT_NATIVE", store.durable)
-        assertEquals(settings, store.settings)
-        assertEquals("fixture-pin", store.trust["trusted_endpoint"])
-        assertFalse(store.trust.containsKey("pending_certificate"))
-        assertEquals(listOf("clear-pending", "persist-backend"), store.calls)
+        assertEquals("TUN", store.migrate())
+        assertNull(store.durable)
+        assertTrue(store.calls.isEmpty())
+        assertEquals("fixture-request", store.trust["pending_certificate"])
     }
 
     @Test fun retiredModeInvalidatesPendingBeforePersistingNative() {

@@ -70,6 +70,7 @@
     <string name="error_unexpected">接続が中断されました。ネットワークを確認して、もう一度お試しください。</string>
     <string name="error_native_session_status">%2$s（エラーコード: %1$d）</string>
     <string name="error_session_disconnected">VPN セッションが終了しました。</string>
+    <string name="error_server_disconnected">サーバーによって接続が切断されました。</string>
     <string name="error_underlying_network_lost">VPN が使用していた Wi-Fi またはモバイルネットワークとの接続が切れました。</string>
     <string name="error_management_settings_changed">リモート管理の設定が変更されました。適用するには再接続してください。</string>
     <string name="error_preflight_tls">TLS 接続に失敗しました。サーバー証明書と TLS の設定を確認してください。</string>

@@ -14,6 +14,7 @@ import android.net.Network
 import android.net.VpnService
 import android.os.Handler
 import android.os.Looper
+import android.os.SystemClock
 import androidx.annotation.MainThread
 import androidx.preference.PreferenceManager
 import kittoku.mvc.BuildConfig
@@ -29,7 +30,8 @@ import kittoku.mvc.nativecore.NativeAuthMode
 import kittoku.mvc.nativecore.NativeSessionFailure
 import kittoku.mvc.nativecore.softEtherErrorMessage
 import kittoku.mvc.network.PhysicalUnderlayLostException
-import kittoku.mvc.network.PhysicalUnderlayWait
+import kittoku.mvc.network.PhysicalUnderlayMonitor
+import kittoku.mvc.network.physicalUnderlay
 import kittoku.mvc.routing.AppRoutingSettings
 import kittoku.mvc.routing.RoutingBypassSettings
 import kittoku.mvc.preference.MvcPreference
@@ -76,8 +78,15 @@ internal class SoftEtherVpnService : VpnService() {
     @Volatile private var currentBridge: ConnectionContext? = null
     private var desiredConnection = false
     private var currentRequestSequence = 0L
-    private var pendingUnderlayWait: PhysicalUnderlayWait? = null
+    private var underlayMonitor: PhysicalUnderlayMonitor? = null
+    private var waitingForUnderlay = false
+    private val underlayDeadline = Runnable {
+        if (waitingForUnderlay && desiredConnection) {
+            finishSession(IOException(getString(R.string.network_runtime_error_enable_underlay_network)))
+        }
+    }
     private var networkHandoverAttempts = 0
+    private var connectedSince = 0L
     private var latestStartId = 0
     private val runtimeOwner = Any()
     private var currentDiagnosticSessionId = ""
@@ -94,8 +103,7 @@ internal class SoftEtherVpnService : VpnService() {
         if (key == "SHOW_NOTIFICATION_TRAFFIC") mainHandler.post { refreshActiveNotification() }
         if (key == ProfileStore.ACTIVE_ID_KEY || key == ProfileStore.ACTIVATION_KEY ||
             key == ProfileConnectionRequest.SEQUENCE_KEY) mainHandler.post {
-            if (pendingUnderlayWait != null && !ConnectionRecovery.wanted(prefs, currentRequestSequence)) {
-                cancelUnderlayWait()
+            if (waitingForUnderlay && !ConnectionRecovery.wanted(prefs, currentRequestSequence)) {
                 finishSession(null)
             }
         }
@@ -134,7 +142,7 @@ internal class SoftEtherVpnService : VpnService() {
             }
             ConnectionPhase.MANAGEMENT -> updateStatus(getString(R.string.native_management_running))
             ConnectionPhase.CONNECTING -> updateStatus(getString(
-                if (pendingUnderlayWait != null) R.string.network_runtime_status_network_switch_waiting
+                if (waitingForUnderlay && networkHandoverAttempts != 0) R.string.network_runtime_status_network_switch_waiting
                 else R.string.status_connecting,
             ))
             else -> refreshActiveNotification()
@@ -210,17 +218,18 @@ internal class SoftEtherVpnService : VpnService() {
             updateStatus(getString(R.string.status_connecting), ConnectionPhase.CONNECTING)
             beForegrounded(getString(R.string.status_connecting))
             stopActiveSession()
-            startSession()
+            startUnderlayMonitor()
             return START_STICKY
         }
         disconnect()
         return START_NOT_STICKY
     }
 
-    private fun startSession(excludedUnderlay: Network? = null) {
+    private fun startSession(underlay: Network) {
         if (!desiredConnection) return
         if (!ConnectionRecovery.wanted(prefs, currentRequestSequence)) {
             desiredConnection = false
+            stopUnderlayMonitor()
             ConnectionRecovery.sessionEnded(prefs, runtimeOwner, currentRequestSequence)
             stopForeground(STOP_FOREGROUND_REMOVE)
             stopSelf(latestStartId)
@@ -228,6 +237,7 @@ internal class SoftEtherVpnService : VpnService() {
         }
         var owner: TunConnection? = null
         var nativeOwner: NativeSessionController? = null
+        connectedSince = 0L
         try {
             check(PrivacyDisclosure.pendingConnection(this, prefs) == null) { getString(R.string.privacy_connection_required) }
             val profiles = ProfileStore(this)
@@ -251,7 +261,7 @@ internal class SoftEtherVpnService : VpnService() {
                 nativeOwner?.kill(throwable) ?: owner?.kill(throwable)
             }
             val bridge = ConnectionContext(this, scope, handler, currentDiagnosticSessionId, prefs, backendMode, profileId,
-                profiles, excludedUnderlay)
+                profiles, underlay)
             DiagnosticLog.redactCredentials(bridge.clientUsername, bridge.clientPassword)
             currentBridge = bridge
             setBooleanPrefValue(true, MvcPreference.HOME_CONNECTOR, prefs)
@@ -269,6 +279,7 @@ internal class SoftEtherVpnService : VpnService() {
         } catch (error: Throwable) {
             DiagnosticLog.record("ERROR", "CONFIG", getString(R.string.network_runtime_log_connection_init_failed, error.stackTraceToString()), currentDiagnosticSessionId)
             desiredConnection = false
+            stopUnderlayMonitor()
             val ownsState = ConnectionRecovery.sessionEnded(prefs, runtimeOwner, currentRequestSequence)
             val message = error.message ?: getString(R.string.error_invalid_configuration)
             if (ownsState) {
@@ -300,7 +311,7 @@ internal class SoftEtherVpnService : VpnService() {
     internal fun onSessionConnected(owner: TunConnection, ipv4Only: Boolean) {
         mainHandler.post {
             if (client !== owner || !desiredConnection || !ConnectionRecovery.wanted(prefs, currentRequestSequence)) return@post
-            networkHandoverAttempts = 0
+            connectedSince = SystemClock.elapsedRealtime()
             DiagnosticLog.record("INFO", "SERVICE", getString(R.string.network_runtime_log_tun_interface_established), currentDiagnosticSessionId)
             prefs.edit().putString(ConnectionPhase.KEY, ConnectionPhase.CONNECTED.name).apply()
             beForegrounded(getString(if (ipv4Only) R.string.tun_ipv6_ipv4_only else R.string.status_connected))
@@ -308,18 +319,15 @@ internal class SoftEtherVpnService : VpnService() {
     }
 
     internal fun onSessionEnded(owner: TunConnection, error: Throwable?) {
-        mainHandler.post {
-            if (client !== owner) return@post
-            finishSession(error)
-        }
+        finishAfterNetworkCallbacks(error) { client === owner }
     }
 
     internal fun onNativeSessionConnected(owner: NativeSessionController) {
         mainHandler.post {
             if (nativeClient !== owner || !desiredConnection || !ConnectionRecovery.wanted(prefs, currentRequestSequence)) return@post
-            networkHandoverAttempts = 0
+            connectedSince = SystemClock.elapsedRealtime()
             prefs.edit().putString(ConnectionPhase.KEY, ConnectionPhase.CONNECTED.name).apply()
-            beForegrounded(getString(R.string.status_connected))
+            beForegrounded(getString(if (owner.hasNetworkAddress) R.string.status_connected else R.string.vpn_virtual_adapter_waiting))
         }
     }
 
@@ -341,11 +349,20 @@ internal class SoftEtherVpnService : VpnService() {
     }
 
     internal fun onNativeSessionEnded(owner: NativeSessionController, error: Throwable?) {
-        mainHandler.post {
-            if (nativeClient !== owner) return@post
-            finishSession(error)
-        }
+        finishAfterNetworkCallbacks(error) { nativeClient === owner }
     }
+
+    private fun finishAfterNetworkCallbacks(error: Throwable?, ownsSession: () -> Boolean) {
+        // A socket can fail before Android delivers the network change to the service.
+        val delay = if (error !is PhysicalUnderlayLostException && couldBeLinkFailure(error)) {
+            PhysicalUnderlayMonitor.SETTLE_MILLIS
+        } else 0L
+        mainHandler.postDelayed({ if (ownsSession()) finishSession(error) }, delay)
+    }
+
+    private fun couldBeLinkFailure(error: Throwable?): Boolean =
+        error is IOException ||
+            (error is NativeSessionFailure && !error.peerClosed && error.code in NETWORK_FAILURE_CODES)
 
     private fun finishSession(error: Throwable?) {
         val endedBridge = currentBridge
@@ -354,9 +371,10 @@ internal class SoftEtherVpnService : VpnService() {
         currentBridge = null
         val causes = generateSequence(error) { it.cause }.take(12).toList()
         val review = causes.filterIsInstance<CertificateReviewException>().firstOrNull()
-        val underlayLoss = causes.filterIsInstance<PhysicalUnderlayLostException>().firstOrNull()
-        if (review == null && underlayLoss != null && endedBridge?.nativeManagementOnly == false &&
-            beginUnderlayHandover(underlayLoss)) return
+        val underlayLost = causes.any { it is PhysicalUnderlayLostException }
+        if (review == null && endedBridge?.nativeManagementOnly == false &&
+            (underlayLost || (couldBeLinkFailure(error) && physicalLinkChanged(endedBridge.underlyingNetwork))) &&
+            beginUnderlayHandover()) return
         val pending = if (desiredConnection && ConnectionRecovery.wanted(prefs, currentRequestSequence) && endedBridge != null && review != null) {
             runCatching { CertificateTrustStore(this).beginReview(endedBridge.profileId, endedBridge.serverHostname,
                 endedBridge.serverPort, endedBridge.backendMode, review) }.getOrNull()
@@ -388,6 +406,7 @@ internal class SoftEtherVpnService : VpnService() {
             endedBridge?.sessionId ?: currentDiagnosticSessionId,
         )
         desiredConnection = false
+        stopUnderlayMonitor()
         mainHandler.removeCallbacks(trafficTicker)
         TrafficMeter.useSession("")
         if (ConnectionRecovery.sessionEnded(prefs, runtimeOwner, currentRequestSequence)) {
@@ -400,11 +419,15 @@ internal class SoftEtherVpnService : VpnService() {
     }
 
     private fun describeNativeFailure(error: NativeSessionFailure, mode: NativeAuthMode?): String {
-        val meaning = if (error.code == 9 && mode != null) getString(when (mode) {
-            NativeAuthMode.ANONYMOUS -> R.string.profile_auth_anonymous_rejected
-            NativeAuthMode.CLIENT_CERTIFICATE -> R.string.profile_auth_certificate_rejected
-            else -> R.string.error_authentication_failed
-        }) else softEtherErrorMessage(this, error.code)
+        val meaning = when {
+            error.peerClosed || error.code == 11 -> getString(R.string.error_server_disconnected)
+            error.code == 9 && mode != null -> getString(when (mode) {
+                NativeAuthMode.ANONYMOUS -> R.string.profile_auth_anonymous_rejected
+                NativeAuthMode.CLIENT_CERTIFICATE -> R.string.profile_auth_certificate_rejected
+                else -> R.string.error_authentication_failed
+            })
+            else -> softEtherErrorMessage(this, error.code)
+        }
         return getString(R.string.error_native_session_status, error.code, meaning.removeSuffix("。").removeSuffix("."))
     }
 
@@ -418,38 +441,70 @@ internal class SoftEtherVpnService : VpnService() {
         }
     }
 
-    private fun beginUnderlayHandover(error: PhysicalUnderlayLostException): Boolean {
-        val sequence = currentRequestSequence
-        if (!desiredConnection || !ConnectionRecovery.wanted(prefs, sequence) ||
-            networkHandoverAttempts >= MAX_HANDOVER_ATTEMPTS) return false
+    private fun startUnderlayMonitor() {
+        val monitor = PhysicalUnderlayMonitor(getSystemService(ConnectivityManager::class.java), mainHandler,
+            ::onPhysicalLinkChanged)
+        underlayMonitor = monitor
+        waitForPhysicalLink()
+        try {
+            monitor.start()
+        } catch (error: RuntimeException) {
+            finishSession(error)
+        }
+    }
+
+    private fun onPhysicalLinkChanged(network: Network?) {
+        if (!desiredConnection || !ConnectionRecovery.wanted(prefs, currentRequestSequence)) return
+        if (waitingForUnderlay) {
+            if (network == null || getSystemService(ConnectivityManager::class.java).physicalUnderlay(network) == null) return
+            waitingForUnderlay = false
+            mainHandler.removeCallbacks(underlayDeadline)
+            updateStatus(getString(R.string.status_connecting), ConnectionPhase.CONNECTING)
+            startSession(network)
+        } else {
+            val bridge = currentBridge ?: return
+            if (!bridge.nativeManagementOnly && bridge.underlyingNetwork != network) {
+                val error = PhysicalUnderlayLostException(bridge.underlyingNetwork)
+                client?.kill(error)
+                nativeClient?.kill(error)
+            }
+        }
+    }
+
+    private fun physicalLinkChanged(previous: Network): Boolean =
+        underlayMonitor?.let { it.readyNetwork != previous } == true ||
+            getSystemService(ConnectivityManager::class.java).physicalUnderlay(previous) == null
+
+    private fun waitForPhysicalLink() {
+        waitingForUnderlay = true
+        mainHandler.removeCallbacks(underlayDeadline)
+        mainHandler.postDelayed(underlayDeadline, UNDERLAY_WAIT_MILLIS)
+    }
+
+    private fun beginUnderlayHandover(): Boolean {
+        val monitor = underlayMonitor ?: return false
+        if (!desiredConnection || !ConnectionRecovery.wanted(prefs, currentRequestSequence)) return false
+        if (connectedSince != 0L && SystemClock.elapsedRealtime() - connectedSince >= UNDERLAY_STABLE_MILLIS) {
+            networkHandoverAttempts = 0
+        }
+        if (networkHandoverAttempts >= MAX_HANDOVER_ATTEMPTS) return false
         networkHandoverAttempts++
         TrafficMeter.useSession("")
         updateStatus(getString(R.string.network_runtime_status_network_switch_waiting), ConnectionPhase.CONNECTING)
-        val observer = PhysicalUnderlayWait(getSystemService(ConnectivityManager::class.java), mainHandler,
-            error.unavailableNetwork) { available ->
-            pendingUnderlayWait = null
-            if (!desiredConnection || currentRequestSequence != sequence ||
-                !ConnectionRecovery.wanted(prefs, sequence)) {
-                finishSession(null)
-            } else if (available) {
-                updateStatus(getString(R.string.status_connecting), ConnectionPhase.CONNECTING)
-                startSession(excludedUnderlay = error.unavailableNetwork)
-            } else {
-                finishSession(IOException(getString(R.string.network_runtime_error_enable_underlay_network)))
-            }
-        }
-        pendingUnderlayWait = observer
-        observer.start()
+        waitForPhysicalLink()
+        monitor.dispatchAfterSettling()
         return true
     }
 
-    private fun cancelUnderlayWait() {
-        pendingUnderlayWait?.close()
-        pendingUnderlayWait = null
+    private fun stopUnderlayMonitor() {
+        waitingForUnderlay = false
+        mainHandler.removeCallbacks(underlayDeadline)
+        underlayMonitor?.close()
+        underlayMonitor = null
     }
 
     private fun stopActiveSession() {
-        cancelUnderlayWait()
+        stopUnderlayMonitor()
         val previous = client
         val previousNative = nativeClient
         client = null
@@ -498,6 +553,7 @@ internal class SoftEtherVpnService : VpnService() {
     }
 
     private fun showsTraffic() = desiredConnection && ConnectionPhase.read(prefs) == ConnectionPhase.CONNECTED &&
+        (client?.hasNetworkAddress == true || nativeClient?.hasNetworkAddress == true) &&
         prefs.getBoolean("SHOW_NOTIFICATION_TRAFFIC", false)
 
     private fun scheduleTraffic() {
@@ -576,6 +632,9 @@ internal class SoftEtherVpnService : VpnService() {
 
     companion object {
         private const val MAX_HANDOVER_ATTEMPTS = 3
+        private const val UNDERLAY_WAIT_MILLIS = 30_000L
+        private const val UNDERLAY_STABLE_MILLIS = 10_000L
+        private val NETWORK_FAILURE_CODES = setOf(1, 3, 13) // Connect failed, disconnected, session timeout.
         private var runningService: SoftEtherVpnService? = null
 
         @MainThread

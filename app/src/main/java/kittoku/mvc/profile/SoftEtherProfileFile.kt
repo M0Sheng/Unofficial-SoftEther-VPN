@@ -96,7 +96,7 @@ internal object SoftEtherProfileFile {
         val endpoint = endpoint(option.string("Hostname") ?: invalid(), option.uint("Port", 5555)!!)
         val name = profileName(option.string("AccountName") ?: defaultProfileName)
         val values = linkedMapOf<String, Any>(
-            "BACKEND_MODE" to "ROOT_NATIVE",
+            "BACKEND_MODE" to BackendModePolicy.TUN,
             "HOME_HOSTNAME" to endpoint.host,
             "SSL_PORT" to endpoint.port.toString(),
             "HOME_HUB" to identifier(option.string("HubName").orEmpty(), 255, true),

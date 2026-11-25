@@ -8,7 +8,6 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
@@ -185,14 +184,10 @@ class ProfileEditActivity : AppCompatActivity() {
     private fun chooseAuthentication() {
         if (authDialog?.isShowing == true) return
         val modes = NativeAuthMode.entries
-        val choices = modes.map { getString(authenticationLabel(it)) } + getString(R.string.profile_auth_smartcard_unavailable)
-        val adapter = object : ArrayAdapter<String>(this, android.R.layout.select_dialog_singlechoice, choices) {
-            override fun areAllItemsEnabled() = false
-            override fun isEnabled(position: Int) = position < modes.size
-        }
+        val choices = modes.map { getString(authenticationLabel(it)) }.toTypedArray()
         authDialog = MaterialAlertDialogBuilder(this)
             .setTitle(R.string.profile_auth_type)
-            .setSingleChoiceItems(adapter, model.authMode.ordinal) { dialog, index ->
+            .setSingleChoiceItems(choices, model.authMode.ordinal) { dialog, index ->
                 dialog.dismiss()
                 model.authMode = modes[index]
                 renderAuthentication()

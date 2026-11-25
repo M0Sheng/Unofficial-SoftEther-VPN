@@ -23,7 +23,6 @@ class IPv6Preference(context: Context, attrs: AttributeSet?) : SwitchPreferenceC
 
     init {
         key = if (tunPreference) IPv6Policy.TUN_PREFERENCE_KEY else IPv6Policy.PREFERENCE_KEY
-        setDefaultValue(IPv6Policy.DEFAULT_FORWARDING)
         title = context.getString(R.string.ipv6_forward_title)
         isSingleLineTitle = false
         summaryProvider = Preference.SummaryProvider<Preference> { preference ->

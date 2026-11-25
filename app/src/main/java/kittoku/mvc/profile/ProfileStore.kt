@@ -57,11 +57,11 @@ internal class ProfileStore internal constructor(
                 }
                 val working = readWorking()
                 if (working.isEmpty()) {
-                    persist(emptyList(), null, emptyMap())
+                    persist(emptyList(), null, emptyMap(), markSettingsSaved = true)
                 } else {
                     val id = freshId(emptyList())
                     val first = StoredProfile(id, defaultProfileName(), working)
-                    persist(listOf(first), id, first.values, firstId = id)
+                    persist(listOf(first), id, first.values, firstId = id, markSettingsSaved = true)
                 }
                 migrateIpv6Default(null)
             } else {
@@ -72,6 +72,7 @@ internal class ProfileStore internal constructor(
                 check(valid) { appText(R.string.profile_runtime_active_record_invalid) }
                 migrateIpv6Default(profiles.singleOrNull { it.id == active })
                 if (active != null) preserveLegacyTunMac(profiles, active)
+                migrateSavedSettings(active)
             }
             // No old trust is removed until the first profile ID is durable.
             preferences.getString(FIRST_ID_KEY, null)?.let(trust::migrate)
@@ -96,6 +97,16 @@ internal class ProfileStore internal constructor(
         }
     }
 
+    private fun migrateSavedSettings(active: String?) {
+        if (preferences.getBoolean(SETTINGS_SAVED_KEY, false)) return
+        val working = if (active == null) emptyMap() else readWorking()
+        val changes = working.filterKeys { it in SETTINGS_KEYS }
+        val updated = readProfiles().map { profile ->
+            if (profile.id == active) profile.copy(values = profile.values + changes) else profile
+        }
+        persist(updated, active, working, markSettingsSaved = true)
+    }
+
     private fun requireActive(): String = checkNotNull(ensureInitialized()) {
         appText(R.string.profile_runtime_no_profile_selected)
     }
@@ -116,10 +127,28 @@ internal class ProfileStore internal constructor(
     }
 
     private fun withoutImplicitDefaults(values: Map<String, Any>): Map<String, Any> =
-        values.filterNot { (key, value) ->
-            value == IMPLICIT_SETTINGS_DEFAULTS[key] ||
-                key == "BACKEND_MODE" && value == BackendModePolicy.RETIRED_ROOT_TAP
+        values.filterNot { (key, value) -> value == IMPLICIT_SETTINGS_DEFAULTS[key] }
+            .mapValues { (key, value) ->
+                if (key == "BACKEND_MODE" && value == BackendModePolicy.RETIRED_ROOT_TAP) BackendModePolicy.ROOT_NATIVE
+                else value
+            }
+
+    /** Save only the setting being edited, leaving any profile-editor draft untouched. */
+    internal fun saveSettings(id: String, activation: String, changes: Map<String, Any>): Boolean = synchronized(LOCK) {
+        if (ensureInitialized() != id || preferences.getString(ACTIVATION_KEY, null) != activation) {
+            return@synchronized false
         }
+        require(changes.keys.all { it in SETTINGS_KEYS })
+        val updated = copyProfileValues(changes)
+        val profiles = readProfiles()
+        val saved = profiles.single { it.id == id }
+        persist(
+            profiles.map { if (it.id == id) saved.copy(values = saved.values + updated) else it },
+            id,
+            readWorking() + updated,
+        )
+        true
+    }
 
     internal fun saveCurrent() = synchronized(LOCK) {
         val id = requireActive()
@@ -369,18 +398,21 @@ internal class ProfileStore internal constructor(
     }
 
     private fun persist(profiles: List<StoredProfile>, active: String?, values: Map<String, Any>,
-                        firstId: String? = null, resetStatus: Boolean = false) {
+                        firstId: String? = null, resetStatus: Boolean = false, markSettingsSaved: Boolean = false) {
         val before = preferences.all.filterKeys { it in TRANSACTION_KEYS }
         val editor = preferences.edit()
         PROFILE_KEYS.forEach(editor::remove)
         values.forEach { (key, value) -> put(editor, key, value) }
         editor.putString(REGISTRY_KEY, ProfileCodec.encode(profiles))
         if (firstId != null) editor.putString(FIRST_ID_KEY, firstId)
+        if (markSettingsSaved) editor.putBoolean(SETTINGS_SAVED_KEY, true)
         if (active == null) {
             editor.remove(ACTIVE_ID_KEY).remove(ACTIVATION_KEY)
         } else {
             editor.putString(ACTIVE_ID_KEY, active)
-            if (firstId != null || resetStatus) editor.putString(ACTIVATION_KEY, UUID.randomUUID().toString())
+            if (firstId != null || resetStatus || preferences.getString(ACTIVATION_KEY, null).isNullOrBlank()) {
+                editor.putString(ACTIVATION_KEY, UUID.randomUUID().toString())
+            }
         }
         if (resetStatus) editor.remove("QUICK_CONNECT_REQUEST_ID").remove("VPN_PERMISSION_PROFILE_ID").remove("VPN_PERMISSION_REQUEST_ID")
             .remove(ProfileConnectionRequest.PROFILE_KEY).remove(ProfileConnectionRequest.NONCE_KEY)
@@ -411,6 +443,7 @@ internal class ProfileStore internal constructor(
         internal val LOCK = Any()
         private const val TUN_MAC_KEY = "ETHERNET_MAC_ADDRESS"
         private const val IPV6_DEFAULT_OFF_KEY = "CONNECTION_IPV6_DEFAULT_OFF"
+        private const val SETTINGS_SAVED_KEY = "CONNECTION_PROFILE_SETTINGS_SAVED"
         private val GENERATED_TUN_MAC = Regex("5E[0-9A-F]{10}")
         internal const val ACTIVE_ID_KEY = "CONNECTION_ACTIVE_PROFILE_ID"
         internal const val FIRST_ID_KEY = "CONNECTION_FIRST_PROFILE_ID"
@@ -424,10 +457,12 @@ internal class ProfileStore internal constructor(
         internal val BOOLEAN_KEYS = setOf("SSL_DO_SELECT_SUITES", "UDP_ENABLE_ACCELERATION", "VPN_FORWARD_IPV6", "TUN_FORWARD_IPV6", "NATIVE_MANAGEMENT_ONLY")
         internal val SET_KEYS = setOf("SSL_SUITES")
         internal val PROFILE_KEYS = STRING_KEYS + BOOLEAN_KEYS + SET_KEYS
+        internal val SETTINGS_KEYS = PROFILE_KEYS - setOf("HOME_HOSTNAME", "SSL_PORT", "HOME_HUB", "HOME_USERNAME",
+            "HOME_PASSWORD", "HOME_AUTH_TYPE", "HOME_CLIENT_CERT", "HOME_CLIENT_KEY")
         // Settings may materialize these defaults on first display. They already
         // apply to profiles where the keys are absent.
         private val IMPLICIT_SETTINGS_DEFAULTS = mapOf(
-            "BACKEND_MODE" to BackendModePolicy.ROOT_NATIVE,
+            "BACKEND_MODE" to BackendModePolicy.TUN,
             "AUTH_PASSWORD_ENCODING" to "UTF-8",
             IPv6Policy.PREFERENCE_KEY to IPv6Policy.DEFAULT_FORWARDING,
             IPv6Policy.TUN_PREFERENCE_KEY to IPv6Policy.DEFAULT_FORWARDING,
@@ -437,7 +472,7 @@ internal class ProfileStore internal constructor(
         private val NEW_PROFILE_VALUES = mapOf("SSL_PORT" to "443", "HOME_HUB" to "",
             TunDestinationSettings.MODE_KEY to TunDestinationMode.ALL.name,
             TunDestinationSettings.INCLUDE_KEY to "", TunDestinationSettings.EXCLUDE_KEY to "")
-        private val TRANSACTION_KEYS = PROFILE_KEYS + setOf(REGISTRY_KEY, ACTIVE_ID_KEY, FIRST_ID_KEY, ACTIVATION_KEY,
+        private val TRANSACTION_KEYS = PROFILE_KEYS + setOf(REGISTRY_KEY, ACTIVE_ID_KEY, FIRST_ID_KEY, ACTIVATION_KEY, SETTINGS_SAVED_KEY,
             "QUICK_CONNECT_REQUEST_ID", "VPN_PERMISSION_PROFILE_ID", "VPN_PERMISSION_REQUEST_ID", "HOME_STATUS", "HOME_SESSION_STARTED_AT", ConnectionPhase.KEY,
             ProfileConnectionRequest.PROFILE_KEY, ProfileConnectionRequest.NONCE_KEY)
 

@@ -5,7 +5,6 @@
     <string name="profile_auth_standard_password">Standard password</string>
     <string name="profile_auth_external_password">RADIUS or NT domain</string>
     <string name="profile_auth_client_certificate">Client certificate</string>
-    <string name="profile_auth_smartcard_unavailable">Smart card (unavailable on Android)</string>
     <string name="profile_auth_anonymous_rejected">Anonymous authentication failed. Check the username and the server’s authentication settings.</string>
     <string name="profile_auth_certificate_rejected">Client certificate authentication failed. Check the username, certificate, and server settings.</string>
     <string name="profile_auth_certificate_hint">Choose an X.509 client certificate and its unencrypted RSA private key. The app encrypts the key when saving it.</string>

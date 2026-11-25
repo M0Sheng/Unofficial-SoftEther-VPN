@@ -3,15 +3,17 @@ package kittoku.mvc.nativecore
 import kittoku.mvc.control.DiagnosticLog
 import java.util.concurrent.TimeUnit
 
-internal class NativeSessionFailure(val code: Int) : Exception("SoftEther session failed (error $code)")
+internal class NativeSessionFailure(val code: Int, val peerClosed: Boolean = false) :
+    Exception(if (peerClosed) "SoftEther peer closed the connection (error $code)" else "SoftEther session failed (error $code)")
 
 /** Read the app-managed account's terminal result independently of log collection. */
 internal fun nativeSessionFailure(line: String): NativeSessionFailure? {
     val prefix = "SoftEther managed_session_failed code="
     if (!line.startsWith(prefix)) return null
     val value = line.substring(prefix.length)
+    if (value == "3 peer_closed=1") return NativeSessionFailure(3, peerClosed = true)
     return value.toIntOrNull()?.takeIf { it > 0 && it != 6 && it.toString() == value }
-        ?.let(::NativeSessionFailure)
+        ?.let { NativeSessionFailure(it) }
 }
 
 internal fun nativeAccountPhase(status: String?): String = when (status) {

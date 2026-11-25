@@ -32,7 +32,7 @@ internal class ConnectionContext(
     val backendMode: String,
     val profileId: String,
     profiles: ProfileStore,
-    val excludedUnderlay: Network? = null,
+    val underlyingNetwork: Network,
 ) {
     private fun text(key: MvcPreference) = getStringPrefValue(key, prefs)
     private fun enabled(key: MvcPreference) = getBooleanPrefValue(key, prefs)
@@ -74,7 +74,6 @@ internal class ConnectionContext(
     } else 1500
     val tunMac: ByteArray
     val certificateSha256: String
-    @Volatile var underlyingNetwork: Network? = null
 
     init {
         if (tap) parseTapDestinationRules(requireNotNull(destinationConfiguration), forwardIpv6)

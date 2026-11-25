@@ -58,48 +58,20 @@ internal class TunDestinationSettings private constructor() {
                     prefs.getString(EXCLUDE_KEY, legacyExcludeRules).orEmpty())
             }
 
-        fun save(prefs: SharedPreferences, configuration: TunDestinationConfiguration): Boolean =
-            synchronized(ProfileStore.LOCK) { saveLocked(prefs, configuration) }
-
         /** UI commits must still belong to the profile and activation that opened the editor. */
-        fun saveForProfile(prefs: SharedPreferences, configuration: TunDestinationConfiguration,
-                           expectedProfileId: String, expectedActivation: String): Boolean =
-            synchronized(ProfileStore.LOCK) {
-                if (expectedProfileId.isBlank() || expectedActivation.isBlank() ||
-                    prefs.getString(ProfileStore.ACTIVE_ID_KEY, null) != expectedProfileId ||
-                    prefs.getString(ProfileStore.ACTIVATION_KEY, null) != expectedActivation) return@synchronized false
-                saveLocked(prefs, configuration)
-            }
-
-        private fun saveLocked(prefs: SharedPreferences, configuration: TunDestinationConfiguration): Boolean {
+        fun saveForProfile(store: ProfileStore, configuration: TunDestinationConfiguration,
+                           expectedProfileId: String, expectedActivation: String): Boolean {
             if (configuration.mode != TunDestinationMode.ALL) {
                 val rules = parseRootBypassRules(configuration.activeRules)
                 require(configuration.mode != TunDestinationMode.INCLUDE || rules.isNotEmpty()) {
                     appText(R.string.route_error_destination_allowlist_empty)
                 }
             }
-            val before = prefs.all.filterKeys { it in KEYS }
-            val editor = prefs.edit().putString(MODE_KEY, configuration.mode.name)
-                .putString(INCLUDE_KEY, configuration.includeRules.trim())
-                .putString(EXCLUDE_KEY, configuration.excludeRules.trim())
-            if (editor.commit()) return true
-
-            // commit(false) may already have replaced process-local memory. Restore only
-            // these three fields; unrelated settings and profile lifecycle remain untouched.
-            val rollback = prefs.edit()
-            KEYS.forEach(rollback::remove)
-            before.forEach { (key, value) ->
-                when (value) {
-                    is String -> rollback.putString(key, value)
-                    is Boolean -> rollback.putBoolean(key, value)
-                    is Int -> rollback.putInt(key, value)
-                    is Long -> rollback.putLong(key, value)
-                    is Float -> rollback.putFloat(key, value)
-                    is Set<*> -> rollback.putStringSet(key, value.filterIsInstance<String>().toSet())
-                }
-            }
-            rollback.commit()
-            return false
+            return store.saveSettings(expectedProfileId, expectedActivation, mapOf(
+                MODE_KEY to configuration.mode.name,
+                INCLUDE_KEY to configuration.includeRules.trim(),
+                EXCLUDE_KEY to configuration.excludeRules.trim(),
+            ))
         }
     }
 }

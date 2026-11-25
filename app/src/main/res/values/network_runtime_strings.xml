@@ -142,4 +142,6 @@
     <string name="network_runtime_status_verifying_server_certificate">Verifying the server certificate before sending login credentials…</string>
     <string name="network_runtime_tap_command_private_authentication">Configuring VPN credentials</string>
     <string name="network_runtime_vpn_tile_description">%1$s: %2$s</string>
+    <string name="network_runtime_network_details_app_default">Current network for this app</string>
+    <string name="network_runtime_network_validation_local">Local network only</string>
 </resources>

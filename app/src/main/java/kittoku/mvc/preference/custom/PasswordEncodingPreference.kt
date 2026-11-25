@@ -14,10 +14,10 @@ internal class PasswordEncodingPreference(context: Context, attrs: AttributeSet)
         if (changed == null || changed == MvcPreference.BACKEND_MODE.name) updateAvailability()
     }
 
-    override fun onAttached() {
-        super.onAttached()
+    init {
         title = context.getString(R.string.pref_password_encoding)
         dialogTitle = title
+        dialogLayoutResource = R.layout.dialog_preference_details
         dialogMessage = context.getString(R.string.pref_password_encoding_description)
         entries = arrayOf(context.getString(R.string.password_encoding_utf8), context.getString(R.string.password_encoding_gbk))
         entryValues = arrayOf("UTF-8", "GBK")
@@ -31,6 +31,11 @@ internal class PasswordEncodingPreference(context: Context, attrs: AttributeSet)
             }
         }
         negativeButtonText = context.getString(R.string.action_cancel)
+        value = "UTF-8"
+    }
+
+    override fun onAttached() {
+        super.onAttached()
         sharedPreferences?.registerOnSharedPreferenceChangeListener(backendListener)
         updateAvailability()
     }

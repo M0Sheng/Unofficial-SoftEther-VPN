@@ -142,4 +142,6 @@
     <string name="network_runtime_status_verifying_server_certificate">ログイン情報を送信する前にサーバー証明書を検証しています…</string>
     <string name="network_runtime_tap_command_private_authentication">VPN の認証情報を設定中</string>
     <string name="network_runtime_vpn_tile_description">%1$s：%2$s</string>
+    <string name="network_runtime_network_details_app_default">このアプリの現在のネットワーク</string>
+    <string name="network_runtime_network_validation_local">ローカルネットワークのみ</string>
 </resources>

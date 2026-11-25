@@ -13,7 +13,7 @@ private val textDefaults = mapOf(
     MvcPreference.HOME_PASSWORD to "",
     MvcPreference.AUTH_PASSWORD_ENCODING to "UTF-8",
     MvcPreference.HOME_STATUS to "",
-    MvcPreference.BACKEND_MODE to BackendModePolicy.ROOT_NATIVE,
+    MvcPreference.BACKEND_MODE to BackendModePolicy.TUN,
     MvcPreference.ROUTE_MODE to "FULL",
     MvcPreference.LAN_ROUTES to "",
     MvcPreference.SSL_VERSION to "DEFAULT",

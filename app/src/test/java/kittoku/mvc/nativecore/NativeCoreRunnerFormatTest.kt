@@ -16,6 +16,16 @@ class NativeCoreRunnerFormatTest {
         }
     }
 
+    @Test fun distinguishesServerClosureFromOtherDisconnectsAndTimeouts() {
+        val closed = requireNotNull(nativeSessionFailure("SoftEther managed_session_failed code=3 peer_closed=1"))
+        assertEquals(3, closed.code)
+        assertTrue(closed.peerClosed)
+        for (code in listOf(3, 13)) {
+            assertFalse(requireNotNull(nativeSessionFailure("SoftEther managed_session_failed code=$code")).peerClosed)
+        }
+        assertNull(nativeSessionFailure("SoftEther managed_session_failed code=13 peer_closed=1"))
+    }
+
     @Test fun ignoresSuccessCancellationAndUnrelatedOutput() {
         for (value in listOf("0", "6", "-9", "09", "+9", "9 ", "9 retry", "2147483648")) {
             assertNull(nativeSessionFailure("SoftEther managed_session_failed code=$value"))

@@ -57,6 +57,9 @@ class ProfileStoreTest {
         private var next = 0
         val store = ProfileStore(prefs, trust) { "profile-${++next}" }
         fun activeId() = requireNotNull(store.ensureInitialized())
+        fun activation() = requireNotNull(prefs.getString(ProfileStore.ACTIVATION_KEY, null))
+        fun saveDestination(config: TunDestinationConfiguration) =
+            TunDestinationSettings.saveForProfile(store, config, activeId(), activation())
     }
 
     @Test fun freshRegistryStaysEmptyUntilExplicitCreationAndReloadsAfterLastDelete() {
@@ -189,15 +192,13 @@ class ProfileStoreTest {
         val first = f.activeId()
         val include = "10.0.0.0/8\n2001:db8::/32\nexample.test"
         val exclude = "192.0.2.1"
-        assertTrue(TunDestinationSettings.save(f.prefs,
+        assertTrue(f.saveDestination(
             TunDestinationConfiguration(TunDestinationMode.INCLUDE, include, exclude)))
-        f.store.saveCurrent()
         val copied = f.store.copy(first, "Modern copy")
         assertEquals(include, f.store.readForEdit(copied).values[TunDestinationSettings.INCLUDE_KEY])
         f.store.select(copied, false)
-        assertTrue(TunDestinationSettings.save(f.prefs,
+        assertTrue(f.saveDestination(
             TunDestinationConfiguration(TunDestinationMode.EXCLUDE, include, exclude)))
-        f.store.saveCurrent()
         f.store.select(first, false)
         f.prefs.restore()
         val restarted = ProfileStore(f.prefs, f.trust)
@@ -217,12 +218,12 @@ class ProfileStoreTest {
         val durable = f.prefs.durable.toMap()
         val config = TunDestinationConfiguration(TunDestinationMode.EXCLUDE, "invalid dormant URL://", "192.0.2.1")
         f.prefs.failCommits = true // This fake still publishes the failed edit into memory.
-        assertFalse(TunDestinationSettings.save(f.prefs, config))
+        assertThrows(IllegalStateException::class.java) { f.saveDestination(config) }
         assertEquals(before, f.prefs.values)
         assertEquals(durable, f.prefs.durable)
         assertNull(TunDestinationSettings.read(f.prefs))
         f.prefs.failCommits = false
-        assertTrue(TunDestinationSettings.save(f.prefs, config))
+        assertTrue(f.saveDestination(config))
         assertEquals(config, TunDestinationSettings.read(f.prefs))
     }
 
@@ -232,15 +233,16 @@ class ProfileStoreTest {
         val activation = requireNotNull(f.prefs.getString(ProfileStore.ACTIVATION_KEY, null))
         val config = TunDestinationConfiguration(TunDestinationMode.ALL, "not a rule", "also invalid://")
         val before = f.prefs.values.toMap()
-        assertFalse(TunDestinationSettings.saveForProfile(f.prefs, config, "another-profile", activation))
-        assertFalse(TunDestinationSettings.saveForProfile(f.prefs, config, id, "old-activation"))
+        assertFalse(TunDestinationSettings.saveForProfile(f.store, config, "another-profile", activation))
+        assertFalse(TunDestinationSettings.saveForProfile(f.store, config, id, "old-activation"))
         assertEquals(before, f.prefs.values)
         f.prefs.seed("HOME_CONNECTOR", true)
-        assertTrue(TunDestinationSettings.saveForProfile(f.prefs, config, id, activation))
+        assertTrue(TunDestinationSettings.saveForProfile(f.store, config, id, activation))
         assertTrue(f.prefs.getBoolean("HOME_CONNECTOR", false))
         assertEquals(id, f.prefs.getString(ProfileStore.ACTIVE_ID_KEY, null))
         assertEquals(activation, f.prefs.getString(ProfileStore.ACTIVATION_KEY, null))
         assertEquals(config, TunDestinationSettings.read(f.prefs))
+        assertFalse(f.store.state().hasUnsavedChanges)
         assertEquals("", config.activeRules)
     }
 
@@ -249,13 +251,13 @@ class ProfileStoreTest {
         f.store.ensureInitialized()
         val before = f.prefs.values.toMap()
         assertThrows(IllegalArgumentException::class.java) {
-            TunDestinationSettings.save(f.prefs, TunDestinationConfiguration(TunDestinationMode.INCLUDE, " \n", ""))
+            f.saveDestination(TunDestinationConfiguration(TunDestinationMode.INCLUDE, " \n", ""))
         }
         assertThrows(IllegalArgumentException::class.java) {
-            TunDestinationSettings.save(f.prefs, TunDestinationConfiguration(TunDestinationMode.EXCLUDE, "", "https://example.test"))
+            f.saveDestination(TunDestinationConfiguration(TunDestinationMode.EXCLUDE, "", "https://example.test"))
         }
         assertEquals(before, f.prefs.values)
-        assertTrue(TunDestinationSettings.save(f.prefs, TunDestinationConfiguration(TunDestinationMode.EXCLUDE, "invalid://", "")))
+        assertTrue(f.saveDestination(TunDestinationConfiguration(TunDestinationMode.EXCLUDE, "invalid://", "")))
         f.prefs.seed(TunDestinationSettings.MODE_KEY, "UNKNOWN")
         assertThrows(IllegalArgumentException::class.java) { TunDestinationSettings.read(f.prefs) }
     }
@@ -265,7 +267,7 @@ class ProfileStoreTest {
         f.store.createSaved("New")
         assertFalse(f.store.state().hasUnsavedChanges)
 
-        f.prefs.edit().putString("BACKEND_MODE", "ROOT_NATIVE")
+        f.prefs.edit().putString("BACKEND_MODE", "TUN")
             .putString("AUTH_PASSWORD_ENCODING", "UTF-8")
             .putBoolean("VPN_FORWARD_IPV6", false)
             .putBoolean("TUN_FORWARD_IPV6", false)
@@ -277,7 +279,7 @@ class ProfileStoreTest {
         assertTrue(f.store.state().hasUnsavedChanges)
         f.prefs.edit().putBoolean("VPN_FORWARD_IPV6", false).commit()
         assertFalse(f.store.state().hasUnsavedChanges)
-        f.prefs.edit().putString("BACKEND_MODE", "TUN").commit()
+        f.prefs.edit().putString("BACKEND_MODE", "ROOT_NATIVE").commit()
         assertTrue(f.store.state().hasUnsavedChanges)
         f.store.saveCurrent()
         assertFalse(f.store.state().hasUnsavedChanges)
@@ -300,21 +302,50 @@ class ProfileStoreTest {
         assertTrue(f.prefs.getBoolean("VPN_FORWARD_IPV6", false))
     }
 
-    @Test fun upgradeKeepsSavedTapIpv6AndDraftsAgainstExplicitValues() {
+    @Test fun upgradeSavesPriorSettingsEditsWithoutSavingProfileEditorDrafts() {
         for (savedValue in listOf(false, true)) {
             val f = Fixture(legacy = false)
             val id = "old-profile"
-            val saved = mapOf("VPN_FORWARD_IPV6" to savedValue, "TUN_FORWARD_IPV6" to true)
+            val saved = mapOf("VPN_FORWARD_IPV6" to savedValue, "TUN_FORWARD_IPV6" to true,
+                "HOME_USERNAME" to "saved-user")
             f.prefs.seed(ProfileStore.REGISTRY_KEY, ProfileCodec.encode(listOf(StoredProfile(id, "Old", saved))))
             f.prefs.seed(ProfileStore.ACTIVE_ID_KEY, id)
             f.prefs.seed(ProfileStore.FIRST_ID_KEY, id)
             f.prefs.seed("VPN_FORWARD_IPV6", true)
             f.prefs.seed("TUN_FORWARD_IPV6", true)
+            f.prefs.seed("HOME_USERNAME", "legacy-draft-user")
 
-            assertEquals(!savedValue, f.store.state().hasUnsavedChanges)
+            assertTrue(f.store.state().hasUnsavedChanges)
+            assertEquals("legacy-draft-user", f.prefs.getString("HOME_USERNAME", null))
             assertTrue(f.prefs.getBoolean("VPN_FORWARD_IPV6", false))
             assertTrue(f.prefs.getBoolean("TUN_FORWARD_IPV6", false))
+            val registry = ProfileCodec.decode(requireNotNull(f.prefs.getString(ProfileStore.REGISTRY_KEY, null)))
+            assertEquals(true, registry.single().values["VPN_FORWARD_IPV6"])
+            assertEquals("saved-user", registry.single().values["HOME_USERNAME"])
+            assertFalse(f.activation().isBlank())
         }
+    }
+
+    @Test fun settingsChangesAreSavedToTheActiveProfileWithoutSavingAnExistingDraft() {
+        val f = Fixture()
+        val first = f.activeId()
+        val activation = f.activation()
+        val originalPassword = f.prefs.getString("HOME_PASSWORD", null)
+        f.prefs.edit().putString("HOME_PASSWORD", "legacy-draft").commit()
+        f.prefs.seed("HOME_CONNECTOR", true)
+        val settings = mapOf("BACKEND_MODE" to "TUN", "AUTH_PASSWORD_ENCODING" to "GBK", "TUN_FORWARD_IPV6" to true)
+        assertTrue(f.store.saveSettings(first, activation, settings))
+        assertTrue(f.store.state().hasUnsavedChanges)
+        assertEquals("legacy-draft", f.prefs.getString("HOME_PASSWORD", null))
+        f.prefs.seed("HOME_CONNECTOR", false)
+        f.store.create("Second", false)
+        assertFalse(f.store.saveSettings(first, activation, settings))
+        f.store.select(first, false)
+        assertFalse(f.store.state().hasUnsavedChanges)
+        assertEquals(originalPassword, f.prefs.getString("HOME_PASSWORD", null))
+        assertEquals("TUN", f.prefs.getString("BACKEND_MODE", null))
+        assertEquals("GBK", f.prefs.getString("AUTH_PASSWORD_ENCODING", null))
+        assertTrue(f.prefs.getBoolean("TUN_FORWARD_IPV6", false))
     }
 
     @Test fun automaticTapUpgradeDoesNotLeaveAnUnsavedChange() {

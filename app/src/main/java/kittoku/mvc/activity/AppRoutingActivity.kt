@@ -26,6 +26,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.ConcatAdapter
@@ -65,14 +66,16 @@ class AppRoutingActivity : AppCompatActivity() {
     private var entries: List<AppEntry> = emptyList()
     private var loading = false
     private var loadGeneration = 0
-    private var rootBackend = true
+    private var rootBackend = false
     private lateinit var adapter: AppAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         supportFragmentManager.setFragmentResultListener(PrivacyDisclosureDialog.RESULT, this) { _, result ->
             if (!result.getBoolean(PrivacyDisclosureDialog.ACCEPTED)) finish()
-            else if (lifecycle.currentState == Lifecycle.State.RESUMED) loadApplications()
+            else if (lifecycle.currentState == Lifecycle.State.RESUMED && configuration.mode != AppRoutingMode.ALL) {
+                loadApplications()
+            }
         }
         WindowCompat.setDecorFitsSystemWindows(window, false)
         binding = ActivityAppRoutingBinding.inflate(layoutInflater)
@@ -107,8 +110,10 @@ class AppRoutingActivity : AppCompatActivity() {
                 else -> return@addOnButtonCheckedListener
             }
             if (mode != configuration.mode) {
+                val wasAll = configuration.mode == AppRoutingMode.ALL
                 configuration = configuration.copy(mode = mode)
-                persistAndRender()
+                routing.save(configuration)
+                if (wasAll || mode == AppRoutingMode.ALL) refreshMode() else render()
             }
         }
         controls.appRoutingShowSystem.isChecked = routing.showSystemApps()
@@ -144,7 +149,19 @@ class AppRoutingActivity : AppCompatActivity() {
             AppRoutingConfiguration(AppRoutingMode.ALL, emptySet())
         }
         rootBackend = getStringPrefValue(MvcPreference.BACKEND_MODE, defaults) != "TUN"
-        loadApplications()
+        refreshMode()
+    }
+
+    private fun refreshMode() {
+        if (configuration.mode == AppRoutingMode.ALL) {
+            loadGeneration++
+            loading = false
+            entries = emptyList()
+            render()
+        } else {
+            render()
+            loadApplications()
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -208,6 +225,14 @@ class AppRoutingActivity : AppCompatActivity() {
 
     private fun render() {
         if (!::binding.isInitialized || !::adapter.isInitialized || isDestroyed) return
+        val showList = configuration.mode != AppRoutingMode.ALL
+        controls.appRoutingListControls.isVisible = showList
+        if (!showList) {
+            adapter.replaceRows(emptyList())
+            controls.appRoutingMode.check(R.id.appRoutingModeAll)
+            controls.appRoutingModeHint.setText(R.string.app_routing_all_hint)
+            return
+        }
         val installed = installedMap()
         val selected = selectedInstalled()
         val missing = configuration.packages - installed.keys - packageName
