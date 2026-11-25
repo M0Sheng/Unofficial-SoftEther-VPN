@@ -2,7 +2,7 @@
 
 An independent Android client by M0Sheng for connecting to a SoftEther VPN server you or your organization operate. Bring your own server address and account. [简体中文](README_zh.md)
 
-Prerelease **1.8.67** (247) requires **Android 16 or later**. Choose English, Simplified Chinese, or Japanese in **Settings → Appearance & shortcuts → App language**.
+The app requires **Android 16 or later**. Choose English, Simplified Chinese, or Japanese in **Settings → Appearance & shortcuts → App language**.
 
 The [v1.8.69 prerelease](https://github.com/M0Sheng/Unofficial-SoftEther-VPN/releases/tag/v1.8.69) includes five signed APKs and the SHA-256 checksums. Choose the APK for your device architecture (`armeabi-v7a`, `arm64-v8a`, `x86`, or `x86_64`), or use `-universal.apk` for all four. The app ID is `io.github.m0sheng.unofficialsoftethervpn`.
 
@@ -13,22 +13,24 @@ To move profiles from the earlier application ID, disconnect the old app and cho
 ## Connect
 
 1. Install the signed APK downloaded above.
-2. On **Home**, tap **Open profiles** to add a profile or import a supported profile in `.vpn` format. Enter the server address and port to look up available virtual Hubs. Choose a Hub or enter its name, then fill in the credentials. New profiles start with port `443`. The port menu also offers `8888`, `992`, `5555`, and custom entry.
-3. In **Settings → Access method**, select TUN on a device without root and accept Android’s VPN request. Select TAP for Layer 2 access on a compatible device and grant root to the app.
+2. On **Home**, tap **Open Profiles** to add a profile or import a supported profile in `.vpn` format. Enter the server address and port to look up available virtual Hubs. Choose a Hub or enter its name, then fill in the credentials. New profiles start with port `443`. The port menu also offers `8888`, `992`, `5555`, and custom entry.
+3. New profiles use **TUN** by default. Accept Android’s VPN request when prompted. For Layer 2 access, choose **TAP** in **Settings → Access method** on a compatible device and grant root to the app.
 4. Tap **Connect** on **Home**. Review the VPN data disclosure when prompted. If the app asks you to approve a server certificate, verify it with the server administrator. **Network details** shows the assigned addresses, routes, interface, and the live session’s TLS, data encryption, and server certificate information.
 
 | Access method | Requirements | Traffic |
 | --- | --- | --- |
-| TAP (default) | Root and compatible Android Ethernet integration | Layer 2. Carries Ethernet frames, including ARP, broadcast, and multicast. Android configures addresses and routes. |
-| TUN | Android `VpnService` consent | Layer 3. Carries IPv4 and optional IPv6. Needs an IPv4 DHCP lease from the VPN-side network. |
+| TUN (default for new profiles) | Android `VpnService` consent | Layer 3. Carries IPv4 and optional IPv6. Needs an IPv4 DHCP lease from the VPN-side network. |
+| TAP | Root and compatible Android Ethernet integration | Layer 2. Carries Ethernet frames, including ARP, broadcast, and multicast. Android configures addresses and routes. |
+
+On some systems, such as HyperOS, the Wi-Fi icon may show an exclamation mark when TAP becomes the system default network, even while traffic works. See **Home → Network details** for Android network validation.
 
 Both modes use the native SoftEther v4.44-9807-rtm core. The Rust TUN engine batches IP and Ethernet I/O and handles IPv4 DHCP/ARP and IPv6 SLAAC and neighbor discovery. Kotlin manages the Android VPN interface, routing preferences, and the app. App-managed connections default to TCP/TLS with UDP acceleration disabled. LAN access across subnets and access to the public internet depend on the VPN-side gateway, routes, and server configuration. The client adds no NAT.
 
-If an app-managed TAP or TUN connection loses its Wi-Fi or mobile network, it waits briefly for a usable network and reconnects automatically. Existing transfers may pause during the switch. If the connection still fails, **Home** shows the reason and the SoftEther error code when available. Tap **Reconnect** to try again.
+When Android switches between Wi-Fi and mobile data, app-managed TAP and TUN sessions reconnect automatically after the new network becomes usable. Existing transfers may pause while the session is rebuilt. If the connection fails, **Home** shows the reason and the SoftEther error code when available. Tap **Reconnect** to try again.
 
 ## Profiles and certificates
 
-Create, rename, copy, edit, and delete profiles from **Profiles**. Server, Hub, credentials, access method, IPv6 settings, and destination rules are saved per profile. The app list, theme, and notification settings are shared.
+Create, rename, copy, edit, and delete profiles from **Profiles**. Server, Hub, credentials, access method, IPv6 settings, and destination rules are saved per profile. Profile-specific options such as the access method are saved immediately when changed in **Settings** and take effect on the next connection. The app list, theme, and notification settings are shared.
 
 Certificate trust belongs to each profile and server endpoint. App-managed login checks the server certificate before sending VPN credentials. If a certificate needs approval, check its identity and fingerprint through a trusted channel. A replaced certificate needs fresh verification. Manage stored trust from **Profiles → Edit → Server certificate**.
 
@@ -49,7 +51,7 @@ IPv6 forwarding is off by default for TAP and TUN. Profiles with a saved IPv6 se
 ## Appearance, notifications, logs, and TAP management
 
 - Open the theme settings to choose a light, dark, or system theme and configure Material 3 dynamic colors or an accent color.
-- Add the VPN tile to Android Quick Settings to connect and disconnect. Enable **Notification traffic** to show upload and download rates once the VPN connects.
+- Add the VPN tile to Android Quick Settings to connect and disconnect. Long-press it to open the app. Enable **Show traffic in the notification** to show upload and download rates once the VPN connects.
 - In **Settings → Support & information → Logs**, turn on **Collect diagnostic logs** to investigate connection, TLS, address assignment, or routing failures. Captured events stay in memory while the app process runs, even after you stop collecting. Use **Export** to save a copy.
 - In TAP mode, **vpncmd** manages the standalone native client accounts. Remote management is off by default and requires a separate password. Use `vpncmd PHONE_IP /CLIENT` from a trusted LAN or encrypted connection to reach the management service on TCP `9930`. The management protocol itself is unencrypted.
 
